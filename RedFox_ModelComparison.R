@@ -9,6 +9,9 @@ library(reshape2)
 library(viridis)
 library(plyr)
 
+# NOTE: 
+# This has to be adjusted for every set of models you want to compare
+
 # Loading & reformatting posteriors #
 #-----------------------------------#
 
