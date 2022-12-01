@@ -521,7 +521,7 @@ nthin <- 4
 ## Test run
 RF.IPM.test <- nimbleMCMC(redfox.code, RF.constants, RF.data, initVals, monitors = IPM.params, niter = niter, nburnin = nburnin, nchains = nchains, thin = nthin, setSeed = mySeed, samplesAsCodaMCMC = TRUE)
 
-save(RF.IPM.test, file = '210503_RedFox_IPM_NSweden.RData')
+saveRDS(RF.IPM.test, file = '210503_RedFox_IPM_NSweden.rds')
 
 
 #*******************#
