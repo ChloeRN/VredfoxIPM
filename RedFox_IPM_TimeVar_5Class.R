@@ -4,13 +4,13 @@
 
 library(coda)
 library(nimble)
-nimbleOptions(disallow_multivariate_argument_expressions = FALSE)
 
 mySeed <- 0
 
 
 ## Load data
-load('210426_RedFoxData_IPM.RData')
+IPM.data <- readRDS("RedFoxData_IPM.rds")
+IPM.data <- IPM.data$total
 
 #*******************#
 # PRIOR INFORMATION #
@@ -37,7 +37,7 @@ Snat.sd <- c(0.02, 0.04, 0.05, 0.04, 0.04)
 # Annual natural survival - Literature meta-analysis (non/lightly hunted)
 #Snat.mean <- c(0.38, 0.53, 0.54, 0.46, 0.55)
 #Snat.sd <- c(0.09, 0.10, 0.18, 0.25, 0.25)
-
+# TODO: Check with Matt if we can re-do this meta-analysis properly
 
 #***************#
 # DATA OVERVIEW #
@@ -63,16 +63,6 @@ IPM.data$P2_age # Ages associated with elements of P2
 IPM.data$P2_year # Years associated with elements of P2
 IPM.data$X2 # Length of P2
 
-## Remove age = 1 (age class 0) entries from reproduction data
-IPM.data$P1 <- IPM.data$P1[which(IPM.data$P1_age > 1)]
-IPM.data$P1_year <- IPM.data$P1_year[which(IPM.data$P1_age > 1)]
-IPM.data$P1_age <- IPM.data$P1_age[which(IPM.data$P1_age > 1)]
-IPM.data$X1 <- length(IPM.data$P1)
-
-IPM.data$P2 <- IPM.data$P2[which(IPM.data$P2_age > 1)]
-IPM.data$P2_year <- IPM.data$P2_year[which(IPM.data$P2_age > 1)]
-IPM.data$P2_age <- IPM.data$P2_age[which(IPM.data$P2_age > 1)]
-IPM.data$X2 <- length(IPM.data$P2)
 
 ## Arranging into data and constants for NIMBLE
 RF.data <- list(C = IPM.data$C, P1 = IPM.data$P1, P2 = IPM.data$P2)
@@ -337,7 +327,7 @@ redfox.code <- nimbleCode({
   #Mu.mO[2:5] <- Mu.mO.ad
   #Mu.mO[1] <- Mu.mO.ad*JuvAdRatio_mO #* NOTE: Can be provided as constant or distribution
   
-  # JuvAdRatio <- exp(ratioJA.logmean)
+  # JuvAdRatio <- exp(JAratio.logmean)
   # JuvAdRatio ~ dlnorm(JAratio.logmean, logsd = JAratio.logsd)
   
   # Covariate effects
@@ -405,7 +395,7 @@ redfox.code <- nimbleCode({
   }
   
   mean.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)  
-   #---------------------------------------------------------------------------------------------
+  #---------------------------------------------------------------------------------------------
   
   
   ## Immigration
@@ -466,7 +456,7 @@ redfox.code <- nimbleCode({
 #****************#
 
 ## Source function for setting initial values
-source('210503_RedFox_InitalValuesSim.R')
+source("RedFox_InitalValuesSim.R")
 
 # Sampling initial values
 #initVals <- RF.IPM.inits(IPM.data = RF.data, IPM.constants = RF.constants, 
@@ -499,13 +489,13 @@ initVals <- list(
 
 ## Setting parameters to monitor
 IPM.params <- c(
-'Mu.mH', 'Mu.mO',
-'Mu.Psi', 'Mu.rho', 'mean.S0',
-'sigma.mH', 'sigma.Psi', 'sigma.rho',
-#'betaR.Psi', 'betaRI2.Psi', 'betaRI3.Psi',
-#'Mu.Imm', 'sigma.Imm', 
-'initN',
-'N.tot', 'B.tot', 'R.tot', 'N', 'B', 'L', 'Psi', 'rho', 'mH', 'Imm')
+"Mu.mH", "Mu.mO",
+"Mu.Psi", "Mu.rho", "mean.S0",
+"sigma.mH", "sigma.Psi", "sigma.rho",
+#"betaR.Psi", "betaRI2.Psi", "betaRI3.Psi",
+#"Mu.Imm", "sigma.Imm", 
+"initN",
+"N.tot", "B.tot", "R.tot", "N", "B", "L", "Psi", "rho", "mH", "Imm")
 
 ## MCMC settings
 #niter <- 10
@@ -519,9 +509,15 @@ nchains <- 4
 nthin <- 4
 
 ## Test run
-RF.IPM.test <- nimbleMCMC(redfox.code, RF.constants, RF.data, initVals, monitors = IPM.params, niter = niter, nburnin = nburnin, nchains = nchains, thin = nthin, setSeed = mySeed, samplesAsCodaMCMC = TRUE)
+t1 <- Sys.time()
+RF.IPM.test <- nimbleMCMC(redfox.code, RF.constants, RF.data, 
+                          initVals, monitors = IPM.params, 
+                          niter = niter, nburnin = nburnin, 
+                          nchains = nchains, thin = nthin, 
+                          setSeed = mySeed, samplesAsCodaMCMC = TRUE)
+Sys.time() - t1
 
-saveRDS(RF.IPM.test, file = '210503_RedFox_IPM_NSweden.rds')
+saveRDS(RF.IPM.test, file = "RedFox_IPM_NSweden.rds")
 
 
 #*******************#
@@ -533,43 +529,86 @@ library(gridExtra)
 library(plyr)
 library(reshape)
 
-out.mat <- as.matrix(test)
+out.mat <- as.matrix(RF.IPM.test)
 
 ## Age-specific breeding probability
-Psi.data <- data.frame(Estimate = c(out.mat[,'Mu.Psi[2]'], out.mat[,'Mu.Psi[3]']), AgeClass = rep(c('1', '2+'), each = nrow(out.mat)))
+Psi.data <- data.frame(Estimate = c(out.mat[, paste0("Mu.Psi[", 2:5, "]")]), 
+                       AgeClass = rep(c(1:3, "4+"), each = nrow(out.mat)))
 
-Psi.plot <- ggplot(Psi.data, aes(x = AgeClass, y = Estimate, group = AgeClass)) + geom_boxplot(aes(fill = AgeClass)) + ylab('Breeding probability') + theme_bw() + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+Psi.plot <- ggplot(Psi.data, aes(x = AgeClass, y = Estimate, group = AgeClass)) + 
+  geom_boxplot(aes(fill = AgeClass)) + 
+  ylab("Breeding probability") + 
+  scale_fill_viridis_d(option = "plasma", direction = -1) + 
+  theme_bw() + theme(axis.title.x = element_blank(), 
+                     axis.text.x = element_blank(), 
+                     axis.ticks.x = element_blank(), 
+                     panel.grid.major = element_blank(), 
+                     panel.grid.minor = element_blank())
 
 ## Age-specific fetus number
-rho.data <- data.frame(Estimate = c(out.mat[,'Mu.rho[2]'], out.mat[,'Mu.rho[3]']), AgeClass = rep(c('1', '2+'), each = nrow(out.mat)))
+rho.data <- data.frame(Estimate = c(out.mat[, paste0("Mu.rho[", 2:5, "]")]), 
+                       AgeClass = rep(c(1:3, "4+"), each = nrow(out.mat)))
 
-rho.plot <- ggplot(rho.data, aes(x = AgeClass, y = Estimate, group = AgeClass)) + geom_boxplot(aes(fill = AgeClass)) + ylab('Fetus number') + theme_bw() + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+rho.plot <- ggplot(rho.data, aes(x = AgeClass, y = Estimate, group = AgeClass)) + 
+  geom_boxplot(aes(fill = AgeClass)) + 
+  scale_fill_viridis_d(option = "plasma", direction = -1) + 
+  ylab("Fetus number") + 
+  theme_bw() + theme(axis.title.x = element_blank(), 
+                     axis.text.x = element_blank(),
+                     axis.ticks.x = element_blank(), 
+                     panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank())
 
-pdf("Psi&rho.pdf", width = 6.5, height = 3)
-grid.arrange(Psi.plot + theme(legend.position = 'none'), rho.plot, nrow = 1, widths = c(0.8, 1))
+pdf("Plots/Basic/Psi&rho.pdf", width = 12, height = 5)
+grid.arrange(Psi.plot + theme(legend.position = "none"), rho.plot, nrow = 1, widths = c(0.8, 1))
 dev.off()
 
-## Juvenile and adult harvest mortality
-mH.data <- data.frame(Estimate = c(out.mat[,'Mu.mH.j'], out.mat[,'Mu.mH.a']), AgeClass = rep(c('juvenile', 'adult'), each = nrow(out.mat)))
+## Age-specific harvest mortality
+mH.data <- data.frame(Estimate = c(out.mat[, paste0("Mu.mH[", 2:5, "]")]), 
+                       AgeClass = rep(c(1:3, "4+"), each = nrow(out.mat)))
 
-mH.plot <- ggplot(mH.data, aes(x = AgeClass, y = Estimate, group = AgeClass)) + geom_boxplot(aes(fill = AgeClass)) + ylab('Harvest mortality') + theme_bw() + theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+mH.plot <- ggplot(mH.data, aes(x = AgeClass, y = Estimate, group = AgeClass)) + 
+  geom_boxplot(aes(fill = AgeClass)) + 
+  ylab("Harvest mortality") + 
+  scale_fill_viridis_d(option = "plasma", direction = -1) + 
+  theme_bw() + theme(axis.title.x = element_blank(), 
+                     axis.text.x = element_blank(),
+                     axis.ticks.x = element_blank(), 
+                     panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank())
 
-pdf("mH.pdf", width = 4.5, height = 3)
-mH.plot
+## Age-specific natural mortality
+mO.data <- data.frame(Estimate = c(out.mat[, paste0("Mu.mO[", 2:5, "]")]), 
+                      AgeClass = rep(c(1:3, "4+"), each = nrow(out.mat)))
+
+mO.plot <- ggplot(mO.data, aes(x = AgeClass, y = Estimate, group = AgeClass)) + 
+  geom_boxplot(aes(fill = AgeClass)) + 
+  ylab("Natural mortality") + 
+  scale_fill_viridis_d(option = "plasma", direction = -1) + 
+  theme_bw() + theme(axis.title.x = element_blank(), 
+                     axis.text.x = element_blank(),
+                     axis.ticks.x = element_blank(), 
+                     panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank())
+
+
+pdf("Plots/Basic/mH&mO.pdf", width = 12, height = 5)
+grid.arrange(mH.plot + theme(legend.position = "none"), mO.plot, nrow = 1, widths = c(0.8, 1))
 dev.off()
+
 
 ## Total population size over time
 data <- melt(out.mat)
-colnames(data) <- c('index', 'parameter', 'value')
+colnames(data) <- c("index", "parameter", "value")
 data.sum <- ddply(data, .(parameter), summarise, median = median(value, na.rm = T), lCI_90 = quantile(value, probs = 0.05, na.rm = T), uCI_90 = quantile(value, probs = 0.95, na.rm = T), lCI_50 = quantile(value, probs = 0.25, na.rm = T), uCI_50 = quantile(value, probs = 0.75, na.rm = T))
 
-popN <- paste('N.tot[', c(1:15), ']', sep = '')
+popN <- paste("N.tot[", c(1:15), "]", sep = "")
 data.Ntot <- subset(data.sum, parameter%in%popN)
 
 data.Ntot$indexT <- c(10:15, 1:9)
 data.Ntot$Year <- data.Ntot$indexT+2003
 data.Ntot <- data.Ntot[order(data.Ntot$Year),]
 
-pdf("Ntot_time.pdf", width = 6.5, height = 4)
-ggplot(data.Ntot, aes(x = Year, y = median)) + geom_line(color = '#5C566B') + geom_ribbon(aes(ymin = lCI_90, ymax = uCI_90), alpha = 0.5, fill = '#5C566B') + ylab('Total population size') + scale_x_continuous(breaks = c(1997:2019)) + theme_bw() + theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
+pdf("Plots/Basic/Ntot_time.pdf", width = 6.5, height = 4)
+ggplot(data.Ntot, aes(x = Year, y = median)) + geom_line(color = "#5C566B") + geom_ribbon(aes(ymin = lCI_90, ymax = uCI_90), alpha = 0.5, fill = "#5C566B") + ylab("Total population size") + scale_x_continuous(breaks = c(1997:2019)) + theme_bw() + theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 dev.off()
