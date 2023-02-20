@@ -6,7 +6,13 @@
 .RData
 
 # RDS files
-.rds
+*.rds
+
+# txt files
+*.txt
+
+# pdf files
+*.pdf
 
 # User-specific files
 .Ruserdata
