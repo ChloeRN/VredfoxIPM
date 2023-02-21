@@ -13,6 +13,8 @@
 #' hunters per year.
 #' @param YearInfo a dataframe containing year indices as used in the model with 
 #' corresponding reproduction years and winter harvest seasons. 
+#' @param save logical. If TRUE, saves assembled data as an .rds file in the 
+#' working directory. Default = FALSE. 
 #'
 #' @return a list containing all data necessary for running the IPM. 
 #' @export
@@ -20,7 +22,8 @@
 #' @examples
 
 assemble_inputData <- function(Amax, Tmax, minYear,
-                               wAaH.data, rep.data, rodent.data, hunter.data, YearInfo){
+                               wAaH.data, rep.data, rodent.data, hunter.data, YearInfo,
+                               save = FALSE){
   
   ## Select relevant years
   
@@ -59,6 +62,11 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     YearInfo = YearInfo
   )
+  
+  ## Save (optional) and return data
+  if(save){
+    saveRDS("inputData_formatted.rds")
+  }
   
   return(inputData)
   
