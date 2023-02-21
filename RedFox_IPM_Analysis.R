@@ -9,7 +9,16 @@ Amax <- 5 # Number of age classes
 Tmax <- 15  # Number of years
 minYear <- 2004 # First year to consider
 
-## Load all relevant functions
+## Source all functions in "R" folder
+sourceDir <- function(path, trace = TRUE, ...) {
+  for (nm in list.files(path, pattern = "[.][RrSsQq]$")) {
+    if(trace) cat(nm,":")
+    source(file.path(path, nm), ...)
+    if(trace) cat("\n")
+  }
+}
+sourceDir('R')
+
 
 
 #*********************#
@@ -43,6 +52,15 @@ rep.data <- wrangleData_rep(datafiles = rep.datafiles,
 # 1c) Environmental data #
 #------------------------#
 
+## Set data paths/filenames
+rodent.datafile <- "Data/stor_intensiv_04_20-year-var.txt"
+
+## Prepare rodent abundance data
+rodent.data <- wrangleData_rodent(datafile = rodent.datafile,
+                                  minYear = minYear,
+                                  adjust = TRUE)
+
+## Prepare harvest effort data
 
 
 # 1d) Conceptual year information #
