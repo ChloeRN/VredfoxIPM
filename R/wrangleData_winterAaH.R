@@ -1,6 +1,6 @@
 #' Prepare winter Age-at-Harvest data
 #'
-#' @param datafile character string. Path/file name for raw data files.
+#' @param datafile character string. Path/file name for raw data file.
 #' @param Amax integer. Number of age classes to consider in analyses.
 #'
 #' @return a list containing an Age-at-Harvest matrix (winterC) and a vector of

@@ -6,7 +6,8 @@
 #' covariate in years 2018 and 2019 from 1 to 2 (in accordance with Dorothee's 
 #' suggestion). May become redundant once we update data. 
 #'
-#' @return
+#' @return a list containing rodent abundance data as a continuous variable (cont),
+#' and categorical variable with two (cat2) and three (cat3) levels.
 #' @export
 #'
 #' @examples

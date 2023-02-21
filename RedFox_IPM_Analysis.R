@@ -61,10 +61,31 @@ rodent.data <- wrangleData_rodent(datafile = rodent.datafile,
                                   adjust = TRUE)
 
 ## Prepare harvest effort data
+hunter.data <- makeData_hunters()
 
 
 # 1d) Conceptual year information #
 #---------------------------------#
 
+YearInfo <- collate_yearInfo(minYear = minYear,
+                             Tmax = Tmax)
 
 
+# 1e) Assemble IPM input data #
+#-----------------------------#
+
+input.data <- assemble_inputData(Amax = Amax, 
+                                 Tmax = Tmax, 
+                                 minYear = minYear,
+                                 wAaH.data = wAaH.data, 
+                                 rep.data = rep.data, 
+                                 rodent.data = rodent.data, 
+                                 hunter.data = hunter.data, 
+                                 YearInfo = YearInfo)
+  
+
+#**********************#
+# 2) PRIOR INFORMATION #
+#**********************#
+
+surv.priors <- collate_priorInfo
