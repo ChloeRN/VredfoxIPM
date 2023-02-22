@@ -9,7 +9,7 @@
 *.rds
 
 # txt files
-#*.txt
+*.txt
 
 # pdf files
 *.pdf
