@@ -4,11 +4,15 @@
 # 0) SETUP #
 #**********#
 
+library(ggplot2)
+
 ## Set general parameters
 Amax <- 5 # Number of age classes
 Tmax <- 15  # Number of years
 minYear <- 2004 # First year to consider
 
+maxAge_yrs <- 10 # Age of the oldest female recorded
+  
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
   for (nm in list.files(path, pattern = "[.][RrSsQq]$")) {
@@ -88,4 +92,21 @@ input.data <- assemble_inputData(Amax = Amax,
 # 2) PRIOR INFORMATION #
 #**********************#
 
-surv.priors <- collate_priorInfo
+## Make informative priors for natural mortality using Tom Porteus' Hoening model approach
+mu.t.max <- 22.61062
+hoening.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
+nsim <- 30
+
+
+## Collate all prior information
+surv.priors <- collate_priorInfo(datafile = hoening.datafile, 
+                                 nsim = nsim, 
+                                 mu.t.max = mu.t.max, 
+                                 maxAge = maxAge_yrs)
+
+
+#****************#
+# 3) MODEL SETUP #
+#****************#
+
+
