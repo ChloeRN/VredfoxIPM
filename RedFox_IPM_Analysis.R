@@ -1,10 +1,10 @@
+library(ggplot2)
+library(nimble)
 
 
 #**********#
 # 0) SETUP #
 #**********#
-
-library(ggplot2)
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -108,5 +108,10 @@ surv.priors <- collate_priorInfo(datafile = hoening.datafile,
 #****************#
 # 3) MODEL SETUP #
 #****************#
+
+# 3a) Write model code #
+#----------------------#
+
+redfox.code <- writeCode_redfoxIPM()
 
 
