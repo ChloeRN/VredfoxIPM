@@ -1,3 +1,23 @@
+#' Collate prior information for use in the model
+#'
+#' @param datafile character string. Path/file name for file containing posterior
+#' samples from Tom Porteus' run of the phylogenetic Hoening model. Used by the
+#' dependency function predict_mO_HoeningMod().
+#' @param mu.t.max  numeric. Offset parameter for maximum age in the Hoening 
+#' model (= 22.61062). Provided by Tom Porteus. 
+#' @param maxAge integer. Maximum recorded age of harvested foxes. 
+#' @param nsim integer. Number of simulation replicates for each posterior sample. 
+#' @param plot.mO logical. If TRUE, plots predicted prior distributions for natural
+#' mortality using the exact posterior samples for Hoening model parameters vs. 
+#' de novo simulation from extracted log-mean and log-sd. 
+#'
+#' @return a list of lists containing parameters to define informative priors
+#' for early survival, age-specific annual survival, and juvenile/adult natural
+#' mortality hazard rate.
+#' @export
+#'
+#' @examples
+
 collate_priorInfo <- function(datafile, mu.t.max, maxAge, nsim, plot.mO = FALSE){
   
   

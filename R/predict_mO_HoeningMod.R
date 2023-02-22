@@ -1,3 +1,33 @@
+#' Predict parameters for prior distribution of adult natural mortality using 
+#' the Hoening model
+#'
+#' Tom Porteus et al. developed an approach to generate informative priors for
+#' natural mortality based on maximum (observed) age. It involves a predictive
+#' model called the "Hoening model", the parameters of which were estimated for
+#' a range of families using a phylogenetic meta-analysis. 
+#' We received the posterior samples from Tom Porteus' published model run upon
+#' request.
+#' 
+#' Reference:
+#' Porteus, T. A., Reynolds, J. C., & McAllister, M. K. (2018). 
+#' Establishing Bayesian priors for natural mortality rate in carnivore populations. 
+#' The Journal of Wildlife Management, 82(8), 1645-1657.
+#' 
+#' @param datafile character string. Path/file name for file containing posterior
+#' samples from Tom Porteus' model run. 
+#' @param mu.t.max numeric. Offset parameter for maximum age (= 22.61062). 
+#' Provided by Tom Porteus. 
+#' @param maxAge integer. Maximum recorded age of harvested animals. 
+#' @param nsim integer. Number of simulation replicates for each posterior sample. 
+#' @param plot logical. If TRUE, plots predicted prior distributions for natural
+#' mortality using the exact posterior samples for Hoening model parameters vs. 
+#' de novo simulation from extracted log-mean and log-sd. 
+#'
+#' @return a list containing the log mean and log sd of a prior distribution
+#' for adult natural mortality (canid familiy).
+#' @export
+#'
+#' @examples
 
 predict_mO_HoeningMod <- function(datafile, mu.t.max, maxAge, nsim, plot){
   
