@@ -1,5 +1,7 @@
 # VredfoxIPM
 
+"try edit by stijn"
+
 Workflow for integrated population analysis (using nimble, https://github.com/nimble-dev/nimble) for hunted red foxes on the Varanger penninsula, Norway. 
 
 The workflow will be set up as a targets pipeline and contain the following steps: 
