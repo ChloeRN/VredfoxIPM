@@ -126,6 +126,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  maxPups = 14,
                                  uLim.N = 800,
                                  uLim.Imm = 800,
+                                 #nLevels.rCov = 2,
                                  wAaH.data = wAaH.data, 
                                  rep.data = rep.data, 
                                  rodent.data = rodent.data, 
@@ -133,3 +134,8 @@ input.data <- assemble_inputData(Amax = Amax,
                                  surv.priors = surv.priors,
                                  survPriorType = survPriorType,
                                  YearInfo = YearInfo)
+
+# 3c) Simulate initial values #
+#-----------------------------#
+
+

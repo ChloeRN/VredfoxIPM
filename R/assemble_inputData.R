@@ -5,6 +5,7 @@
 #' @param minYear integer. First year to consider in analyses.
 #' @param maxPups integer. Upper prior bound for average litter size.
 #' @param uLim.N integer. Upper prior bound for initial number of individuals per age class.
+#' @param nLevels.rCov integer. Number of levels of categorical rodent abundance to use.
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
 #' @param wAaH.data a list containing an Age-at-Harvest matrix (winterC) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
@@ -29,7 +30,7 @@
 #' @examples
 
 assemble_inputData <- function(Amax, Tmax, minYear,
-                               maxPups, uLim.N, uLim.Imm,
+                               maxPups, uLim.N, uLim.Imm, nLevels.rCov = NA,
                                wAaH.data, rep.data, rodent.data, hunter.data, 
                                surv.priors, survPriorType, YearInfo,
                                save = FALSE){
@@ -43,6 +44,14 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   # Reproduction data
   P1 <- subset(rep.data$P1, repryear %in% c(minYear + 0:Tmax))
   P2 <- subset(rep.data$P2, repryear %in% c(minYear + 0:Tmax))
+  
+  
+  ## Select relevant categorical rodent covariate
+  if(is.na(nLevels.rCov)){
+    RodentIndex <- NA
+  }else{
+    RodentIndex <- ifelse(nLevels.rCov == 2, rodent.data$cat2, rodent.data$cat3)
+  }
   
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
@@ -74,8 +83,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     X2 = nrow(P2$P2),
     
     RodentAbundance = rodent.data$cont,
-    RodentIndex2 = rodent.data$cat2,
-    RodentIndex3 = rodent.data$cat3,
+    RodentIndex = RodentIndex,
+    nLevels.rCov = nLevels.rCov,
     
     NHunters = hunter.data$NHunters_std,
     

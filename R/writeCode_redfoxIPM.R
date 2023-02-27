@@ -251,12 +251,12 @@ writeCode_redfoxIPM <- function(){
     #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE
     
     for(t in 1:Tmax){ 
-      S0[t] <- mean.S0
+      S0[t] <- Mu.S0
       #S0[t] <- exp(-m0[t])
-      #log(m0[t]) <- log(-log(mean.S0)) + epsilon.m0[t]
+      #log(m0[t]) <- log(-log(Mu.S0)) + epsilon.m0[t]
     }
     
-    mean.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)  
+    Mu.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)  
     #---------------------------------------------------------------------------------------------
     
     

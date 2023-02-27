@@ -16,7 +16,7 @@ collate_yearInfo <- function(minYear, Tmax){
   ## Set up dataframe with year index information
   YearInfo <- data.frame(
     index = 1:Tmax, # year index as used in model
-    ReproductionYear <- (1:Tmax) + minYear, # reproduction year
+    ReproductionYear = (1:Tmax) + minYear, # reproduction year
     WinterHarvestSeason = paste0("Oct ", (1:Tmax) + minYear - 1, " - May ", (1:Tmax) + minYear)) # winter harvest season
 
   return(YearInfo)
