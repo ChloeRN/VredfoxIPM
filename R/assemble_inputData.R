@@ -3,6 +3,9 @@
 #' @param Amax integer. Number of age classes to consider in analyses.
 #' @param Tmax integer. The number of years to consider in analyses.
 #' @param minYear integer. First year to consider in analyses.
+#' @param maxPups integer. Upper prior bound for average litter size.
+#' @param uLim.N integer. Upper prior bound for initial number of individuals per age class.
+#' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
 #' @param wAaH.data a list containing an Age-at-Harvest matrix (winterC) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @param rep.data a list containing formatted reproduction data in two data 
@@ -22,6 +25,7 @@
 #' @examples
 
 assemble_inputData <- function(Amax, Tmax, minYear,
+                               maxPups, uLim.N, uLim.Imm,
                                wAaH.data, rep.data, rodent.data, hunter.data, YearInfo,
                                save = FALSE){
   
@@ -35,24 +39,34 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   P1 <- subset(rep.data$P1, repryear %in% c(minYear + 0:Tmax))
   P2 <- subset(rep.data$P2, repryear %in% c(minYear + 0:Tmax))
   
-  ## List all relevant data
-  inputData <- list(
-    Amax = Amax,
-    Tmax = Tmax,
-    minYear = minYear,
-    
+  ## List all relevant data (split into data and constants as used by NIMBLE)
+  # Data
+  nim.data <- list(
     C = C,
     pData = pData,
     
     P1 = P1$P1,
+    
+    P2 = P2$P2
+  )
+  
+  # Constants
+  nim.constants <- list(
+    Amax = Amax,
+    Tmax = Tmax,
+    minYear = minYear,
+    
+    maxPups = maxPups,
+    uLim.N = uLim.N,
+    uLim.Imm = uLim.Imm,
+    
     P1_age = P1$age_adj,
     P1_year = P1$RepYearIndex,
-    X1 = nrow(P1),
+    X1 = nrow(P1$P1),
     
-    P2 = P2$P2,
     P2_age = P2$age_adj,
     P2_year = P2$RepYearIndex,
-    X2 = nrow(P2),
+    X2 = nrow(P2$P2),
     
     RodentAbundance = rodent.data$cont,
     RodentIndex2 = rodent.data$cat2,
@@ -62,6 +76,10 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     YearInfo = YearInfo
   )
+  
+  # Combined in a list
+  inputData <- list(nim.data = nim.data, 
+                    nim.constants = nim.constants)
   
   ## Save (optional) and return data
   if(save){
