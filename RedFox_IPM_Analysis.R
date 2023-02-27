@@ -30,6 +30,12 @@ fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
 fitCov.Psi <- FALSE # Fit covariates on Psi (rodent abundance)
 rCov.idx <- TRUE # Use discrete vs. continuous rodent covariate
 
+# Annual survival prior type toggles
+HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
+sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
+#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+#sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
+#sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 #*********************#
 # 1) DATA PREPARATION #
@@ -81,22 +87,6 @@ YearInfo <- collate_yearInfo(minYear = minYear,
                              Tmax = Tmax)
 
 
-# 1e) Assemble IPM input data #
-#-----------------------------#
-
-input.data <- assemble_inputData(Amax = Amax, 
-                                 Tmax = Tmax, 
-                                 minYear = minYear,
-                                 maxPups = 14,
-                                 uLim.N = 800,
-                                 uLim.Imm = 800,
-                                 wAaH.data = wAaH.data, 
-                                 rep.data = rep.data, 
-                                 rodent.data = rodent.data, 
-                                 hunter.data = hunter.data, 
-                                 YearInfo = YearInfo)
-  
-
 #**********************#
 # 2) PRIOR INFORMATION #
 #**********************#
@@ -113,6 +103,9 @@ surv.priors <- collate_priorInfo(datafile = hoening.datafile,
                                  mu.t.max = mu.t.max, 
                                  maxAge = maxAge_yrs)
 
+## Define type of prior to use for annual survival
+survPriorType <- definePriorType_AnnSurv(HoeningPrior = HoeningPrior, 
+                                         sPriorSource = sPriorSource)
 
 #****************#
 # 3) MODEL SETUP #
@@ -124,3 +117,19 @@ surv.priors <- collate_priorInfo(datafile = hoening.datafile,
 redfox.code <- writeCode_redfoxIPM()
 
 
+# 3b) Assemble IPM input data #
+#-----------------------------#
+
+input.data <- assemble_inputData(Amax = Amax, 
+                                 Tmax = Tmax, 
+                                 minYear = minYear,
+                                 maxPups = 14,
+                                 uLim.N = 800,
+                                 uLim.Imm = 800,
+                                 wAaH.data = wAaH.data, 
+                                 rep.data = rep.data, 
+                                 rodent.data = rodent.data, 
+                                 hunter.data = hunter.data, 
+                                 surv.priors = surv.priors,
+                                 survPriorType = survPriorType,
+                                 YearInfo = YearInfo)

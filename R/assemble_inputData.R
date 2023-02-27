@@ -14,6 +14,10 @@
 #' and categorical variable with two (cat2) and three (cat3) levels.
 #' @param hunter.data a dataframe containing original and scaled counts of successful 
 #' hunters per year.
+#' @param surv.priors a list of lists containing parameters to define informative priors
+#' for early survival, age-specific annual survival, and juvenile/adult natural
+#' mortality hazard rate.
+#' @param survPriorType a list containing information on prior for annual survival.
 #' @param YearInfo a dataframe containing year indices as used in the model with 
 #' corresponding reproduction years and winter harvest seasons. 
 #' @param save logical. If TRUE, saves assembled data as an .rds file in the 
@@ -26,10 +30,11 @@
 
 assemble_inputData <- function(Amax, Tmax, minYear,
                                maxPups, uLim.N, uLim.Imm,
-                               wAaH.data, rep.data, rodent.data, hunter.data, YearInfo,
+                               wAaH.data, rep.data, rodent.data, hunter.data, 
+                               surv.priors, survPriorType, YearInfo,
                                save = FALSE){
   
-  ## Select relevant years
+  ## Select relevant years from observational data
   
   # Winter Age-at-Harvest data
   C <- wAaH.data$winterC[,which(colnames(wAaH.data$winterC) == minYear) + 1:Tmax - 1]
@@ -77,7 +82,17 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     YearInfo = YearInfo
   )
   
-  # Combined in a list
+  ## Add relevant prior information
+  nim.constants <- c(nim.constants, surv.priors$earlySurv)
+  
+  if(SurvPriorType$Parameter == "natMort"){
+    nim.constants <- c(nim.constants, surv.priors$natMort)
+  }else{
+    sublistIdx <- which(names(surv.priors$annSurv) == SurvPriorType$Source)
+    nim.constants <- c(nim.constants, surv.priors$annSurv[sublistIdx][[1]])
+  }
+  
+  ## Combine data and constants in a list
   inputData <- list(nim.data = nim.data, 
                     nim.constants = nim.constants)
   
