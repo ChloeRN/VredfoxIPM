@@ -140,11 +140,14 @@ writeCode_redfoxIPM <- function(){
     for(t in 1:Tmax){ 
       
       # Harvest mortality hazard rate
-      log(mH[1:A, t]) <- log(Mu.mH[1:A]) + epsilon.mH[t]
-      #log(mH[1:A, t]) <- log(Mu.mH[a]) #+ betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
+      if(fitCov.mH){
+        log(mH[1:A, t]) <- log(Mu.mH[a]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
+      }else{
+        log(mH[1:A, t]) <- log(Mu.mH[1:A]) + epsilon.mH[t]
+      }
       
       # Other (natural) mortality hazard rate
-      log(mO[1:A, t]) <- log(Mu.mO[1:A]) #+ betaX.mO*CovariateX[t] #+ epsilon.mO[t]
+      log(mO[1:A, t]) <- log(Mu.mO[1:A])
       
       # Survival probability
       S[1:A, t] <- exp(-(mH[1:A, t] + mO[1:A,t]))
@@ -186,8 +189,9 @@ writeCode_redfoxIPM <- function(){
     # JuvAdRatio ~ dlnorm(JAratio.logmean, logsd = JAratio.logsd)
     
     # Covariate effects
-    #betaHE.mH ~ dunif(0, 5) # Effect of harvest effort on mH
-    #betaX.mO ~ dunif(-5, 5) # Effect of covariate X on mO (e.g. rodent/reindeer abundance)
+    if(fitCov.mH){
+      betaHE.mH ~ dunif(0, 5) # Effect of harvest effort on mH
+    }
     
     #---------------------------------------------------------------------------------------------
     
@@ -197,28 +201,31 @@ writeCode_redfoxIPM <- function(){
     for(t in 1:(Tmax+1)){
       Psi[1, t] <- 0
       
-      logit(Psi[2:A, t]) <- logit(Mu.Psi[2:A]) + epsilon.Psi[t]
-      
-      #logit(Psi[2:A,t]) <- logit(Mu.Psi[2:A]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
-      #logit(Psi[2:A,t]) <- logit(Mu.Psi[2:A]) + betaRI2.Psi*RodentIndex2[t] + epsilon.Psi[t]
-      #logit(Psi[2:A,t]) <- logit(Mu.Psi[2:A]) + betaRI3.Psi[RodentIndex[t]+1] + epsilon.Psi[t]
-      
+      if(fitCov.Psi){
+        if(rCov.idx){
+          logit(Psi[2:A,t]) <- logit(Mu.Psi[2:A]) + betaR.Psi[RodentIndex[t]+1] + epsilon.Psi[t]
+        }else{
+          logit(Psi[2:A,t]) <- logit(Mu.Psi[2:A]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
+        }
+      }else{
+        logit(Psi[2:A, t]) <- logit(Mu.Psi[2:A]) + epsilon.Psi[t]
+      }
     }
     
     for(a in 2:A){	
       Mu.Psi[a] ~ dunif(0, 1)
     }
     
-    
-    #betaR.Psi ~ dunif(-5, 5)
-    #betaRI2.Psi ~ dunif(-5, 5)
-    
-    #betaRI3.Psi[1] <- 0
-    
-    #for(r in 2:3){
-    #	betaRI3.Psi[r] ~ dunif(-5, 5)
-    #}
-    
+    if(fitCov.Psi){
+     if(rCov.idx){
+       betaR.Psi[1] <- 0 # --> Lowest level corresponds to intercept
+       for(x in 2:nLevels.rCov){
+         betaR.Psi[x] ~ dunif(-5, 5)
+       }
+     }else{
+       betaR.Psi ~ dunif(-5, 5)
+     }
+    }
     
     
     #---------------------------------------------------------------------------------------------
@@ -259,10 +266,12 @@ writeCode_redfoxIPM <- function(){
     #ImmT[1] <- 0 
     
     for(t in 2:Tmax){
-      Imm[t] ~ dcat(DU.prior[1:800]) 
+      Imm[t] ~ dcat(DU.prior.Imm[1:uLim.Imm]) 
       #Imm[t] ~ dpois(ImmT[t])
-      #ImmT[t] ~ T(dnorm(Mu.Imm, sd = sigma.Imm), 0, 700)
+      #ImmT[t] ~ T(dnorm(Mu.Imm, sd = sigma.Imm), 0, uLim.Imm)
     }
+    
+    DU.prior.Imm[1:uLim.Imm] <- 1/uLim.Imm
     
     #Mu.Imm ~ dunif(0, 400) #TODO: UPPER LIMIT NEEDS TO BE ADJUSTED
     #sigma.Imm ~ dunif(0, 500) #TODO: UPPER LIMIT NEEDS TO BE ADJUSTED
@@ -273,15 +282,14 @@ writeCode_redfoxIPM <- function(){
     
     
     ## Initial population size (discrete uniform prior) 
-    #TODO: UPPER LIMIT NEEDS TO BE ADJUSTED
-    
+
     N[1:A, 1] <- initN[1:A]
     
     for(a in 1:A){
-      initN[a] ~ dcat(DU.prior[1:800]) 
+      initN[a] ~ dcat(DU.prior.N[1:uLim.N]) 
     }
     
-    DU.prior[1:800] <- 1/800
+    DU.prior.N[1:uLim.N] <- 1/uLim.N
     
     #---------------------------------------------------------------------------------------------
     
@@ -290,14 +298,12 @@ writeCode_redfoxIPM <- function(){
     
     for(t in 1:Tmax){  
       epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
-      # epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
       epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
       epsilon.rho[t] ~ dnorm(0, sd = sigma.rho) 
       # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
     }
     
     sigma.mH ~ dunif(0, 5)
-    #sigma.mO ~ dunif(0, 5) 
     sigma.Psi ~ dunif(0, 5)
     sigma.rho ~ dunif(0, 5)
     #sigma.m0 ~ dunif(0, 5) 
