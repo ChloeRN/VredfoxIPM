@@ -132,10 +132,24 @@ input.data <- assemble_inputData(Amax = Amax,
                                  rodent.data = rodent.data, 
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,
-                                 survPriorType = survPriorType,
-                                 YearInfo = YearInfo)
+                                 survPriorType = survPriorType)
 
-# 3c) Simulate initial values #
-#-----------------------------#
+
+# 3c) Set up for model run (incl. simulating initial values) #
+#------------------------------------------------------------#
+
+model.setup <- setupModel(modelCode = redfox.code, 
+                          nim.data = input.data$nim.data, 
+                          nim.constants = input.data$nim.constants, 
+                          minN1 = c(600, 50, 50, 50, 50), 
+                          maxN1 = c(800, 400, 400, 400, 400), 
+                          minImm = 50, 
+                          maxImm = 600,
+                          fitCov.mH = fitCov.mH, 
+                          fitCov.Psi = fitCov.Psi, 
+                          rCov.idx = rCov.idx, 
+                          HoeningPrior = HoeningPrior,
+                          testRun = TRUE,
+                          initVals.seed = mySeed)
 
 
