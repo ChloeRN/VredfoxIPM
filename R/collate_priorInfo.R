@@ -64,8 +64,8 @@ collate_priorInfo <- function(datafile, mu.t.max, maxAge, nsim, plot.mO = FALSE)
       
       #*Literature meta-analysis (non/lightly hunted)
       metaSub = list(
-        Snat.mean <- c(0.38, 0.53, 0.54, 0.46, 0.55),
-        Snat.sd <- c(0.09, 0.10, 0.18, 0.25, 0.25)
+        Snat.mean = c(0.38, 0.53, 0.54, 0.46, 0.55),
+        Snat.sd = c(0.09, 0.10, 0.18, 0.25, 0.25)
       )
       # TODO: Check with Matt if we can re-do these meta-analyses properly
     ),

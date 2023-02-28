@@ -174,21 +174,25 @@ writeCode_redfoxIPM <- function(){
     # Median other (natural) cause mortality hazard rates
     #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE / HOENING MODEL CALCULATION
     
-    # Using literature values on age-specific survival
-    for(a in 1:Amax){
-      Mu.mO[a] <- -log(Mu.Snat[a])
-      Mu.Snat[a] ~ T(dnorm(Snat.mean[a], sd = Snat.sd[a]), 0, 1)   
+    if(HoeningPrior){
+      # Using prior distributions calculated with Hoening model
+      Mu.mO.ad ~ dlnorm(mnat.logmean, sdlog = mnat.logsd)
+      Mu.mO[2:5] <- Mu.mO.ad
+      Mu.mO[1] <- Mu.mO.ad*JuvAdRatio #* NOTE: Can be provided as constant or distribution
+      
+      #JuvAdRatio <- exp(JAratio.logmean)
+      JuvAdRatio ~ dlnorm(ratioJA.logmean, sdlog = ratioJA.logsd)
+      
+    }else{
+      # Using literature values on age-specific survival
+      for(a in 1:Amax){
+        Mu.mO[a] <- -log(Mu.Snat[a])
+        Mu.Snat[a] ~ T(dnorm(Snat.mean[a], sd = Snat.sd[a]), 0, 1)   
+      }
     }
     
-    # Using prior distributions calculated with Hoening model
-    #Mu.mO.ad ~ dlnorm(mnat.logmean, logsd = mnat.logsd)
-    #Mu.mO[2:5] <- Mu.mO.ad
-    #Mu.mO[1] <- Mu.mO.ad*JuvAdRatio #* NOTE: Can be provided as constant or distribution
-    
-    # JuvAdRatio <- exp(JAratio.logmean)
-    # JuvAdRatio ~ dlnorm(JAratio.logmean, logsd = JAratio.logsd)
-    
-    # Covariate effects
+   
+    ## Covariate effects
     if(fitCov.mH){
       betaHE.mH ~ dunif(0, 5) # Effect of harvest effort on mH
     }
