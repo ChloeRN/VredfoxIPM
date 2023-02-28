@@ -6,6 +6,9 @@ library(nimble)
 # 0) SETUP #
 #**********#
 
+## Set seed
+mySeed <- 0
+
 ## Set general parameters
 Amax <- 5 # Number of age classes
 Tmax <- 15  # Number of years
@@ -152,4 +155,19 @@ model.setup <- setupModel(modelCode = redfox.code,
                           testRun = TRUE,
                           initVals.seed = mySeed)
 
+####################
+# 4) MODEL FITTING #
+####################
+
+IPM.out <- nimbleMCMC(code = model.setup$modelCode,
+                      data = input.data$nim.data, 
+                      constants = input.data$nim.constants,
+                      inits = model.setup$initVals, 
+                      monitors = model.setup$modelParams,
+                      nchains = model.setup$mcmcParams$nchains, 
+                      niter = model.setup$mcmcParams$niter, 
+                      nburnin = model.setup$mcmcParams$nburn, 
+                      thin = model.setup$mcmcParams$nthin, 
+                      samplesAsCodaMCMC = TRUE, 
+                      setSeed = 0)
 
