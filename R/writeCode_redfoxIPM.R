@@ -21,15 +21,15 @@ writeCode_redfoxIPM <- function(){
     for(t in 1:(Tmax-1)){ 
       
       # Age class 0 (index = 1): sum of local reproduction & immigrants
-      N[1, t+1] <- sum(R[2:A, t+1]) + Imm[t+1]     
+      N[1, t+1] <- sum(R[2:Amax, t+1]) + Imm[t+1]     
       
       # Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
-      for(a in 1:(A-2)){
+      for(a in 1:(Amax-2)){
         N[a+1, t+1] ~ dbin(S[a, t], N[a, t])
       }			
       
-      # Age class 5+ (index = A = 5): age class 4 and 5+ survivors
-      N[A, t+1] ~ dbin(S[A, t], N[A-1, t] + N[A, t])
+      # Age class 5+ (index = Amax = 5): age class 4 and 5+ survivors
+      N[Amax, t+1] ~ dbin(S[Amax, t], N[Amax-1, t] + N[Amax, t])
     }
     
     ## Reproduction
@@ -41,7 +41,7 @@ writeCode_redfoxIPM <- function(){
     
     # Age classes 1 to 3+    	    
     for(t in 1:Tmax){        				
-      for(a in 2:A){
+      for(a in 2:Amax){
         
         # Breeding Population Size: Number of females that reproduce
         B[a, t] ~ dbin(Psi[a, t], N[a, t])
@@ -63,9 +63,9 @@ writeCode_redfoxIPM <- function(){
     ############################
     
     for(t in 1:Tmax){
-      N.tot[t] <- sum(N[1:A, t])
-      R.tot[t] <- sum(R[1:A, t])		
-      B.tot[t] <- sum(B[1:A, t])
+      N.tot[t] <- sum(N[1:Amax, t])
+      R.tot[t] <- sum(R[1:Amax, t])		
+      B.tot[t] <- sum(B[1:Amax, t])
     }
     
     #===============================================================================================
@@ -88,7 +88,7 @@ writeCode_redfoxIPM <- function(){
     
     for(t in 1:Tmax){
       
-      for(a in 1:A){
+      for(a in 1:Amax){
         C[a, t] ~ dbin(h[a, t]*pData[t], N[a, t])
       }
     }
@@ -141,41 +141,41 @@ writeCode_redfoxIPM <- function(){
       
       # Harvest mortality hazard rate
       if(fitCov.mH){
-        log(mH[1:A, t]) <- log(Mu.mH[a]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
+        log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
       }else{
-        log(mH[1:A, t]) <- log(Mu.mH[1:A]) + epsilon.mH[t]
+        log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + epsilon.mH[t]
       }
       
       # Other (natural) mortality hazard rate
-      log(mO[1:A, t]) <- log(Mu.mO[1:A])
+      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax])
       
       # Survival probability
-      S[1:A, t] <- exp(-(mH[1:A, t] + mO[1:A,t]))
+      S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
       
       # Proportion harvest mortality
-      alpha[1:A, t] <- mH[1:A, t]/(mH[1:A, t] + mO[1:A, t])
+      alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
       
       # Harvest rate
-      h[1:A, t] <- (1-S[1:A, t])*alpha[1:A, t]
+      h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
       
     }
     
     # Median harvest mortality hazard rates
     
     # Age-dependent
-    for(a in 1:A){
+    for(a in 1:Amax){
       Mu.mH[a] ~ dunif(0, 5) 
     }
     
     # Age-independent   
     #Mu.mH.all ~ dunif(0, 5) 
-    #Mu.mH[1:A] <- Mu.mH.all
+    #Mu.mH[1:Amax] <- Mu.mH.all
     
     # Median other (natural) cause mortality hazard rates
     #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE / HOENING MODEL CALCULATION
     
     # Using literature values on age-specific survival
-    for(a in 1:A){
+    for(a in 1:Amax){
       Mu.mO[a] <- -log(Mu.Snat[a])
       Mu.Snat[a] ~ T(dnorm(Snat.mean[a], sd = Snat.sd[a]), 0, 1)   
     }
@@ -183,7 +183,7 @@ writeCode_redfoxIPM <- function(){
     # Using prior distributions calculated with Hoening model
     #Mu.mO.ad ~ dlnorm(mnat.logmean, logsd = mnat.logsd)
     #Mu.mO[2:5] <- Mu.mO.ad
-    #Mu.mO[1] <- Mu.mO.ad*JuvAdRatio_mO #* NOTE: Can be provided as constant or distribution
+    #Mu.mO[1] <- Mu.mO.ad*JuvAdRatio #* NOTE: Can be provided as constant or distribution
     
     # JuvAdRatio <- exp(JAratio.logmean)
     # JuvAdRatio ~ dlnorm(JAratio.logmean, logsd = JAratio.logsd)
@@ -203,16 +203,16 @@ writeCode_redfoxIPM <- function(){
       
       if(fitCov.Psi){
         if(rCov.idx){
-          logit(Psi[2:A,t]) <- logit(Mu.Psi[2:A]) + betaR.Psi[RodentIndex[t]+1] + epsilon.Psi[t]
+          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]+1] + epsilon.Psi[t]
         }else{
-          logit(Psi[2:A,t]) <- logit(Mu.Psi[2:A]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
+          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
         }
       }else{
-        logit(Psi[2:A, t]) <- logit(Mu.Psi[2:A]) + epsilon.Psi[t]
+        logit(Psi[2:Amax, t]) <- logit(Mu.Psi[2:Amax]) + epsilon.Psi[t]
       }
     }
     
-    for(a in 2:A){	
+    for(a in 2:Amax){	
       Mu.Psi[a] ~ dunif(0, 1)
     }
     
@@ -235,12 +235,11 @@ writeCode_redfoxIPM <- function(){
     
     for(t in 1:(Tmax+1)){
       rho[1,t] <- 0
-      log(rho[2:A, t]) <- log(Mu.rho[2:A]) + epsilon.rho[t]	
+      log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]	
     }
     
-    for(a in 2:A){
+    for(a in 2:Amax){
       Mu.rho[a] ~ dunif(0, maxPups) # Baseline number of pups 
-      #TODO:  ADJUST UPPER LIMIT 
     }
     
     
@@ -265,7 +264,7 @@ writeCode_redfoxIPM <- function(){
     Imm[1] <- 0 # (Immigration in the first year cannot be disentangled from reproduction)
     #ImmT[1] <- 0 
     
-    for(t in 2:Tmax){
+    for(t in 2:(Tmax+1)){
       Imm[t] ~ dcat(DU.prior.Imm[1:uLim.Imm]) 
       #Imm[t] ~ dpois(ImmT[t])
       #ImmT[t] ~ T(dnorm(Mu.Imm, sd = sigma.Imm), 0, uLim.Imm)
@@ -283,9 +282,9 @@ writeCode_redfoxIPM <- function(){
     
     ## Initial population size (discrete uniform prior) 
 
-    N[1:A, 1] <- initN[1:A]
+    N[1:Amax, 1] <- initN[1:Amax]
     
-    for(a in 1:A){
+    for(a in 1:Amax){
       initN[a] ~ dcat(DU.prior.N[1:uLim.N]) 
     }
     

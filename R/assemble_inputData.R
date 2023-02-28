@@ -19,8 +19,6 @@
 #' for early survival, age-specific annual survival, and juvenile/adult natural
 #' mortality hazard rate.
 #' @param survPriorType a list containing information on prior for annual survival.
-#' @param YearInfo a dataframe containing year indices as used in the model with 
-#' corresponding reproduction years and winter harvest seasons. 
 #' @param save logical. If TRUE, saves assembled data as an .rds file in the 
 #' working directory. Default = FALSE. 
 #'
@@ -32,7 +30,7 @@
 assemble_inputData <- function(Amax, Tmax, minYear,
                                maxPups, uLim.N, uLim.Imm, nLevels.rCov = NA,
                                wAaH.data, rep.data, rodent.data, hunter.data, 
-                               surv.priors, survPriorType, YearInfo,
+                               surv.priors, survPriorType, 
                                save = FALSE){
   
   ## Select relevant years from observational data
@@ -76,28 +74,26 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     P1_age = P1$age_adj,
     P1_year = P1$RepYearIndex,
-    X1 = nrow(P1$P1),
+    X1 = length(P1$P1),
     
     P2_age = P2$age_adj,
     P2_year = P2$RepYearIndex,
-    X2 = nrow(P2$P2),
+    X2 = length(P2$P2),
     
     RodentAbundance = rodent.data$cont,
     RodentIndex = RodentIndex,
     nLevels.rCov = nLevels.rCov,
     
-    NHunters = hunter.data$NHunters_std,
-    
-    YearInfo = YearInfo
+    NHunters = hunter.data$NHunters_std
   )
   
   ## Add relevant prior information
   nim.constants <- c(nim.constants, surv.priors$earlySurv)
   
-  if(SurvPriorType$Parameter == "natMort"){
+  if(survPriorType$Parameter == "natMort"){
     nim.constants <- c(nim.constants, surv.priors$natMort)
   }else{
-    sublistIdx <- which(names(surv.priors$annSurv) == SurvPriorType$Source)
+    sublistIdx <- which(names(surv.priors$annSurv) == survPriorType$Source)
     nim.constants <- c(nim.constants, surv.priors$annSurv[sublistIdx][[1]])
   }
   
