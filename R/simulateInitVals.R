@@ -96,9 +96,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # Rodent abundance on Psi
   if(fitCov.Psi){
     if(rCov.idx){
-      betaR.Psi[1] <- rep(0, nLevels.rCov)
+      betaR.Psi <- rep(0, nLevels.rCov)
       for(x in 2:nim.constants$nLevels.rCov){
-        betaR.Psi[x] ~ dunif(-5, 5)
+        betaR.Psi[x] <- runif(1, -5, 5)
       }
     }else{
       betaR.Psi <- runif(1, 0, 2)
