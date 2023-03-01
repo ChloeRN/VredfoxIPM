@@ -29,8 +29,8 @@ sourceDir('R')
 ## Set "switches" for running different model versions
 
 # Covariate toggles
-fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
-fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
+fitCov.mH <- TRUE # Fit covariates on mH (harvest effort)
+fitCov.Psi <- FALSE # Fit covariates on Psi (rodent abundance)
 rCov.idx <- TRUE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate

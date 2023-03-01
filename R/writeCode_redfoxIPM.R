@@ -311,6 +311,18 @@ writeCode_redfoxIPM <- function(){
     sigma.rho ~ dunif(0, 5)
     #sigma.m0 ~ dunif(0, 5) 
     
+    #===============================================================================================
+    
+    
+    
+    ##############################
+    #### COVARIATE IMPUTATION ####
+    ##############################
+    
+    ## Missing covariate value(s) in number of successful hunters
+    for(t in 1:Tmax){
+      HarvestEffort[t] ~ dnorm(0, sd = 1)
+    }
     
   })
   

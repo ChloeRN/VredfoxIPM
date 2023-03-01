@@ -64,7 +64,9 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     P1 = P1$P1,
     
-    P2 = P2$P2
+    P2 = P2$P2,
+    
+    HarvestEffort = hunter.data$NHunters_std
   )
   
   # Constants
@@ -87,9 +89,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     RodentAbundance = rodent.data$cont,
     RodentIndex = RodentIndex,
-    nLevels.rCov = nLevels.rCov,
-    
-    NHunters = hunter.data$NHunters_std
+    nLevels.rCov = nLevels.rCov
   )
   
   ## Add relevant prior information

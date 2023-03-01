@@ -34,7 +34,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   #-------------------------------------------------#
   
   ## Number of successful hunters
-  NHunters <- nim.constants$NHunters
+  NHunters <- nim.data$HarvestEffort
   if(NA %in% NHunters){
     NHunters[which(is.na(NHunters))] <- mean(NHunters, na.rm = TRUE)
   }
@@ -75,9 +75,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   sigma.Imm <- runif(1, 10, 40)
   
   ## Random effect standard deviations
-  sigma.mH <- runif(1,0.05,0.5)
-  sigma.Psi <- runif(1,0.05,0.5)
-  sigma.rho <- runif(1,0.05,0.5)
+  sigma.mH <- runif(1, 0.05, 0.5)
+  sigma.Psi <- runif(1, 0.05, 0.5)
+  sigma.rho <- runif(1, 0.05, 0.5)
   
   ## Random effects (initialize at to 0)
   epsilon.mH <- rep(0, Tmax)
@@ -88,7 +88,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   # Harvest effort on mH
   if(fitCov.mH){
-    betaHE.mH <- runif(1, 0, 2)
+    betaHE.mH <- runif(1, 0, 0.2)
   }else{
     betaHE.mH <- 0
   }
@@ -279,6 +279,13 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     InitVals$Mu.mO.ad <- Mu.mO.ad
   }else{
     InitVals$Mu.Snat <- Mu.Snat
+  }
+  
+  ## Add initial values for missing covariate values (if applicable)
+  if(fitCov.mH & (NA %in% nim.data$HarvestEffort)){
+    Inits_NHunters <- rep(NA, length(NHunters))
+    Inits_NHunters[which(is.na(nim.data$HarvestEffort))] <- NHunters[which(is.na(nim.data$HarvestEffort))]
+    InitVals$HarvestEffort <- Inits_NHunters
   }
   
   ## Return initial values
