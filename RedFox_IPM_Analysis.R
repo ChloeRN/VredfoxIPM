@@ -30,8 +30,10 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
-fitCov.Psi <- FALSE # Fit covariates on Psi (rodent abundance)
+fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 rCov.idx <- TRUE # Use discrete vs. continuous rodent covariate
+nLevels.rCov <- 2 # 2-level discrete rodent covariate
+#nLevels.rCov <- 3 # 3-level discrete rodent covariate
 
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
@@ -129,7 +131,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  maxPups = 14,
                                  uLim.N = 800,
                                  uLim.Imm = 800,
-                                 #nLevels.rCov = 2,
+                                 nLevels.rCov = nLevels.rCov,
                                  wAaH.data = wAaH.data, 
                                  rep.data = rep.data, 
                                  rodent.data = rodent.data, 

@@ -48,7 +48,12 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   if(is.na(nLevels.rCov)){
     RodentIndex <- NA
   }else{
-    RodentIndex <- ifelse(nLevels.rCov == 2, rodent.data$cat2, rodent.data$cat3)
+    
+    if(nLevels.rCov == 2){
+      RodentIndex <- rodent.data$cat2
+    }else{
+      RodentIndex <- rodent.data$cat3
+    }
   }
   
   ## List all relevant data (split into data and constants as used by NIMBLE)
