@@ -1,4 +1,5 @@
 library(reshape2)
+library(ggplot2)
 
 ## This is a script I made to assemble the data Chloe needed to start with the integrated population model
 
@@ -155,18 +156,15 @@ names(P1var.pl)[1:2] <- c("P1", "P1_age")
 names(P1var.emb)[1:2] <- c("P1", "P1_age")
 P1var.pl$repryear <- P1var.pl$t_hunting_year
 
-#  --------need hunting year as an actual number here --------
-# ------- Also, doesnt chloe do this +1 -1 for embryo en plac scar in her script later?---------
-
-
-
-# ===================== end 02.03.2023 =================
-
-
-
 P1var.emb$repryear <- P1var.emb$t_hunting_year+1
 head(P1var.pl)
 head(P1var.emb)
+
+
+#  --------need hunting year as an actual number here --------
+# ------- Also, doesnt chloe do this +1 -1 for embryo en plac scar in her script later?---------
+# ===================== end 02.03.2023 =================
+
 
 P1var <- rbind(P1var.pl, P1var.emb)
 summary(P1var)
@@ -175,27 +173,7 @@ dim(P1var) #tot 304, 280 south
 write.table(P1var, file="P1var_tot.txt", sep="\t", quote=F, row.names = F)
 write.table(P1var, file="P1var_south.txt", sep="\t", quote=F, row.names = F)
 
-###########################################################################
-###### Proportion reproducing
-
-rm(list=ls())
-setwd("C:/Users/deh000/Box Sync/KOAT/Arctic fox/r?drev/analysis")
-options(max.print = 1000000)
-
-allf <- read.delim("foxes-05-19_170420.txt", stringsAsFactors=F)
-allf$Date <- as.Date(allf$Date)
-
-### Varanger females only
-fvar1 <- allf[is.na(allf$reg)== F & allf$reg == "var" & is.na(allf$sex)== F & allf$sex == "female", ]
-dim(fvar1) # 1389
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Remove the ones from B?tsfjord and Berlev?g, ie north of 70.58
-# as one of the variants of the file
-#fvar1[is.na(fvar1$latitude)==F & fvar1$latitude > 70.58, ]
-dim(fvar1[is.na(fvar1$latitude)==F & fvar1$latitude > 70.58, ]) # 122
-fvar1 <- fvar1[is.na(fvar1$latitude)==F & fvar1$latitude < 70.58, ]
-dim(fvar1) # 1228
+# ========= REPRODUCTION: PROPORTION REPRODUCING  =========
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 fvar <- fvar1
@@ -210,20 +188,41 @@ fvar <- fvar1
 #                                                                                                      #  
 ########################################################################################################
 
-fvar[is.na(fvar$placentalscars)==F & is.na(fvar$v_age)==F & is.na(fvar$t_hunting_year)==F,
-     c("placentalscars", "v_age", "t_hunting_year", "julian")]
+fvar[is.na(fvar$v_nb_placental_scars)==F & is.na(fvar$v_age)==F & is.na(fvar$t_hunting_year)==F,
+     c("v_nb_placental_scars", "v_age", "t_hunting_year", "julian")]
 
 # earliest reproduction
-aggregate(fvar$julian[is.na(fvar$repr)==F & fvar$repr==1], by=list(fvar$year[is.na(fvar$repr)==F & fvar$repr==1]), min)
+aggregate(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], by=list(fvar$t_hunting_year[is.na(fvar$v_breeding)==F & fvar$v_breeding==1]), min)
 # the earliest pregant is on day 43
 # From day 42, we consider that foxes can be pregnant, and thus absence of placental scars cannot be documented.
 # what if we take only the ones that were aged?
-aggregate(fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$repr)==F & fvar$repr==1], 
-          by=list(fvar$year[is.na(fvar$v_age) ==F& is.na(fvar$repr)==F & fvar$repr==1]), min)
+
+# ----- Well here I would maybe take the full sample, and not just the ones that were aged? for deciding cut off ---------
+
+aggregate(fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_breeding==1], 
+          by=list(fvar$t_hunting_year[is.na(fvar$v_age) ==F& is.na(fvar$v_breeding)==F & fvar$v_breeding==1]), min)
 # Then the earliest pregnant is on day 54 and the next on day 61
 # Use 1 March as cutoff as earlier, which is day 61 in leap years. 
 
-table(fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$repr)==F & fvar$repr==1], fvar$year[is.na(fvar$v_age) ==F & is.na(fvar$repr)==F & fvar$repr==1])
+table(fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_breeding==1], fvar$t_hunting_year[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_breeding==1])
+
+hist(fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_breeding==1])
+#including unaged foxes
+hist(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1])
+
+#does this histogram reflect when they are pregant or when they are hunted though...
+hist(fvar$julian, breaks = 40)
+hist(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], col='green', add=TRUE, breaks=10)
+#maybe bit of both?
+
+#plot of when reproduction starts in different years
+par(mfrow=c(4,1))
+for (i in unique(fvar$t_hunting_year[!is.na(fvar$t_hunting_year)])) {
+  hist(fvar$julian[fvar$t_hunting_year== i & fvar$julian > 40 & fvar$julian < 150], xlim = c(40, 150), breaks = c(40,50,60,70,80,90,100,110,120,130,140,150))
+   hist(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1 & fvar$t_hunting_year== i], col='green', xlim = c(40, 150), breaks = c(40,50,60,70,80,90,100,110,120,130,140,150), add =TRUE)
+}
+par(mfrow=c(1,1))
+
 
 
 P2var.pl1 <- fvar[is.na(fvar$placentalscars)==F & is.na(fvar$v_age)==F & is.na(fvar$t_hunting_year)==F & is.na(fvar$julian)==F & # 1 jan - day 60
