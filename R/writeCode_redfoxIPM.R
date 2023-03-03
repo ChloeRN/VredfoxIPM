@@ -216,6 +216,7 @@ writeCode_redfoxIPM <- function(){
       }
     }
     
+    Mu.Psi[1] <- 0
     for(a in 2:Amax){	
       Mu.Psi[a] ~ dunif(0, 1)
     }
@@ -242,6 +243,7 @@ writeCode_redfoxIPM <- function(){
       log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]	
     }
     
+    Mu.rho[1] <- 0
     for(a in 2:Amax){
       Mu.rho[a] ~ dunif(0, maxPups) # Baseline number of pups 
     }
