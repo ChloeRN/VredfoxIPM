@@ -1,6 +1,6 @@
 library(ggplot2)
 library(nimble)
-
+library(tidyverse)
 
 ## Set toggle combos for models to run
 prior_toggles <- list(
@@ -31,7 +31,7 @@ model_names <- c("Hoening",
                  "NSweden-rodIdx3")
 
 
-for(i in 10:13){
+for(i in 1:13){
   
   #**********#
   # 0) SETUP #
@@ -202,4 +202,39 @@ for(i in 10:13){
   
   saveRDS(IPM.out, file = paste0(model_names[i], ".rds"))
   
+}
+
+
+#######################
+# 5) MODEL COMPARISON #
+#######################
+
+post.filepaths <- list(
+  paste0(model_names[1:5], ".rds"),
+  paste0(model_names[2:5], ".rds"),
+  paste0(model_names[c(3, 10:13)], ".rds"),
+  paste0(model_names[c(1, 7:9)], ".rds")
+)
+
+model.names <- list(
+  model_names[1:5],
+  model_names[2:5],
+  model_names[c(3, 10:13)],
+  model_names[c(1, 7:9)]
+)
+
+plotFolder <- c(
+  "Plots/Comp_Base",
+  "Plots/Comp_BaseSurv",
+  "Plots/Comp_SwedenCov",
+  "Plots/Comp_HoeningCov"
+)
+
+for(n in 1:length(model.names)){
+  compareModels(Amax = Amax, 
+                Tmax = Tmax, 
+                minYear = minYear,
+                post.filepaths = post.filepaths[[n]], 
+                model.names = model.names[[n]], 
+                plotFolder = plotFolder[n])
 }
