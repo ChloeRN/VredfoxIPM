@@ -191,8 +191,12 @@ fvar <- fvar1
 fvar[is.na(fvar$v_nb_placental_scars)==F & is.na(fvar$v_age)==F & is.na(fvar$t_hunting_year)==F,
      c("v_nb_placental_scars", "v_age", "t_hunting_year", "julian")]
 
+
+#======= DECIDING REPRODUCTION CUT OFF ================
 # earliest reproduction
 aggregate(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], by=list(fvar$t_hunting_year[is.na(fvar$v_breeding)==F & fvar$v_breeding==1]), min)
+aggregate(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], by=list(fvar$t_hunting_year[is.na(fvar$v_breeding)==F & fvar$v_breeding==1]), max)
+
 # the earliest pregant is on day 43
 # From day 42, we consider that foxes can be pregnant, and thus absence of placental scars cannot be documented.
 # what if we take only the ones that were aged?
@@ -201,6 +205,8 @@ aggregate(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], by=list(f
 
 aggregate(fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_breeding==1], 
           by=list(fvar$t_hunting_year[is.na(fvar$v_age) ==F& is.na(fvar$v_breeding)==F & fvar$v_breeding==1]), min)
+aggregate(fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_breeding==1], 
+          by=list(fvar$t_hunting_year[is.na(fvar$v_age) ==F& is.na(fvar$v_breeding)==F & fvar$v_breeding==1]), max)
 # Then the earliest pregnant is on day 54 and the next on day 61
 # Use 1 March as cutoff as earlier, which is day 61 in leap years. 
 
@@ -209,6 +215,13 @@ table(fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_bre
 hist(fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_breeding==1])
 #including unaged foxes
 hist(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1])
+hist(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], breaks=20)
+hist(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], breaks=40)
+boxplot(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1])
+
+quantile((fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_breeding==1]), 0.95)
+quantile((fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v_breeding==1]), 0.05)
+
 
 #does this histogram reflect when they are pregant or when they are hunted though...
 hist(fvar$julian, breaks = 40)
@@ -223,12 +236,41 @@ for (i in unique(fvar$t_hunting_year[!is.na(fvar$t_hunting_year)])) {
 }
 par(mfrow=c(1,1))
 
+#oke so 70-120 days = 95% of pregnancy data = +- 50 days of pregancy duration
+#70-120 = good cut-off
+#Alternatives: 90-110 (must be overlap) , 80 - 110 (conservative) and 60-130 (all)
+#
+
+#what are the sample sizes of different cut offs
+# pregnant foxes
+aggregate(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], by=list(fvar$t_hunting_year[is.na(fvar$v_breeding)==F & fvar$v_breeding==1]), length)
+length(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1])
+length(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1 & fvar$julian > 70 & fvar$julian < 120])
+length(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1 & fvar$julian > 40 & fvar$julian < 130])
+length(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1 & fvar$julian > 40 & fvar$julian < 50])
+length(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1 & fvar$julian > 50 & fvar$julian < 70])
+length(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1 & fvar$julian > 120 & fvar$julian < 130])
+
+# foxes with placental scar info
+aggregate(fvar$julian[is.na(fvar$v_placental_scars)==F ], by=list(fvar$t_hunting_year[is.na(fvar$v_placental_scars)==F ]), length)
+length(fvar$julian[is.na(fvar$v_placental_scars)==F ])
+length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 70 & fvar$julian < 120])
+length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 40 & fvar$julian < 130])
+length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 40 & fvar$julian < 50])
+length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 50 & fvar$julian < 70])
+length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 120 & fvar$julian < 130])
+length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 90 & fvar$julian < 130])
+length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 50 & fvar$julian < 90])
 
 
-P2var.pl1 <- fvar[is.na(fvar$placentalscars)==F & is.na(fvar$v_age)==F & is.na(fvar$t_hunting_year)==F & is.na(fvar$julian)==F & # 1 jan - day 60
-                    fvar$julian & fvar$julian < 61, c("placentalscars", "v_age", "t_hunting_year", "julian")]
-P2var.pl2 <- fvar[is.na(fvar$placentalscars)==F & is.na(fvar$v_age)==F & is.na(fvar$t_hunting_year)==F & is.na(fvar$julian)==F & # from sommer to 31.12
-                    fvar$julian & fvar$julian > 179, c("placentalscars", "v_age", "t_hunting_year", "julian")]
+
+
+
+#doro below
+P2var.pl1 <- fvar[is.na(fvar$v_nb_placental_scars)==F & is.na(fvar$v_age)==F & is.na(fvar$t_hunting_year)==F & is.na(fvar$julian)==F & # 1 jan - day 60
+                    fvar$julian & fvar$julian < 61, c("v_nb_placental_scars", "v_age", "t_hunting_year", "julian")]
+P2var.pl2 <- fvar[is.na(fvar$v_nb_placental_scars)==F & is.na(fvar$v_age)==F & is.na(fvar$t_hunting_year)==F & is.na(fvar$julian)==F & # from sommer to 31.12
+                    fvar$julian & fvar$julian > 179, c("v_nb_placental_scars", "v_age", "t_hunting_year", "julian")]
 dim(P2var.pl1) # tot 208; south 198
 dim(P2var.pl2) # tot 212; south 165
 P2var.pl <- rbind(P2var.pl1, P2var.pl2)
