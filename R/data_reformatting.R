@@ -37,6 +37,12 @@ head(allf, 3)
 allf$t_hunting_date <- as.Date(allf$t_hunting_date)
 
 
+#  --------need hunting year as an actual number here --------
+
+allf$t_hunting_year
+allf$num_hunting_year<-substr(allf$t_hunting_year, start = 1, stop = 4)
+allf$num_hunting_year<- as.numeric(allf$num_hunting_year)
+
 
 #--------Select Varanger and female only----------
 fvar1 <- allf[is.na(allf$sn_region)== F & allf$sn_region == "varanger" & is.na(allf$v_sex)== F & allf$v_sex == "female", ]
@@ -128,7 +134,7 @@ varFC2$pData <- prop
 #------Add option here again for south or total----------
 
 #write.table(varFC2, file="Cvar.tot_oct-mai_5age.txt", sep="\t", quote = F, row.names = F)
-write.table(varFC2, file="Cvar.south_oct-mai_5age.txt", sep="\t", quote = F, row.names = F)
+#write.table(varFC2, file="Cvar.south_oct-mai_5age.txt", sep="\t", quote = F, row.names = F)
 
 
 
@@ -161,7 +167,9 @@ head(P1var.pl)
 head(P1var.emb)
 
 
-#  --------need hunting year as an actual number here --------
+##-------- here use the new numeric hunting year --------------
+
+
 # ------- Also, doesnt chloe do this +1 -1 for embryo en plac scar in her script later?---------
 # ===================== end 02.03.2023 =================
 
@@ -170,8 +178,8 @@ P1var <- rbind(P1var.pl, P1var.emb)
 summary(P1var)
 dim(P1var) #tot 304, 280 south
 
-write.table(P1var, file="P1var_tot.txt", sep="\t", quote=F, row.names = F)
-write.table(P1var, file="P1var_south.txt", sep="\t", quote=F, row.names = F)
+#write.table(P1var, file="P1var_tot.txt", sep="\t", quote=F, row.names = F)
+#write.table(P1var, file="P1var_south.txt", sep="\t", quote=F, row.names = F)
 
 # ========= REPRODUCTION: PROPORTION REPRODUCING  =========
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -226,7 +234,16 @@ quantile((fvar$julian[is.na(fvar$v_age) ==F & is.na(fvar$v_breeding)==F & fvar$v
 #does this histogram reflect when they are pregant or when they are hunted though...
 hist(fvar$julian, breaks = 40)
 hist(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], col='green', add=TRUE, breaks=10)
+
 #maybe bit of both?
+
+#placental scar info as proportion of hunted
+hist(fvar$julian, breaks = 40)
+hist(fvar$julian[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1], col='green', add=TRUE, breaks=40)
+
+#so from day 60 -70 they start to get pregnant
+# and from day 60- 70 plac scar infor starts to drop too
+
 
 #plot of when reproduction starts in different years
 par(mfrow=c(4,1))
@@ -261,6 +278,189 @@ length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 50 & fvar$j
 length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 120 & fvar$julian < 130])
 length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 90 & fvar$julian < 130])
 length(fvar$julian[is.na(fvar$v_placental_scars)==F  & fvar$julian > 50 & fvar$julian < 90])
+
+#===== Placental scar % in pregnancy period compared to plac scar % in autumn period ========
+#total percentage foxes with placental scar outside breeding period (n = 480) 
+(length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1 & (fvar$julian < 40 | fvar$julian>130) ] ) / 
+ length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F &                             (fvar$julian < 40 | fvar$julian>130) ] ))
+# = .26 
+
+#total percentage foxes with placental scar inside breeding period (n = 1055)
+(length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1 & (fvar$julian > 40 & fvar$julian < 130)] ) /
+ length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F                             & (fvar$julian > 40 & fvar$julian < 130)] ))
+# = .31
+
+#So this is quite equal
+
+# try again with only 1 and above year olds -----------
+#total percentage foxes with placental scar outside breeding period (n = 480) (and exclude autumn pups and unknown age (72 left))
+(length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1 & (fvar$julian < 40 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] ) / 
+   length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F &                             (fvar$julian < 40 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] ))
+# = .71 
+
+#total percentage foxes with placental scar inside breeding period (n = 1055) (and exclude autumn pups and unknown age (215 left))
+(length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1 & (fvar$julian > 40 & fvar$julian < 130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] ) /
+    length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F                          & (fvar$julian > 40 & fvar$julian < 130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] ))
+# = .50
+
+# for all foxes: % placental scars within and outside breeding period the same
+# For adult foxes: the ones that were checked for placental scars in breeding period were not breeding, and these were less likely to have bred in the past
+
+
+#===== Nr. of plac scar in pregnancy period compared to nr in autumn period ========
+
+# all foxes ---------
+par(mfrow=c(1,2))
+boxplot(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian < 40 | fvar$julian>130) ], ylim =c(0,11) )  
+mean(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian < 40 | fvar$julian>130) ] )  
+
+#total percentage foxes with placental scar inside breeding period (n = 74)
+boxplot(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian > 40 & fvar$julian < 130) ] , ylim =c(0,11))  
+mean(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian > 40 & fvar$julian < 130) ] )  
+par(mfrow=c(1,1))
+
+# adults only---------
+#nr of scars outside breeding period (n = 29) (and exclude autumn pups)
+boxplot(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian < 40 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] )  
+mean(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian < 40 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] )  
+
+#nr of placental scar inside breeding period (n = 74)
+boxplot(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian > 40 & fvar$julian < 130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] )  
+mean(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian > 40 & fvar$julian < 130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] )  
+
+#the number of scars are similar
+
+
+# what about for each hunting year? (now set threshold lower (maybe 100) and a bit later (140) so you dont get the "new" placental scars) --------------
+try<-data.frame()
+for (i in unique(fvar$t_hunting_year[!is.na(fvar$t_hunting_year)])) {
+  
+data.temp <- data.frame(
+  Year = i,
+  propPC_out= (length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1 & (fvar$julian < 40 | fvar$julian>140) & is.na(fvar$t_hunting_year)==F & fvar$t_hunting_year == i] ) / 
+                          length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F &                         (fvar$julian < 40 | fvar$julian>140) & is.na(fvar$t_hunting_year)==F & fvar$t_hunting_year == i] ))
+  ,
+  propPC_in = (length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1 & (fvar$julian > 40 & fvar$julian <100) & is.na(fvar$t_hunting_year)==F & fvar$t_hunting_year == i] ) / 
+                         length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F &                         (fvar$julian > 40 & fvar$julian <100) & is.na(fvar$t_hunting_year)==F & fvar$t_hunting_year == i] ))
+  
+)
+
+data.temp$Diff <- data.temp$propPC_in -data.temp$propPC_out
+
+try <- rbind(try, data.temp)
+}
+(try)
+#probably not enough data to check per year
+mean(try$propPC_in)
+mean(try$propPC_out) # = similar proportions as previous all year together calculation
+
+
+# ======== comparing embryos to placental scar next year ==============
+# previous histograms with green: from day 60 -70 they start to get pregnant
+# and from day 60- 70 plac scar infor starts to drop too
+# day 43 earliest, so day 80-90 is earliest they can have plac scar from this year
+# but most after 60-70 so we can safely take 90 or even 100
+#BUT: adult %plac scar within breeding < than outside because see previous, so include as little as possible within breeding. Start at 70 or 80
+
+# choosing thresholds 
+try<-data.frame()
+for (i in unique(fvar$num_hunting_year[!is.na(fvar$num_hunting_year)])) {
+  
+  data.temp <- data.frame(
+    Year = i,
+    propPC_outnext_plac= (length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1 & (fvar$julian < 80 | fvar$julian>140) & fvar$v_age> 0 & is.na(fvar$v_age)==F & is.na(fvar$num_hunting_year)==F & fvar$num_hunting_year == i+1] ) / 
+                   length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F &                                    (fvar$julian < 80 | fvar$julian>140) & fvar$v_age> 0 & is.na(fvar$v_age)==F & is.na(fvar$num_hunting_year)==F & fvar$num_hunting_year == i+1] ))
+    ,
+    
+    n_plac =       (length(fvar$v_placental_scars[is.na(fvar$v_placental_scars)==F &                                    (fvar$julian < 80 | fvar$julian>140) & fvar$v_age> 0 & is.na(fvar$v_age)==F & is.na(fvar$num_hunting_year)==F & fvar$num_hunting_year == i+1] ))
+    ,
+    propPC_in_embryo = (length(fvar$v_breeding[is.na(fvar$v_breeding)==F & fvar$v_breeding==1 & (fvar$julian > 100 & fvar$julian <130) & is.na(fvar$num_hunting_year)==F & fvar$num_hunting_year == i] ) / 
+                   length(fvar$v_breeding[is.na(fvar$v_breeding)==F &                         (fvar$julian > 100 & fvar$julian <130) & is.na(fvar$num_hunting_year)==F & fvar$num_hunting_year == i] ))
+    
+    ,
+    n_embr =       (length(fvar$v_breeding[is.na(fvar$v_breeding)==F &                         (fvar$julian > 100 & fvar$julian <130) & is.na(fvar$num_hunting_year)==F & fvar$num_hunting_year == i] ))
+  )
+  
+  data.temp$Diff <- data.temp$propPC_in_embryo -data.temp$propPC_outnext_plac
+  data.temp$sample_size <- data.temp$n_plac  + data.temp$n_embr        
+  
+  try <- rbind(try, data.temp)
+}
+(try)
+mean(try$propPC_outnext_plac, na.rm = TRUE ) #.67 = approximately correct number
+mean(try$propPC_in_embryo   , na.rm = TRUE ) 
+
+#threshold:     40-130    70-120      80-110        90 - 100      100-130   70-130  90-130
+#% pregnant:    24%       35%           40%          35%            64%       36%     49%
+
+#so 100-130 best but same size is quite low
+
+#Conclusions: for % placental scars you can use all periods, but % during breeding period is less, likely because you then have a subsample of foxes that are less likely to breed
+#             for % with embryo's its best to use a later period, about 100-130
+
+
+#show in histogram form
+#does this histogram reflect when they are pregant or when they are hunted though...
+hist(fvar$julian, breaks = 40)
+hist(fvar$julian[is.na(fvar$v_breeding)==F], col = "orange", breaks = 40, add = TRUE)
+hist(fvar$julian[is.na(fvar$v_breeding)==F & fvar$v_breeding==1], col='green', add=TRUE, breaks=10)
+
+#placental scar info as proportion of hunted
+hist(fvar$julian, breaks = 40)
+hist(fvar$julian[is.na(fvar$v_placental_scars)==F], col = "orange", breaks = 40, add=TRUE)
+hist(fvar$julian[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1], col='green', add=TRUE, breaks=40)
+
+#adults only
+hist(fvar$julian[is.na(fvar$v_age)==F & fvar$v_age> 0] , breaks = 40)
+hist(fvar$julian[is.na(fvar$v_placental_scars)==F & fvar$v_age> 0 & is.na(fvar$v_age)==F ], col = "orange", breaks = 40, add=TRUE)
+hist(fvar$julian[is.na(fvar$v_placental_scars)==F & fvar$v_placental_scars==1& fvar$v_age> 0 & is.na(fvar$v_age)==F ], col='green', add=TRUE, breaks=40)
+
+#AHHHH MAYBE JUST THE PLACENTAL SCARS START TO DISAPPEAR!
+#THATS WHY LESS IN BREEDING, NOT BECAUSE ITS A SUBSAMPLE OF NON BREEDERS
+
+
+#===========HIER WAS IK =========================
+
+# what about nr of placental scar of nr of embryo's? some periods best?
+
+#nr of scars kinda equal?
+
+#===== Nr. of plac scar in pregnancy period compared to nr in autumn period ========
+
+# adults only---------
+#nr of scars outside breeding period (n = 29) (and exclude autumn pups)
+boxplot(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian < 60 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] )  
+mean(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian < 60 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] )  
+
+#nr of placental scar inside breeding period (n = 74)
+boxplot(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian > 60 & fvar$julian < 130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] )  
+mean(fvar$v_nb_placental_scars[is.na(fvar$v_nb_placental_scars)==F  & (fvar$julian > 60 & fvar$julian < 130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] )  
+
+#only for those with placental scars
+#nr of scars outside breeding period (n = 29) (and exclude autumn pups)
+boxplot(fvar$v_nb_placental_scars[fvar$v_placental_scars> 0 & is.na(fvar$v_placental_scars)==F & (fvar$julian < 60 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F])  
+mean   (fvar$v_nb_placental_scars[fvar$v_placental_scars> 0 & is.na(fvar$v_placental_scars)==F & (fvar$julian < 60 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F])   
+
+#nr of placental scar inside breeding period (n = 74)
+boxplot(fvar$v_nb_placental_scars[fvar$v_placental_scars> 0 & is.na(fvar$v_placental_scars)==F & (fvar$julian > 60 & fvar$julian<130) & fvar$v_age> 0 & is.na(fvar$v_age)==F])  
+mean   (fvar$v_nb_placental_scars[fvar$v_placental_scars> 0 & is.na(fvar$v_placental_scars)==F & (fvar$julian > 60 & fvar$julian<130) & fvar$v_age> 0 & is.na(fvar$v_age)==F])   
+
+
+# ========= Nr. of embryo =================
+
+boxplot(fvar$v_embryos[fvar$v_embryos> 0 & is.na(fvar$v_embryos)==F & (fvar$julian > 60 | fvar$julian<130) & fvar$v_age> 0 & is.na(fvar$v_age)==F], ylim = c(0,10))  
+mean   (fvar$v_embryos[fvar$v_embryos> 0 & is.na(fvar$v_embryos)==F & (fvar$julian > 60 | fvar$julian<130) & fvar$v_age> 0 & is.na(fvar$v_age)==F])   
+
+#adult only
+
+boxplot(fvar$v_embryos[fvar$v_embryos> 0 & is.na(fvar$v_embryos)==F & (fvar$julian > 60 | fvar$julian<130) & is.na(fvar$v_age)==F], ylim = c(0,10))  
+mean   (fvar$v_embryos[fvar$v_embryos> 0 & is.na(fvar$v_embryos)==F & (fvar$julian > 60 | fvar$julian<130) & is.na(fvar$v_age)==F])   
+
+
+
+boxplot(fvar$v_embryos[is.na(fvar$v_embryos)==F  & (fvar$julian < 60 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F], ylim= c(0,10) )  
+mean(fvar$v_embryos[is.na(fvar$v_embryos)==F  & (fvar$julian < 60 | fvar$julian>130) & fvar$v_age> 0 & is.na(fvar$v_age)==F] )  
+
 
 
 
