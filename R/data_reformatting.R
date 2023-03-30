@@ -1,9 +1,10 @@
-library(reshape2)
-library(sf)
+#library(reshape2)
+#library(sf)
+# --> not sure if I still need these, I used packageName::functionName in the code now
 
 #' Reformat the carcass data to make Age at harvest matrix & P1var (nr of embryos/scars) & P2var (breeding or not breeding)
 #'
-#' @param n_ageclasses integer. Number of age classes to consider in analyses.
+#' @param Amax  integer. Number of age classes to consider in analyses.
 #' @param summer_removal a vector of numerical months to be removed from age at harvest data: c(6,7,8,9)
 #' @param area_selection a vector of study-area sub-area names to consider in the analyses: c("Inner", "BB",  "Tana")
 #' @param plac_start integer. Julian day (including) from which we use placental scars presence to calculate breeding or not breeding for P2
@@ -19,13 +20,12 @@ library(sf)
 #' @examples
 
 
-data_reformatting <- function (n_ageclasses, summer_removal, area_selection,
+data_reformatting <- function (Amax, summer_removal, area_selection,
                               plac_start, plac_end , embr_start, embr_end,
                               carcass.dir, shapefile.dir) {
   
-  # === 2 things that I use later down ====
+  # === 1 thing that I use later down ====
   '%notin%' <- Negate('%in%')
-  max_age <- (n_ageclasses-1)
   
   #========= LOAD DATA ==============
 
@@ -38,12 +38,12 @@ data_reformatting <- function (n_ageclasses, summer_removal, area_selection,
   allf <- myfile
   rm(myfile)
   
-  shapefile <- st_read(paste(shapefile.dir, sep = "/"))
-  shapefile <- st_transform(shapefile, crs = 4326)
+  shapefile <- sf::st_read(paste(shapefile.dir, sep = "/"))
+  shapefile <- sf::st_transform(shapefile, crs = 4326)
   
   #check if loading carcass data worked
-  if(!exists("allf") || !length(allf)==45){
-    stop("Carcass data not loaded properly or not 45 columns")
+  if(!exists("allf") || !length(allf)==42){
+    stop("Carcass data not loaded properly or not 42 columns")
   }
   
   #check if loading shapefile data worked
@@ -76,13 +76,13 @@ data_reformatting <- function (n_ageclasses, summer_removal, area_selection,
   
   #Assigning study area - sub area names with shapefile
   fvar1   <- fvar1[is.na(fvar1$e_dd)==FALSE & is.na(fvar1$n_dd)==FALSE,] #only foxes with valid location
-  sf_fvar1<- st_as_sf(fvar1, coords = c("e_dd", "n_dd"), crs="+proj=longlat +datum=WGS84") # change dataset in to sf object with geometry (instead of lat/long)
-  sf_fvar1<- st_join(sf_fvar1, shapefile["name"], join = st_within) #overlap of dataset positions with shapefile of study area - sub areas, taking the name of the subarea
+  sf_fvar1<- sf::st_as_sf(fvar1, coords = c("e_dd", "n_dd"), crs="+proj=longlat +datum=WGS84") # change dataset in to sf object with geometry (instead of lat/long)
+  sf_fvar1<- sf::st_join(sf_fvar1, shapefile["name"], join = sf::st_within) #overlap of dataset positions with shapefile of study area - sub areas, taking the name of the subarea
   colnames(sf_fvar1)[colnames(sf_fvar1) == 'name'] <- 'sub_area'
-  coords  <- data.frame(st_coordinates(sf_fvar1)) #get back coordinates column from geometry
+  coords  <- data.frame(sf::st_coordinates(sf_fvar1)) #get back coordinates column from geometry
   sf_fvar1$e_dd <- coords$X # getting back lat long columns
   sf_fvar1$n_dd <- coords$Y
-  fvar1 <- st_drop_geometry(sf_fvar1) #remove the geometry again and get back to fvar1, #fvar1 now has shape file area names
+  fvar1 <- sf::st_drop_geometry(sf_fvar1) #remove the geometry again and get back to fvar1, #fvar1 now has shape file area names
   
   #check if shapefile subarea assignment worked and subarea names match those given in script
   if(sum(is.na(fvar1$sub_area)) > 0 || !identical(unique(fvar1$sub_area), c("Inner", "Tana",  "BB"))){
@@ -94,7 +94,7 @@ data_reformatting <- function (n_ageclasses, summer_removal, area_selection,
   
   #Age class selection
   fvar1$alder4 <- fvar1$v_age
-  fvar1$alder4[fvar1$alder4 > max_age] <- max_age
+  fvar1$alder4[fvar1$alder4 > (Amax-1)] <- (Amax-1)
   
   #=============== AGE AT HARVEST MATRIX BUILDING ==============================
   #here we exclude foxes shot in summer months and foxes with no age info
@@ -103,10 +103,10 @@ data_reformatting <- function (n_ageclasses, summer_removal, area_selection,
                              fvar1$alder4[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal]))
   
   varFC <- as.data.frame (var.F.C)
-  varFC2 <- dcast(varFC, Var1~Var2)
+  varFC2 <- reshape2::dcast(varFC, Var1~Var2)
   
   column_names <- c("year","age0", "age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15", "age16", "age17", "age18")
-  names(varFC2) <- head(column_names, n_ageclasses+1)
+  names(varFC2) <- head(column_names, (Amax+1))
   
   #proportion that was aged
   agedf.ann <- table(fvar1$t_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal]) #where unaged removed
@@ -164,7 +164,7 @@ data_reformatting <- function (n_ageclasses, summer_removal, area_selection,
 
 
 carcassData<- data_reformatting (
-  n_ageclasses       = 5, 
+  Amax               = 5, 
   summer_removal     = c(6,7,8,9) ,
   area_selection     = c("Inner", "BB",  "Tana"),
   plac_start         = 140,
