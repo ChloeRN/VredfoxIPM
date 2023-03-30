@@ -41,6 +41,16 @@ data_reformatting <- function (n_ageclasses, summer_removal, area_selection,
   shapefile <- st_read(paste(shapefile.dir, sep = "/"))
   shapefile <- st_transform(shapefile, crs = 4326)
   
+  #check if loading carcass data worked
+  if(!exists("allf") || !length(allf)==45){
+    stop("Carcass data not loaded properly or not 45 columns")
+  }
+  
+  #check if loading shapefile data worked
+  if(!exists("shapefile")){
+    stop("Shapefile not loaded properly")
+  }
+  
   #========= PREPARE DATA ==============
   #hunting date as date
   allf$t_hunting_date <- as.Date(allf$t_hunting_date)
@@ -73,6 +83,11 @@ data_reformatting <- function (n_ageclasses, summer_removal, area_selection,
   sf_fvar1$e_dd <- coords$X # getting back lat long columns
   sf_fvar1$n_dd <- coords$Y
   fvar1 <- st_drop_geometry(sf_fvar1) #remove the geometry again and get back to fvar1, #fvar1 now has shape file area names
+  
+  #check if shapefile subarea assignment worked and subarea names match those given in script
+  if(sum(is.na(fvar1$sub_area)) > 0 || !identical(unique(fvar1$sub_area), c("Inner", "Tana",  "BB"))){
+    stop("Sub-area assignment with shapefile produced NA's, or sub-area names do not match those in script")
+  }
   
   #Selecting for study area - sub areas
   fvar1 <- subset(fvar1,(fvar1$sub_area %in% area_selection))
