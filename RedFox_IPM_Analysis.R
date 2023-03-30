@@ -1,6 +1,7 @@
 library(ggplot2)
 library(nimble)
-
+library(sf)
+library(reshape2)
 
 #**********#
 # 0) SETUP #
@@ -15,6 +16,20 @@ Tmax <- 15  # Number of years
 minYear <- 2004 # First year to consider
 
 maxAge_yrs <- 10 # Age of the oldest female recorded
+
+#removal of summer months:
+summer_removal <- c(6,7,8,9) #numerical months to be removed from age at harvest data
+# choosing varanger sub area ("Inner" / "BB" / "Tana)
+area_selection<- c("Inner", "BB",  "Tana")
+# start and end of placental scars and embryo sample periods (julian day)
+plac_start <- 140 #including
+plac_end   <- 80  #until, not including
+embr_start <- 100 #including
+embr_end   <- 140 #until, not including
+## set directories
+carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
+shapefile.dir      <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
+
   
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
@@ -44,26 +59,40 @@ sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted
 # 1) DATA PREPARATION #
 #*********************#
 
+# 1aa) reformatting data
+#-------------------------------#
+carcassData<- data_reformatting (
+  Amax               = Amax,   
+  summer_removal     = c(6,7,8,9) ,
+  area_selection     = c("Inner", "BB",  "Tana"),
+  plac_start         = 140,
+  plac_end           = 80 ,
+  embr_start         = 100 ,
+  embr_end           = 140,
+  carcass.dir        ="C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination",
+  shapefile.dir      ="C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
+)
+
 # 1a) Winter Age-at-Harvest data #
 #--------------------------------#
 
 ## Set data path/filename
-wAaH.datafile <- "Data/Cvar.tot_oct-mai_5age.txt"
+wAaH.datafile <- carcassData$AaH.matrix
 
 ## Prepare winter AaH data
-wAaH.data <- wrangleData_winterAaH(datafile = wAaH.datafile, 
+wAaH.data <- wrangleData_winterAaH(wAaH.datafile = wAaH.datafile, 
                                    Amax = Amax)
-
 
 # 1b) Reproduction data #
 #-----------------------#
 
 ## Set data paths/filenames
-rep.datafiles <- c("Data/P1var_tot.txt", # Placental scar/embryo count
-                   "Data/P2var_tot.txt") # Presence of placental scars/embryos/pregnancy signs
+P1.datafile <- carcassData$P1var # Placental scar/embryo count
+P2.datafile <- carcassData$P2var # Presence of placental scars/embryos/pregnancy signs
 
 ## Prepare reproduction data
-rep.data <- wrangleData_rep(datafiles = rep.datafiles, 
+rep.data <- wrangleData_rep(P1.datafile  = P1.datafile, 
+                            P2.datafile  = P2.datafile,
                             Amax = Amax, 
                             minYear = minYear)
 

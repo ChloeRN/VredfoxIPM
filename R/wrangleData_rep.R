@@ -2,9 +2,8 @@
 #'
 #' This function relies on a helper function adjustAge_repData. 
 #' 
-#' @param datafiles vector of two character strings. Path/file names for raw 
-#' data files containing counts of placental scars/embryos (index = 1) and 
-#' presence/absence of placental scars/embryos/pregnancy signs (index = 2).
+#' @param P1.datafile # Placental scar/embryo count data from: P1.datafile <- carcassData$P1var
+#' @param P2.datafile # Presence of placental scars/embryos/pregnancy signs from: P2.datafile <- carcassData$P2var
 #' @param Amax integer. Number of age classes to consider in analyses.
 #' @param minYear integer. First year to consider in analyses.
 #'
@@ -14,25 +13,11 @@
 #'
 #' @examples
 
-wrangleData_rep <- function(datafiles, Amax, minYear){
-  
-  ## Check "datafiles" has two entries
-  if(length(datafiles) < 2){
-    stop("Not enough file paths/names provided.")
-  }
-  if(length(datafiles) > 2){
-    stop("Too many file paths/names provided.")
-  }
-  
-  ## Load embryo / placental scar count data
-  P1.data <- read.table(datafiles[1], header = T)
-
-  ## Load placental scar / pregnancy data (presence/absence)
-  P2.data <- read.table(datafiles[2], header = T)
+wrangleData_rep <- function(P1.datafile, P2.datafile, Amax, minYear){
 
   ## Adjust age indices
-  P1.data <- adjustAge_repData(data = P1.data, ageCol = 2, Amax = Amax)
-  P2.data <- adjustAge_repData(data = P2.data, ageCol = 2, Amax = Amax)
+  P1.data <- adjustAge_repData(data = P1.datafile, ageCol = 2, Amax = Amax)
+  P2.data <- adjustAge_repData(data = P2.datafile, ageCol = 2, Amax = Amax)
   
   ## Remove data for age 0 (index 1) individuals
   age0.rep_P1 <- which(P1.data$age_adj == 1)

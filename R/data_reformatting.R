@@ -99,7 +99,7 @@ data_reformatting <- function (Amax, summer_removal, area_selection,
   #=============== AGE AT HARVEST MATRIX BUILDING ==============================
   #here we exclude foxes shot in summer months and foxes with no age info
   
-  var.F.C <- as.matrix(table(fvar1$t_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal], 
+  var.F.C <- as.matrix(table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal], 
                              fvar1$alder4[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal]))
   
   varFC <- as.data.frame (var.F.C)
@@ -109,8 +109,8 @@ data_reformatting <- function (Amax, summer_removal, area_selection,
   names(varFC2) <- head(column_names, (Amax+1))
   
   #proportion that was aged
-  agedf.ann <- table(fvar1$t_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal]) #where unaged removed
-  allf.ann  <- table(fvar1$t_hunting_year[                        fvar1$mnd %notin% summer_removal]) #where unaged not removed
+  agedf.ann <- table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal]) #where unaged removed
+  allf.ann  <- table(fvar1$start_hunting_year[                        fvar1$mnd %notin% summer_removal]) #where unaged not removed
   prop <- agedf.ann/allf.ann
   varFC2$pData <- prop
   
@@ -161,16 +161,3 @@ data_reformatting <- function (Amax, summer_removal, area_selection,
   return(carcassData)
   
 }
-
-
-carcassData<- data_reformatting (
-  Amax               = 5, 
-  summer_removal     = c(6,7,8,9) ,
-  area_selection     = c("Inner", "BB",  "Tana"),
-  plac_start         = 140,
-  plac_end           = 80 ,
-  embr_start         = 100 ,
-  embr_end           = 140,
-  carcass.dir        ="C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination",
-  shapefile.dir      ="C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
-)

@@ -1,6 +1,6 @@
 #' Prepare winter Age-at-Harvest data
 #'
-#' @param datafile character string. Path/file name for raw data file.
+#' @param wAaH.datafile Winter age at harvest data file from wAaH.datafile <- carcassData$AaH.matrix
 #' @param Amax integer. Number of age classes to consider in analyses.
 #'
 #' @return a list containing an Age-at-Harvest matrix (winterC) and a vector of
@@ -9,17 +9,14 @@
 #'
 #' @examples
 
-wrangleData_winterAaH <- function(datafile, Amax){
-  
-  ## Load winter Age-at-Harvest data
-  winterAaH <- read.table(datafile, header = T)
+wrangleData_winterAaH <- function(wAaH.datafile, Amax){
 
   ## Extract Age-at-Harvest matrices (C)
-  winterC <- t(winterAaH[, paste0("age", (1:Amax)-1)])
-  colnames(winterC) <- winterAaH$year
+  winterC <- t(wAaH.datafile [, paste0("age", (1:Amax)-1)])
+  colnames(winterC) <- wAaH.datafile$year
   
   ## Extract proportions aged (pData)
-  pData <- as.numeric(winterAaH[, "pData"])
+  pData <- as.numeric(wAaH.datafile[, "pData"])
 
   ## List and return data
   return(list(winterC = winterC, pData = pData))
