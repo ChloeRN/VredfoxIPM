@@ -22,14 +22,14 @@ wrangleData_rep <- function(P1.datafile, P2.datafile, Amax, minYear){
   ## Remove data for age 0 (index 1) individuals
   age0.rep_P1 <- which(P1.data$age_adj == 1)
   if(length(age0.rep_P1) > 0){
-    P1.data <- P1.data[-age0.rep_P1, ]
+    P1.data <- P1.data[!P1.data$age_adj ==1, ]  #I had to change this part (used to be: P1.data <- P1.data[-age0.rep_P1, ] ). This is because if there are no age 1 with placenta, age0.rep_P1 = integer(0), P1.data[-integer(0)] will result in 0 rows for P1.data
     warning(paste0(length(age0.rep_P1), " instance(s) of age 0 individuals with placental scars removed from data (P1)"))
   }
 
   age0.rep_P2 <- subset(P2.data, age_adj == 1 & P2 == 1)
-  P2.data <- P2.data[-which(P2.data$age_adj == 1), ]
+  P2.data <- P2.data[!(P2.data$age_adj == 1), ] #I had to change this part (used to be: P2.data <- P2.data[-which(P2.data$age_adj == 1), ] ). This is because if there are no age 1 with embryo, age0.rep_P2 = integer(0), P2.data[-integer(0)] will result in 0 rows for P2.data
   if(nrow(age0.rep_P2) > 0){
-    warning(paste0(nrow(age0.rep_P2), " instance(s) of age 0 individuals with placental scars removed from data (P2)"))
+    warning(paste0(nrow(age0.rep_P2), " instance(s) of age 0 individuals with placental scars removed from data (P2)")) #Actually I already removed 0 year olds from the placental scar record in the data.reformatting script, so I suppose this step is double
   }
 
   ## Add year index
