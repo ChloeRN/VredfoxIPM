@@ -1,7 +1,3 @@
-#library(reshape2)
-#library(sf)
-# --> not sure if I still need these, I used packageName::functionName in the code now
-
 #' Reformat the carcass data to make Age at harvest matrix & P1var (nr of embryos/scars) & P2var (breeding or not breeding)
 #'
 #' @param Amax  integer. Number of age classes to consider in analyses.
