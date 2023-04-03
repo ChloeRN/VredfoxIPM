@@ -59,9 +59,9 @@ sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted
 # 1) DATA PREPARATION #
 #*********************#
 
-# 1aa) reformatting data
+# 1aa) reformatting carcass data
 #-------------------------------#
-carcassData<- data_reformatting (
+carcassData<- data_reformatting_carcass (
   Amax               = Amax,   
   summer_removal     = c(6,7,8,9) ,
   area_selection     = c("Inner", "BB",  "Tana"),

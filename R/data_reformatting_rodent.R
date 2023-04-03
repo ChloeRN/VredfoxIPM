@@ -13,3 +13,4 @@ allrod <- myfile
 rm(myfile)
 
 # I think I need doro's previous script to see how she prepared the data exactly so I don't have to do things double
+# do we need shapefile here too or we take rodents from all of varanger?

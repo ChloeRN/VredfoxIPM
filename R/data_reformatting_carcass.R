@@ -16,7 +16,7 @@
 #' @examples
 
 
-data_reformatting <- function (Amax, summer_removal, area_selection,
+data_reformatting_carcass <- function (Amax, summer_removal, area_selection,
                               plac_start, plac_end , embr_start, embr_end,
                               carcass.dir, shapefile.dir) {
   
@@ -68,7 +68,7 @@ data_reformatting <- function (Amax, summer_removal, area_selection,
   fvar1 <- fvar1[is.na(fvar1$sn_region)== F & fvar1$sn_region == "varanger" & is.na(fvar1$v_sex)== F & fvar1$v_sex == "female", ]
   
   #Remove the ones that were not shot
-  fvar1 <- fvar1[fvar1$v_hunter_id != "road_kill", ]
+  fvar1 <- fvar1[fvar1$v_hunter_id != "road_kill" & fvar1$v_hunter_id != "found_dead", ]
   
   #Assigning study area - sub area names with shapefile
   fvar1   <- fvar1[is.na(fvar1$e_dd)==FALSE & is.na(fvar1$n_dd)==FALSE,] #only foxes with valid location
