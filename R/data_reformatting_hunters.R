@@ -43,16 +43,16 @@ hvar1 <- hvar1[hvar1$v_hunting_method != "road_kill" & hvar1$v_hunting_method !=
 
 #hmmm here found_dead and road_kill in v_hunting method instead of v_hunter_id.. check if I didnt miss any in carcass.reformatting script. how many road kill there?
 check<- allhunt[is.na(allhunt$v_hunting_method)==F & (allhunt$v_hunting_method == "road_kill" | allhunt$v_hunting_method == "found_dead"), ]
-check2<- allf[is.na(allf$v_hunter_id)==F & (allf$v_hunter_id == "road_kill" | allf$v_hunter_id == "found_dead"), ]
+#check2<- allf[is.na(allf$v_hunter_id)==F & (allf$v_hunter_id == "road_kill" | allf$v_hunter_id == "found_dead"), ]
 #116 -83 = 33 non shot foxes "went missing". Possibly 33 not shot foxes registered as hunted? or were all v_hunting method non-shot transferred to v_hunter_ID?
 
 
 #Assigning study area - sub area names with shapefile
 #we have municipality or coordinates here, but not both. So use coordinates to get municipality, then use municipality for sub-areas. Although they do not overlap entirely with shapefile borders
 
-library(ggplot2)
-ggplot(hvar1, aes(x = v_municipality)) +
-  geom_bar()
+#library(ggplot2)
+#ggplot(hvar1, aes(x = v_municipality)) +
+#  geom_bar()
 
 
 #option 1: just use all areas
@@ -74,22 +74,22 @@ hunterfile.data$doro.manual<- c(NA, 41, 39, 44, 38, 38, 42, 51, 72, 35, 44, 47, 
 
 
 #select some sub area
-hvar1   <- hvar1[is.na(hvar1$e_dd)==FALSE & is.na(hvar1$n_dd)==FALSE,] #only foxes with valid location
-sf_hvar1<- sf::st_as_sf(hvar1, coords = c("e_dd", "n_dd"), crs="+proj=longlat +datum=WGS84") # change dataset in to sf object with geometry (instead of lat/long)
-sf_hvar1<- sf::st_join(sf_hvar1, shapefile["name"], join = sf::st_within) #overlap of dataset positions with shapefile of study area - sub areas, taking the name of the subarea
-colnames(sf_hvar1)[colnames(sf_hvar1) == 'name'] <- 'sub_area'
-coords  <- data.frame(sf::st_coordinates(sf_hvar1)) #get back coordinates column from geometry
-sf_hvar1$e_dd <- coords$X # getting back lat long columns
-sf_hvar1$n_dd <- coords$Y
-hvar1 <- sf::st_drop_geometry(sf_hvar1) #remove the geometry again and get back to hvar1, #hvar1 now has shape file area names
+#hvar1   <- hvar1[is.na(hvar1$e_dd)==FALSE & is.na(hvar1$n_dd)==FALSE,] #only foxes with valid location
+#sf_hvar1<- sf::st_as_sf(hvar1, coords = c("e_dd", "n_dd"), crs="+proj=longlat +datum=WGS84") # change dataset in to sf object with geometry (instead of lat/long)
+#sf_hvar1<- sf::st_join(sf_hvar1, shapefile["name"], join = sf::st_within) #overlap of dataset positions with shapefile of study area - sub areas, taking the name of the subarea
+#colnames(sf_hvar1)[colnames(sf_hvar1) == 'name'] <- 'sub_area'
+#coords  <- data.frame(sf::st_coordinates(sf_hvar1)) #get back coordinates column from geometry
+#sf_hvar1$e_dd <- coords$X # getting back lat long columns
+#sf_hvar1$n_dd <- coords$Y
+#hvar1 <- sf::st_drop_geometry(sf_hvar1) #remove the geometry again and get back to hvar1, #hvar1 now has shape file area names
 
 #check if shapefile subarea assignment worked and subarea names match those given in script
-if(sum(is.na(hvar1$sub_area)) > 0 || !identical(unique(hvar1$sub_area), c("Inner", "Tana",  "BB"))){
-  stop("Sub-area assignment with shapefile produced NA's, or sub-area names do not match those in script")
-}
+#if(sum(is.na(hvar1$sub_area)) > 0 || !identical(unique(hvar1$sub_area), c("Inner", "Tana",  "BB"))){
+#  stop("Sub-area assignment with shapefile produced NA's, or sub-area names do not match those in script")
+#}
 
 #Selecting for study area - sub areas
-hvar1 <- subset(hvar1,(hvar1$sub_area %in% area_selection))
+#hvar1 <- subset(hvar1,(hvar1$sub_area %in% area_selection))
 
 
 
@@ -101,7 +101,7 @@ library(sf)
 '%notin%' <- Negate('%in%')
 
 # choosing varanger sub area ("Inner" / "BB" / "Tana)
-area_selection<- c("Inner",  "Tana")
+area_selection<- c("Inner")
 ## set directories
 carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
 shapefile.dir      <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
@@ -169,6 +169,18 @@ hunter.data$NHunters[hunter.data$Year==2004]<-NA
 hunter.data$from.huntingfiles <- c(hunterfile.data$NHunters,NA)
 hunter.data$doro.manual<- c(NA, 41, 39, 44, 38, 38, 42, 51, 72, 35, 44, 47, 33, 45, 43, 44,NA, NA)
 
+#make a plot over time of all the different data options
+plot(hunter.data$Year, hunter.data$NHunters, type = "l", ylim =c(10, 80))
+lines(hunter.data$Year, hunter.data$from.huntingfiles, col = "red")
+lines(hunter.data$Year, hunter.data$doro.manual, col = "green")
+#rerun script with different area selection
+lines(hunter.data$Year, hunter.data$NHunters, col = "blue") #-BB
+#rerun script with different area selection
+lines(hunter.data$Year, hunter.data$NHunters, col = "cyan") #-Tana
+#rerun script with different area selection
+lines(hunter.data$Year, hunter.data$NHunters, col = "orange") #-BB - Tana
 
+legend(2004,80,c("doro.manual","hunting.files", "carc.all", "carc-BB", "carc-Tana", "carc-BB+Tana"),  lwd=1, col=c("green","red", "black", "blue", "cyan", "orange"))
 
-
+#lessons: if hunting pressure in BB has increased over time, this measure does not capture hunting pressure at all because succesfull hunters per year = same over years in BB
+#
