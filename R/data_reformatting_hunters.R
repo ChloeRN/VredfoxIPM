@@ -101,7 +101,7 @@ library(sf)
 '%notin%' <- Negate('%in%')
 
 # choosing varanger sub area ("Inner" / "BB" / "Tana)
-area_selection<- c("Inner")
+area_selection<- c("Inner","BB", "Tana")
 ## set directories
 carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
 shapefile.dir      <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
@@ -170,7 +170,7 @@ hunter.data$from.huntingfiles <- c(hunterfile.data$NHunters,NA)
 hunter.data$doro.manual<- c(NA, 41, 39, 44, 38, 38, 42, 51, 72, 35, 44, 47, 33, 45, 43, 44,NA, NA)
 
 #make a plot over time of all the different data options
-plot(hunter.data$Year, hunter.data$NHunters, type = "l", ylim =c(10, 80))
+plot(hunter.data$Year, hunter.data$NHunters, type = "l", ylim =c(0, 80))
 lines(hunter.data$Year, hunter.data$from.huntingfiles, col = "red")
 lines(hunter.data$Year, hunter.data$doro.manual, col = "green")
 #rerun script with different area selection
@@ -184,3 +184,69 @@ legend(2004,80,c("doro.manual","hunting.files", "carc.all", "carc-BB", "carc-Tan
 
 #lessons: if hunting pressure in BB has increased over time, this measure does not capture hunting pressure at all because succesfull hunters per year = same over years in BB
 #
+
+
+#shot over time per hunter
+try <- dcast(fvar1, v_hunter_id ~ start_hunting_year, length)
+try2 <- try[,-1]
+rownames(try2) <- try[,1]
+#try2[try2 > 20] <- 20 
+#write.csv(try2, "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\shot over time per hunterall.csv", row.names=TRUE)
+
+#=== IDEA 1 =========
+# for each hunter, take the year when he shot the max number of foxes
+# (high effort years)
+hmm<-data.frame(count=c(1:207))
+hmm$count <-1
+hmm$years <-(colnames(try2)[apply(try2, 1, which.max)])
+max.effort <-data.frame(aggregate(hmm$count, list(hmm$years), sum))
+
+lines(max.effort$Group.1, (max.effort$x), col = "orange")
+
+
+#=== IDEA 2 =======
+#identify "low effort" years for each hunter, when nr shot is >10% of max
+#for each hunter, get the max value
+#then for each hunter write the years where nr >= 10% of max
+#collect a dataframe with all these years
+# count the number of occurances of years
+
+threshold <-0.3
+
+max.shot <-apply(try2, 1, max)
+oke<-data.frame(max.shot)
+oke$tenp<- oke$max.shot*threshold
+
+hunters <- unique(fvar1$v_hunter_id)
+
+effort.data <- data.frame()
+
+for(i in hunters){ 
+    newdata <- data.frame(
+      Hunter = i,
+      effort.years = (colnames(try2[rownames(try2) == i,])[sapply(try2[rownames(try2) == i,], function(x) any(x > oke$tenp[rownames(oke) ==i]))])
+    )
+    
+  effort.data <- rbind(effort.data, newdata) 
+}
+
+effort.data$count<-1
+effort <- aggregate(effort.data$count, list(effort.data$effort.years), sum)
+effort
+
+lines(effort$Group.1, (effort$x), col = "blue")
+
+#lessons: none of these options show really different dynamics
+
+#try the splitting dedicated vs opportunitic hunters options
+
+
+
+
+
+
+
+#how many hunters have shot a fox only once
+
+#how many hunters have shot a fox only one year
+
