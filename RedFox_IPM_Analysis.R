@@ -113,6 +113,8 @@ hunter.data <- data_reformatting_hunters(area_selection = area_selection,
                           carcass.dir = carcass.dir,
                           shapefile.dir = shapefile.dir)
 
+#TODO: Add option where hunting effort not taken into account in analysis (assumed equal)
+
 # 1d) Conceptual year information #
 #---------------------------------#
 
