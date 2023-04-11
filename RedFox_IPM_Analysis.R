@@ -109,8 +109,9 @@ rodent.data <- wrangleData_rodent(datafile = rodent.datafile,
                                   adjust = TRUE)
 
 ## Prepare harvest effort data
-hunter.data <- makeData_hunters()
-
+hunter.data <- data_reformatting_hunters(area_selection = area_selection,
+                          carcass.dir = carcass.dir,
+                          shapefile.dir = shapefile.dir)
 
 # 1d) Conceptual year information #
 #---------------------------------#
