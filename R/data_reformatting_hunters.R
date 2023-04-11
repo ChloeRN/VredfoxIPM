@@ -146,9 +146,10 @@ fvar1 <- subset(fvar1,(fvar1$sub_area %in% area_selection))
 
 unique(fvar1$sub_area)
 unique(fvar1$v_hunter_id)
-
-length(unique(fvar1$v_hunter_id)) #7 hunters less than in the hunting file
-length(fvar1[fvar1$v_hunter_id=="sno_varanger",]) #the carcass file somehow has more foxes than the hunting file
+length(unique(hvar1$v_hunter_id)) #214 hunters in hunting file
+length(unique(fvar1$v_hunter_id)) #207 hunters in carcass file
+nrow(hvar1)                       #the hunting file has 3300 foxes
+length(which(fvar1$v_hunter_id != "sno_varanger")) #the carcass file has 3030 foxes
 
 
 #nr of successfull hunters per year
