@@ -1,10 +1,14 @@
+#' Reformat the carcass data to get hunting effort --> nr of succesfull hunters per year
+#'
+#' @param area_selection a vector of study-area sub-area names to consider in the analyses: c("Inner", "BB",  "Tana")
+#' @param carcass.dir directory of carcass data
+#' @param shapefile.dir directory of shapefile data with study areas sub-areas
+#'
+#' @return a dataset with the nr of succesfull hunters per year, standardised
+#' @export
+#'
+#' @examples
 
-
-# choosing varanger sub area ("Inner" / "BB" / "Tana)
-area_selection<- c("Inner","BB", "Tana")
-## set directories
-carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
-shapefile.dir      <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
 
 data_reformatting_hunters <- function(area_selection,
                                       carcass.dir, shapefile.dir){
