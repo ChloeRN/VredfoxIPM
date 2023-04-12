@@ -29,7 +29,7 @@ embr_end   <- 140 #until, not including
 ## set directories
 carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
 shapefile.dir      <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
-
+rodent.dir         <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
   
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
@@ -101,7 +101,7 @@ rep.data <- wrangleData_rep(P1.datafile  = P1.datafile,
 #------------------------#
 
 ## Set data paths/filenames
-rodent.datafile <- "Data/stor_intensiv_04_20-year-var.txt"
+rodent.datafile <- data_reformatting_rodent(rodent.dir = rodent.dir)
 
 ## Prepare rodent abundance data
 rodent.data <- wrangleData_rodent(datafile = rodent.datafile,

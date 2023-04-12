@@ -1,7 +1,16 @@
-rodent.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
+#' Makes a yearly rodent abundance variable, mean nr of rodents in a plot, for each year
+#'
+#' @param rodent.dir directory of rodent data
+#'
+#' @return a dataset with the mean nr of rodents (in a plot), for each year
+#' @export
+#'
+#' @examples
 
 
-#========= LOAD DATA ==============
+data_reformatting_rodent <- function(rodent.dir) {
+
+  #========= LOAD DATA ==============
 
 rodent_filenames<-dir(paste(rodent.dir, sep = "/"))
 mylist<-c()
@@ -12,5 +21,52 @@ myfile<-do.call(rbind, mylist)  # combine all files
 allrod <- myfile
 rm(myfile)
 
-# I think I need doro's previous script to see how she prepared the data exactly so I don't have to do things double
-# do we need shapefile here too or we take rodents from all of varanger?
+#================ Select rodents from storskala areas ==============================
+
+storskala<- reshape2::dcast(allrod, sn_locality + sn_site + t_year + t_season ~ v_species, value.var = "v_abundance", fun.aggregate = sum) 
+
+#remove row where season is NA
+storskala <- storskala[!is.na(storskala$t_season) ,]
+
+# remove aves sorex and ranidae and neo_fod (keep "cricetidae","lem_lem", "mic_oec", "myo_ruf", "myo_rut")
+storskala<- subset(storskala, select=-c(aves,neo_fod, ranidae, sor_ara, sor_cae, sor_min, sor_sp))
+#rename some columns
+names(storskala)[1:4] <- c("region", "plot", "year", "season")
+names(storskala)[names(storskala) == 'cricetidae'] <- 'rodsp'
+names(storskala)[names(storskala) == 'mic_oec'] <- 'Moec'
+names(storskala)[names(storskala) == 'myo_ruf'] <- 'Mruf'
+names(storskala)[names(storskala) == 'myo_rut'] <- 'Mrut'
+names(storskala)[names(storskala) == 'lem_lem'] <- 'Llem'
+
+#================================================================
+storskala$session <- as.factor(paste(storskala$year, storskala$season, sep=""))
+
+# aggregate by region, plot, session, season, year
+stor <- aggregate(storskala$Llem, by=list(storskala$region, storskala$plot, storskala$session, storskala$season, storskala$year), sum, na.rm=T) 
+sum(storskala$Llem, na.rm=T)
+sum(stor$x) # OK except for one with lacking plot number
+names(stor) <- c("reg", "plot", "session", "season", "year", "Llem") 
+stor$Moec <- aggregate(storskala$Moec, by=list(storskala$region, storskala$plot, storskala$session, storskala$season, storskala$year), sum, na.rm=T)$x 
+stor$Mruf <- aggregate(storskala$Mruf, by=list(storskala$region, storskala$plot, storskala$session, storskala$season, storskala$year), sum, na.rm=T)$x 
+stor$Mrut <- aggregate(storskala$Mrut, by=list(storskala$region, storskala$plot, storskala$session, storskala$season, storskala$year), sum, na.rm=T)$x 
+stor$rodsp <- aggregate(storskala$rodsp, by=list(storskala$region, storskala$plot, storskala$session, storskala$season, storskala$year), sum, na.rm=T)$x
+stor$vole <- stor$Mruf + stor$Moec + stor$Mrut + stor$rodsp
+stor$tot <- stor$vole + stor$Llem
+
+# Aggregate annual means into three regions; Varanger; Nordkyn; Ifjord-gaissene
+stor$foxreg <- NA
+stor$foxreg[stor$reg %in% c("komagdalen",  "stjernevann", "vestre_jakobselv")] <- "varanger"
+stor$foxreg[stor$reg %in% c("nordkynn",  "bekkarfjord")] <- "nordkynn"
+stor$foxreg[stor$reg == "ifjordfjellet"] <- "ifjordfjellet"
+
+agdat <- aggregate(stor$tot, by = list(stor$foxreg, stor$year), mean, na.rm=T) #the mean nr of rodents per plot, for each year
+names(agdat) <- c("foxreg", "year", "totrod")
+agdat<-agdat[agdat$foxreg=="varanger",] # we only use varanger
+
+# TODO: 2022 fall is not in here yet though. So add max year for rodent? possibly in wrangleData_rodent where we also use minyear
+
+return(agdat)
+
+}
+
+
