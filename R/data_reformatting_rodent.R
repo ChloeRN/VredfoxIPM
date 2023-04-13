@@ -65,7 +65,7 @@ nrow(stor[stor$season =="spring",])
 
 check<-aggregate(. ~ season +year, stor, FUN = length)
 if( (length(check$season)) %% 2 !=0 ){    #check if even nr of seasons
-  stop("uneven number of seasons in rodent dataset")
+  stop("uneven number of seasons in rodent dataset")  #this will return an error when using google disc folders because autumn 2022 not included
 }
 
 agdat <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + foxreg, stor, mean)  #the mean nr of rodents per plot, for each year
