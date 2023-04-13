@@ -104,9 +104,12 @@ rep.data <- wrangleData_rep(P1.datafile  = P1.datafile,
 rodent.datafile <- data_reformatting_rodent(rodent.dir = rodent.dir)
 
 ## Prepare rodent abundance data
-rodent.data <- wrangleData_rodent(datafile = rodent.datafile,
+rodent.data <- wrangleData_rodent(rodent.datafile = rodent.datafile,
                                   minYear = minYear,
                                   adjust = TRUE)
+
+#Question Stijn1: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
+#Question Stijn2: What are the rules we use to assign categorical rodent abundance? ( i used >1.5 and >3 for now but that doesnt match exactly old dataframe)
 
 ## Prepare harvest effort data
 hunter.data <- data_reformatting_hunters(area_selection = area_selection,

@@ -1,6 +1,6 @@
 #' Prepare rodent abundance covariate data
 #'
-#' @param datafile character string. Path/file name for raw data file.
+#' @param rodent.datafile Dataframe with rodent abundance data
 #' @param minYear integer. First year to consider in analyses.
 #' @param adjust logical. Default = FALSE. If TRUE, adjust levels of 3-category
 #' covariate in years 2018 and 2019 from 1 to 2 (in accordance with Dorothee's 
@@ -12,10 +12,10 @@
 #'
 #' @examples
 
-wrangleData_rodent <- function(datafile, minYear, adjust = FALSE){
+wrangleData_rodent <- function(rodent.datafile, minYear, adjust){
   
   ## Load raw data
-  RodentData <- read.table(datafile, header = T)
+  RodentData <- rodent.datafile
   
   ## Discard earlier years (if present)
   RodentData <- subset(RodentData, year >= minYear)
