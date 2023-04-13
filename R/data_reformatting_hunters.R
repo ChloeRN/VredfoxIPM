@@ -78,14 +78,14 @@ hunter.data<- data.frame()
 y <- unique(fvar1$start_hunting_year[!is.na(fvar1$start_hunting_year)])
 for(i in y){
   newdata <- data.frame(
-    year =i,
+    start_hunting_year =i,
     NHunters = length(unique(fvar1$v_hunter_id[fvar1$start_hunting_year==i ]))
   )
   hunter.data<-rbind(hunter.data, newdata)
 }
 
 #set 2004 to NA?
-hunter.data$NHunters[hunter.data$year==2004]<-NA
+hunter.data$NHunters[hunter.data$start_hunting_year==2004]<-NA
 
 # TODO: Double-check with Doro about NA for 2004 / year assignment
 
