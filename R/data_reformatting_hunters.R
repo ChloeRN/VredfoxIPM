@@ -64,12 +64,9 @@ sf_fvar1$n_dd <- coords$Y
 fvar1 <- st_drop_geometry(sf_fvar1) #remove the geometry again and get back to fvar1, #fvar1 now has shape file area names
 
 #check if shapefile subarea assignment worked and subarea names match those given in script
-
-#TODO: fix coordinates of 2 foxes on google disc so below # part doesnt return error
-
-#if(sum(is.na(fvar1$sub_area)) > 0 || !identical(unique(fvar1$sub_area), c("Inner", "Tana",  "BB"))){
-#  stop("Sub-area assignment with shapefile produced NA's, or sub-area names do not match those in script")
-#}
+if(sum(is.na(fvar1$sub_area)) > 2 || !identical(unique(fvar1$sub_area), c("Inner", "Tana",  "BB", NA))){    #there are 2 foxes with known wrong coordinates in this file, that return NA
+  stop("Sub-area assignment with shapefile produced more than 2 NA's, or sub-area names do not match those in script")
+}
 
 #Selecting for study area - sub areas
 fvar1 <- subset(fvar1,(fvar1$sub_area %in% area_selection))

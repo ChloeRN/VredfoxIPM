@@ -59,14 +59,16 @@ stor$foxreg[stor$reg %in% c("komagdalen",  "stjernevann", "vestre_jakobselv")] <
 stor$foxreg[stor$reg %in% c("nordkynn",  "bekkarfjord")] <- "nordkynn"
 stor$foxreg[stor$reg == "ifjordfjellet"] <- "ifjordfjellet"
 
-agdat <- aggregate(stor$tot, by = list(stor$foxreg, stor$year), mean, na.rm=T) #the mean nr of rodents per plot, for each year
-names(agdat) <- c("foxreg", "year", "totrod")
+agdat <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + foxreg, stor, mean)  #the mean nr of rodents per plot, for each year
 agdat<-agdat[agdat$foxreg=="varanger",] # we only use varanger
 
 # TODO: 2022 fall is not in here yet though. So add max year for rodent? possibly in wrangleData_rodent where we also use minyear
 
-return(agdat)
+#make categories of rodent abundance
+agdat$cat2 <- ifelse(agdat$tot > 1.5,1,0)
+agdat$cat3 <- ifelse(agdat$tot > 3,2,agdat$cat2)
 
+return(agdat)
 }
 
 

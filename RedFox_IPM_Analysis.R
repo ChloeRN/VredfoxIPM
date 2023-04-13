@@ -114,6 +114,7 @@ hunter.data <- data_reformatting_hunters(area_selection = area_selection,
                           shapefile.dir = shapefile.dir)
 
 #TODO: Add option where hunting effort not taken into account in analysis (assumed equal)
+ # how to do this, make hunter data 0, or remove that step from analysis?
 
 # 1d) Conceptual year information #
 #---------------------------------#
