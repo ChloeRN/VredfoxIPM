@@ -53,6 +53,9 @@ fvar1 <- allf[is.na(allf$sn_region)== F & allf$sn_region == "varanger" , ]
 #Remove the ones that were not shot
 fvar1 <- fvar1[fvar1$v_hunter_id != "road_kill" & fvar1$v_hunter_id != "found_dead", ]
 
+#Remove 2 foxes shot in nessenby_karlebotn (outside study area)
+fvar1 <- fvar1[fvar1$v_place_name != "nessenby_karlebotn" | is.na(fvar1$v_place_name) == TRUE,]
+
 #Assigning study area - sub area names with shapefile
 fvar1   <- fvar1[is.na(fvar1$e_dd)==FALSE & is.na(fvar1$n_dd)==FALSE,] #only foxes with valid location
 sf_fvar1<- st_as_sf(fvar1, coords = c("e_dd", "n_dd"), crs="+proj=longlat +datum=WGS84") # change dataset in to sf object with geometry (instead of lat/long)
@@ -64,8 +67,8 @@ sf_fvar1$n_dd <- coords$Y
 fvar1 <- st_drop_geometry(sf_fvar1) #remove the geometry again and get back to fvar1, #fvar1 now has shape file area names
 
 #check if shapefile subarea assignment worked and subarea names match those given in script
-if(sum(is.na(fvar1$sub_area)) > 2 || !identical(unique(fvar1$sub_area), c("Inner", "Tana",  "BB", NA))){    #there are 2 foxes with known wrong coordinates in this file, that return NA
-  stop("Sub-area assignment with shapefile produced more than 2 NA's, or sub-area names do not match those in script")
+if(sum(is.na(fvar1$sub_area)) > 0 || !identical(unique(fvar1$sub_area), c("Inner", "Tana",  "BB"))){  
+  stop("Sub-area assignment with shapefile produced NA's, or sub-area names do not match those in script")
 }
 
 #Selecting for study area - sub areas
@@ -84,10 +87,8 @@ for(i in y){
   hunter.data<-rbind(hunter.data, newdata)
 }
 
-#set 2004 to NA?
+#set 2004 to NA because start project
 hunter.data$NHunters[hunter.data$start_hunting_year==2004]<-NA
-
-# TODO: Double-check with Doro about NA for 2004 / year assignment
 
 ## Standardize and return
 hunter.data$NHunters_std <- (hunter.data$NHunters - mean(hunter.data$NHunters, na.rm = T))/sd(hunter.data$NHunters, na.rm = T)
