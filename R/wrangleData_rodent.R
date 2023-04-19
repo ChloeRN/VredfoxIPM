@@ -22,10 +22,10 @@ wrangleData_rodent <- function(rodent.datafile, minYear, adjust){
   
   ## Adjust 3-level indices if necessary
   # TODO: Double-check neccessity of this with Doro
-  if(adjust){
-    adj_idx <- which(RodentData$year %in% c(2018, 2019))
-    RodentData$cat3[adj_idx] <- 2
-  }
+ # if(adjust){
+ #   adj_idx <- which(RodentData$year %in% c(2018, 2019))
+ #   RodentData$cat3[adj_idx] <- 2
+ # }
   
   ## Format rodent abundance data
   # Continuous

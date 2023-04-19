@@ -72,8 +72,11 @@ agdat <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + fox
 agdat<-agdat[agdat$foxreg=="varanger",] # we only use varanger
 
 #make categories of rodent abundance
-agdat$cat2 <- ifelse(agdat$tot > 1.5,1,0)
-agdat$cat3 <- ifelse(agdat$tot > 3,2,agdat$cat2)
+#based on stoessel et al. 2019 and angerbjorn et al. 2013
+agdat$cat2  <- c("low", "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "post-peak", "low",     "low", "pre-peak", "pre-peak")
+agdat$cat3 <-  c("low", "low",     "increase",  "peak",      "decline", "low",      "increase", "peak",      "decline", "low",      "increase", "peak",      "decline", "low",      "peak",      "decline", "low", "low",      "increase")
+
+# TODO: discuss rodent abundance categories with Rolf
 
 return(agdat)
 }
