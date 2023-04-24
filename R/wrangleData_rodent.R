@@ -12,10 +12,10 @@
 #'
 #' @examples
 
-wrangleData_rodent <- function(rodent.datafile, minYear, adjust){
+wrangleData_rodent <- function(rodent.reform.dat, minYear, adjust){
   
-  ## Load raw data
-  RodentData <- rodent.datafile
+  ## Load reformatted data
+  RodentData <- rodent.reform.dat
   
   ## Discard earlier years (if present)
   RodentData <- subset(RodentData, year >= minYear)

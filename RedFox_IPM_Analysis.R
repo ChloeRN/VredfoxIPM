@@ -2,6 +2,9 @@ library(ggplot2)
 library(nimble)
 library(sf)
 library(reshape2)
+library(remotes)
+remotes::install_github("ropensci/ckanr"); library('ckanr')
+library('purrr')
 
 #**********#
 # 0) SETUP #
@@ -19,18 +22,32 @@ maxAge_yrs <- 10 # Age of the oldest female recorded
 
 #removal of summer months:
 summer_removal <- c(6,7,8,9) #numerical months to be removed from age at harvest data
-# choosing varanger sub area ("Inner" / "BB" / "Tana)
+# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
 area_selection<- c("Inner", "BB",  "Tana")
 # start and end of placental scars and embryo sample periods (julian day)
 plac_start <- 140 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
-## set directories
+
+## set dataset names and versions
+carcass.dataset.name <- "v_redfox_carcass_examination_v1"
+carcass.dataset.version <-1
+
+rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v3"
+rodent.dataset.version <- 3
+
+#TODO: change version numbers and names as soon as I get access
+
+#TODO: these directories can be removed when import from COAT dataportal and NIRD works
 carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
 shapefile.dir      <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
-rodent.dir         <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
-  
+#rodent.dir         <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
+
+# Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer  
+COAT_key <- Sys.getenv("API_COAT_Stijn") # the API can be found on you page on the COAT data portal (log in and click on your name in the upper right corner of the page)
+#TODO: share API key with Chloe and Doro so they can save it as env variable on their computer
+
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
   for (nm in list.files(path, pattern = "[.][RrSsQq]$")) {
@@ -63,14 +80,14 @@ sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted
 #-------------------------------#
 carcassData<- data_reformatting_carcass (
   Amax               = Amax,   
-  summer_removal     = c(6,7,8,9) ,
-  area_selection     = c("Inner", "BB",  "Tana"),
-  plac_start         = 140,
-  plac_end           = 80 ,
-  embr_start         = 100 ,
-  embr_end           = 140,
-  carcass.dir        ="C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination",
-  shapefile.dir      ="C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
+  summer_removal     = summer_removal ,
+  area_selection     = area_selection,
+  plac_start         = plac_start,
+  plac_end           = plac_end ,
+  embr_start         = embr_start ,
+  embr_end           = embr_end,
+  carcass.dir        = carcass.dir,
+  shapefile.dir      = shapefile.dir
 )
 
 # 1a) Winter Age-at-Harvest data #
@@ -99,16 +116,19 @@ rep.data <- wrangleData_rep(P1.datafile  = P1.datafile,
 
 # 1c) Environmental data #
 #------------------------#
-
-## Set data paths/filenames
-rodent.datafile <- data_reformatting_rodent(rodent.dir = rodent.dir)
-
+##download rodent data
+rodent.dataset <- data_downloadingCOAT (COAT_key = COAT_key, 
+                                       COATdataset.name    = rodent.dataset.name,
+                                       COATdataset.version = rodent.dataset.version)
+## reformat rodent data
+rodent.reform.dat<- data_reformatting_rodent(rodent.dataset = rodent.dataset)
 ## Prepare rodent abundance data
-rodent.data <- wrangleData_rodent(rodent.datafile = rodent.datafile,
+rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.reform.dat,
                                   minYear = minYear,
                                   adjust = TRUE)
 
-#Question Stijn1: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
+#Question Stijn: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
+
 
 ## Prepare harvest effort data
 hunter.data <- data_reformatting_hunters(area_selection = area_selection,
@@ -117,6 +137,7 @@ hunter.data <- data_reformatting_hunters(area_selection = area_selection,
 
 #TODO: Add option where hunting effort not taken into account in analysis (assumed equal)
  # how to do this, make hunter data 0, or remove that step from analysis?
+
 
 # 1d) Conceptual year information #
 #---------------------------------#

@@ -8,19 +8,10 @@
 #' @examples
 
 
-data_reformatting_rodent <- function(rodent.dir) {
+data_reformatting_rodent <- function(rodent.dataset) {
 
   #========= LOAD DATA ==============
-
-rodent_filenames<-dir(paste(rodent.dir, sep = "/"))
-mylist<-c()
-for (i in 1:length(rodent_filenames)){
-  mylist[[i]]<-read.table(paste(rodent.dir, rodent_filenames[i], sep = "/"), header=T, sep = ";")
-}
-myfile<-do.call(rbind, mylist)  # combine all files
-allrod <- myfile
-rm(myfile)
-
+allrod <- rodent.dataset
 #================ Select rodents from storskala areas ==============================
 
 storskala<- reshape2::dcast(allrod, sn_locality + sn_site + t_year + t_season ~ v_species, value.var = "v_abundance", fun.aggregate = sum) 
@@ -73,10 +64,10 @@ agdat<-agdat[agdat$foxreg=="varanger",] # we only use varanger
 
 #make categories of rodent abundance
 #based on stoessel et al. 2019 and angerbjorn et al. 2013
-agdat$cat2  <- c("low", "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "post-peak", "low",     "low", "pre-peak", "pre-peak")
-agdat$cat3 <-  c("low", "low",     "increase",  "peak",      "decline", "low",      "increase", "peak",      "decline", "low",      "increase", "peak",      "decline", "low",      "peak",      "decline", "low", "low",      "increase")
+#agdat$cat2  <- c("low", "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "post-peak", "low",     "low", "pre-peak", "pre-peak")
+#agdat$cat3 <-  c("low", "low",     "increase",  "peak",      "decline", "low",      "increase", "peak",      "decline", "low",      "increase", "peak",      "decline", "low",      "peak",      "decline", "low", "low",      "increase")
 
-# TODO: discuss rodent abundance categories with Rolf
+# TODO: write rodent abundance categories as actual rules so they work in the future with more years
 
 return(agdat)
 }
