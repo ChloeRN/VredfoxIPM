@@ -1,6 +1,6 @@
 #' Makes a yearly rodent abundance variable, mean nr of rodents in a plot, for each year
 #'
-#' @param rodent.dir directory of rodent data
+#' @param rodent.dataset rodent dataset downloaded from COAT dataportal
 #'
 #' @return a dataset with the mean nr of rodents (in a plot), for each year
 #' @export

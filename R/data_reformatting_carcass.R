@@ -7,7 +7,7 @@
 #' @param plac_end integer. Julian day (not including)until  we use placental scars presence to calculate breeding or not breeding for P2
 #' @param embr_start integer. Julian day (including) from which we use embryos presence to calculate breeding or not breeding for P2
 #' @param embr_end integer. Julian day (not including) until we use embryos presence to calculate breeding or not breeding for P2
-#' @param carcass.dir directory of carcass data
+#' @param carcass.dataset carcass dataset downloaded from COAT dataportal
 #' @param shapefile.dir directory of shapefile data with study areas sub-areas
 #'
 #' @return a list containing the Age at harvest matrix, P1var and P2var
@@ -18,21 +18,14 @@
 
 data_reformatting_carcass <- function (Amax, summer_removal, area_selection,
                               plac_start, plac_end , embr_start, embr_end,
-                              carcass.dir, shapefile.dir) {
+                              carcass.dataset, 
+                              shapefile.dir) {
   
   # === 1 thing that I use later down ====
   '%notin%' <- Negate('%in%')
   
   #========= LOAD DATA ==============
-
-  carcass_filenames<-dir(paste(carcass.dir, sep = "/"))
-  mylist<-c()
-  for (i in 1:length(carcass_filenames)){
-    mylist[[i]]<-read.table(paste(carcass.dir, carcass_filenames[i], sep = "/"), header=T, sep = ";")
-  }
-  myfile<-do.call(rbind, mylist)  # combine all files
-  allf <- myfile
-  rm(myfile)
+  allf <- carcass.dataset
   
   shapefile <- sf::st_read(paste(shapefile.dir, sep = "/"))
   shapefile <- sf::st_transform(shapefile, crs = 4326)

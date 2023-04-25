@@ -1,7 +1,7 @@
 #' Reformat the carcass data to get hunting effort --> nr of succesfull hunters per year
 #'
 #' @param area_selection a vector of study-area sub-area names to consider in the analyses: c("Inner", "BB",  "Tana")
-#' @param carcass.dir directory of carcass data
+#' @param carcass.dataset Carcass dataset from the COAT datapotal
 #' @param shapefile.dir directory of shapefile data with study areas sub-areas
 #'
 #' @return a dataset with the nr of succesfull hunters per year, standardised
@@ -19,18 +19,10 @@ data_reformatting_hunters <- function(area_selection,
 
 #========= LOAD DATA ==============
 ## load data
-carcass_filenames<-dir(paste(carcass.dir, sep = "/"))
-mylist<-c()
-for (i in 1:length(carcass_filenames)){
-  mylist[[i]]<-read.table(paste(carcass.dir, carcass_filenames[i], sep = "/"), header=T, sep = ";")
-}
-myfile<-do.call(rbind, mylist)  # combine all files
-allf <- myfile
-rm(myfile)
+allf <- carcass.dataset
 
 shapefile <- st_read(paste(shapefile.dir, sep = "/"))
 shapefile <- st_transform(shapefile, crs = 4326)
-
 
 #check if loading carcass data worked
 if(!exists("allf") || !length(allf)==42){

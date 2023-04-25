@@ -17,35 +17,30 @@ mySeed <- 0
 Amax <- 5 # Number of age classes
 Tmax <- 15  # Number of years
 minYear <- 2004 # First year to consider
-
 maxAge_yrs <- 10 # Age of the oldest female recorded
-
-#removal of summer months:
-summer_removal <- c(6,7,8,9) #numerical months to be removed from age at harvest data
-# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
-area_selection<- c("Inner", "BB",  "Tana")
+summer_removal <- c(6,7,8,9) #removal of summer months: numerical months to be removed from age at harvest data
+area_selection<- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
 # start and end of placental scars and embryo sample periods (julian day)
 plac_start <- 140 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
-## set dataset names and versions
+## set dataset names, versions, and directories, and access
 carcass.dataset.name <- "v_redfox_carcass_examination_v1"
 carcass.dataset.version <-1
 
 rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v3"
 rodent.dataset.version <- 3
 
-#TODO: change version numbers and names as soon as I get access
-
-#TODO: these directories can be removed when import from COAT dataportal and NIRD works
-carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
 shapefile.dir      <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
-#rodent.dir         <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
 
-# Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer  
-COAT_key <- Sys.getenv("API_COAT_Stijn") # the API can be found on you page on the COAT data portal (log in and click on your name in the upper right corner of the page)
+COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
+
+#TODO: change version numbers and names as soon as I get access
+#TODO: these directories can be removed when import from COAT dataportal and NIRD works
+#carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
+#rodent.dir         <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
 #TODO: share API key with Chloe and Doro so they can save it as env variable on their computer
 
 ## Source all functions in "R" folder
@@ -76,8 +71,15 @@ sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted
 # 1) DATA PREPARATION #
 #*********************#
 
-# 1aa) reformatting carcass data
+# 1a) Download and reformat carcass data
 #-------------------------------#
+
+## Download carcass data
+carcass.dataset <- data_downloadingCOAT (COAT_key = COAT_key, 
+                                        COATdataset.name    = carcass.dataset.name,
+                                        COATdataset.version = carcass.dataset.version)
+
+## Reformat carcass data
 carcassData<- data_reformatting_carcass (
   Amax               = Amax,   
   summer_removal     = summer_removal ,
@@ -86,11 +88,11 @@ carcassData<- data_reformatting_carcass (
   plac_end           = plac_end ,
   embr_start         = embr_start ,
   embr_end           = embr_end,
-  carcass.dir        = carcass.dir,
+  carcass.dataset    = carcass.dataset,
   shapefile.dir      = shapefile.dir
 )
 
-# 1a) Winter Age-at-Harvest data #
+# 1b) Winter Age-at-Harvest data #
 #--------------------------------#
 
 ## Set data path/filename
@@ -100,7 +102,7 @@ wAaH.datafile <- carcassData$AaH.matrix
 wAaH.data <- wrangleData_winterAaH(wAaH.datafile = wAaH.datafile, 
                                    Amax = Amax)
 
-# 1b) Reproduction data #
+# 1c) Reproduction data #
 #-----------------------#
 
 ## Set data paths/filenames
@@ -113,15 +115,27 @@ rep.data <- wrangleData_rep(P1.datafile  = P1.datafile,
                             Amax = Amax, 
                             minYear = minYear)
 
+# 1d) Harvest effort data #
+#------------------------#
 
-# 1c) Environmental data #
+## Prepare harvest effort data
+hunter.data <- data_reformatting_hunters( area_selection = area_selection,
+                                         carcass.dataset = carcass.dataset,
+                                           shapefile.dir = shapefile.dir)
+
+#TODO: Add option where hunting effort not taken into account in analysis (assumed equal)
+ # how to do this, make hunter data 0, or remove that step from analysis?
+
+# 1e) Environmental data #
 #------------------------#
 ##download rodent data
 rodent.dataset <- data_downloadingCOAT (COAT_key = COAT_key, 
                                        COATdataset.name    = rodent.dataset.name,
                                        COATdataset.version = rodent.dataset.version)
+
 ## reformat rodent data
 rodent.reform.dat<- data_reformatting_rodent(rodent.dataset = rodent.dataset)
+
 ## Prepare rodent abundance data
 rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.reform.dat,
                                   minYear = minYear,
@@ -130,16 +144,7 @@ rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.reform.dat,
 #Question Stijn: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
 
 
-## Prepare harvest effort data
-hunter.data <- data_reformatting_hunters(area_selection = area_selection,
-                          carcass.dir = carcass.dir,
-                          shapefile.dir = shapefile.dir)
-
-#TODO: Add option where hunting effort not taken into account in analysis (assumed equal)
- # how to do this, make hunter data 0, or remove that step from analysis?
-
-
-# 1d) Conceptual year information #
+# 1f) Conceptual year information #
 #---------------------------------#
 
 YearInfo <- collate_yearInfo(minYear = minYear,
