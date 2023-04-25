@@ -5,6 +5,7 @@ library(reshape2)
 library(remotes)
 remotes::install_github("ropensci/ckanr"); library('ckanr')
 library('purrr')
+library(dplyr)
 
 #**********#
 # 0) SETUP #

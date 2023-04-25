@@ -36,10 +36,14 @@ wrangleData_rodent <- function(rodent.reform.dat, minYear, adjust){
   
   # 3-level categorical
   RodentIndex3 <- RodentData$cat3
+  
+  # 3-level categorical-phases
+  RodentIndex4 <- RodentData$catphase
 
   ## List and return
-  return(list(cont = RodentAbundance,
-              cat2 = RodentIndex2,
-              cat3 = RodentIndex3))
+  return(list(cont     = RodentAbundance,
+              cat2     = RodentIndex2,
+              cat3     = RodentIndex3,
+              catphase = RodentIndex4))
   
 }

@@ -63,11 +63,15 @@ agdat <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + fox
 agdat<-agdat[agdat$foxreg=="varanger",] # we only use varanger
 
 #make categories of rodent abundance
-#based on stoessel et al. 2019 and angerbjorn et al. 2013
-#agdat$cat2  <- c("low", "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "pre-peak", "post-peak", "low",     "pre-peak", "post-peak", "low",     "low", "pre-peak", "pre-peak")
-#agdat$cat3 <-  c("low", "low",     "increase",  "peak",      "decline", "low",      "increase", "peak",      "decline", "low",      "increase", "peak",      "decline", "low",      "peak",      "decline", "low", "low",      "increase")
-
-# TODO: write rodent abundance categories as actual rules so they work in the future with more years
+#1) cat2, higher or lower than 2 (SUMMER)
+agdat$cat2<- ifelse(agdat$tot>2, 1,0)
+#2) cat3, >= 1, >= 3 (SUMMER)
+agdat$cat3<- ifelse(agdat$tot>=1, 1,0)
+agdat$cat3<- ifelse(agdat$tot>=3, 2, agdat$cat3)
+#3) phase of cycle, (WINTER)/hunting period (stoessel et al. 2019)
+agdat$catphase <- ifelse(dplyr::lead(agdat$tot)>(agdat$tot+0.5), "pre-peak", "-")
+agdat$catphase <- ifelse(dplyr::lead(agdat$tot)<=(agdat$tot+0.5), "low", agdat$catphase)
+agdat$catphase <- ifelse(dplyr::lead(agdat$tot)<agdat$tot & dplyr::lag(agdat$tot)<agdat$tot, "post-peak", agdat$catphase)
 
 return(agdat)
 }
