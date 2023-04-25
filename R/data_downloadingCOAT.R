@@ -82,8 +82,8 @@ for (i in 1:length(urls)) {
 
 ## this part splits the list that contains all files into coordinate file, aux file and data file
 
-coordinates <- mylist[[grep("coordinates", urls)]]
-aux <- mylist[[grep("aux", urls)]]
+#coordinates <- mylist[[grep("coordinates", urls)]]
+#aux <- mylist[[grep("aux", urls)]]
 dat <- keep(mylist, !grepl("coordinates|aux|readme", urls)) %>% do.call(rbind, .)  # this does not work if the data files have different structures (e.g. temperature datasets)
 
 return(dat)

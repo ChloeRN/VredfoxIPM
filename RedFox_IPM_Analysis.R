@@ -30,8 +30,8 @@ embr_end   <- 140 #until, not including
 carcass.dataset.name <- "v_redfox_carcass_examination_v1"
 carcass.dataset.version <-1
 
-rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v3"
-rodent.dataset.version <- 3
+rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
+rodent.dataset.version <- 5
 
 shapefile.dir      <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
 
