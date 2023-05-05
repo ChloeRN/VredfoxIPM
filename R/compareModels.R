@@ -70,32 +70,18 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
     
   ## Set parameter groups for plotting posterior density overlaps
   plot.params <- list(
-    VRmeans = c(paste0("Mu.mH[", 1:Amax, "]"), 
-                paste0("Mu.mO[", 1:Amax, "]"), 
-                paste0("Mu.Psi[", 2:Amax, "]"), 
-                paste0("Mu.rho[", 2:Amax, "]"),  
-                "Mu.S0"),
+    VRmeans = c(paste0("Mu.Psi[", 2:Amax, "]"), 
+                paste0("Mu.rho[", 2:Amax, "]"),
+                "sigma.Psi", "sigma.rho"),
     
-    VReffects = c("sigma.mH", "sigma.Psi", "sigma.rho",
-                  "betaHE.mH", "betaR.Psi", paste0("betaR.Psi[", 2:3, "]")),
-    
-    Imm = paste0("Imm[", 1:Tmax, "]"),
-    
-    Ntot = paste0("N.tot[", 1:Tmax, "]"),
-    
-    Btot = paste0("B.tot[", 1:Tmax, "]"),
-    
-    Rtot = paste0("R.tot[", 1:Tmax, "]")
+    VReffects = c("betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
+                  "betaR.rho", paste0("betaR.rho[", 2:3, "]"))
   )
   
   ## Set parameters plotting time series of posterior summaries
   plotTS.params <- list(
-    ParamNames = c("N.tot", "B.tot", "R.tot", "Imm",
-                   #"mO", "S", "S0"
-                   "mH", "Psi", "rho"),
-    ParamLabels = c("Female population size", "# breeding females", "# female recruits", "# female immigrants",
-                    # "Natural mortality", "Survival", "Early survival",
-                    "Harvest mortality", "Pregnancy rate", "# fetuses/female")
+    ParamNames = c("Psi", "rho"),
+    ParamLabels = c("Pregnancy rate", "# fetuses/female")
   )
 
   ## Plot posterior overlaps
