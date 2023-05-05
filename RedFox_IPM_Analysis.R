@@ -1,6 +1,11 @@
 library(ggplot2)
 library(nimble)
-
+library(sf)
+library(reshape2)
+library(remotes)
+library('ckanr')
+library('purrr')
+library(dplyr)
 
 #**********#
 # 0) SETUP #
@@ -13,9 +18,36 @@ mySeed <- 0
 Amax <- 5 # Number of age classes
 Tmax <- 15  # Number of years
 minYear <- 2004 # First year to consider
-
 maxAge_yrs <- 10 # Age of the oldest female recorded
-  
+summer_removal <- c(6,7,8,9) #removal of summer months: numerical months to be removed from age at harvest data
+area_selection<- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
+# start and end of placental scars and embryo sample periods (julian day)
+plac_start <- 140 #including
+plac_end   <- 80  #until, not including
+embr_start <- 100 #including
+embr_end   <- 140 #until, not including
+
+## set dataset names, versions, and directories, and access
+carcass.dataset.name <- "v_redfox_carcass_examination_v1"
+carcass.dataset.version <- 1
+
+rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
+rodent.dataset.version <- 5
+
+# Stijn
+shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
+
+# Chloe
+shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+
+COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
+
+#TODO: change version numbers and names as soon as I get access
+#TODO: these directories can be removed when import from COAT dataportal and NIRD works
+#carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
+#rodent.dir         <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
+#TODO: share API key with Chloe and Doro so they can save it as env variable on their computer
+
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
   for (nm in list.files(path, pattern = "[.][RrSsQq]$")) {
@@ -46,46 +78,78 @@ sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted
 # 1) DATA PREPARATION #
 #*********************#
 
-# 1a) Winter Age-at-Harvest data #
+# 1a) Download and reformat carcass data
+#-------------------------------#
+
+## Download carcass data
+carcass.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
+                                     COATdataset.name = carcass.dataset.name,
+                                     COATdataset.version = carcass.dataset.version)
+
+## Reformat carcass data
+carcass.data <- reformatData_carcass(Amax = Amax,   
+                                     summer_removal = summer_removal ,
+                                     area_selection = area_selection,
+                                     plac_start = plac_start,
+                                     plac_end = plac_end ,
+                                     embr_start = embr_start ,
+                                     embr_end = embr_end,
+                                     carcass.dataset = carcass.data.raw,
+                                     shapefile.dir = shapefile.dir)
+
+# 1b) Winter Age-at-Harvest data #
 #--------------------------------#
 
 ## Set data path/filename
-wAaH.datafile <- "Data/Cvar.tot_oct-mai_5age.txt"
+wAaH.datafile <- carcass.data$AaH.matrix
 
 ## Prepare winter AaH data
-wAaH.data <- wrangleData_winterAaH(datafile = wAaH.datafile, 
+wAaH.data <- wrangleData_winterAaH(wAaH.datafile = wAaH.datafile, 
                                    Amax = Amax)
 
-
-# 1b) Reproduction data #
+# 1c) Reproduction data #
 #-----------------------#
 
 ## Set data paths/filenames
-rep.datafiles <- c("Data/P1var_tot.txt", # Placental scar/embryo count
-                   "Data/P2var_tot.txt") # Presence of placental scars/embryos/pregnancy signs
+P1.datafile <- carcass.data$P1var # Placental scar/embryo count
+P2.datafile <- carcass.data$P2var # Presence of placental scars/embryos/pregnancy signs
 
 ## Prepare reproduction data
-rep.data <- wrangleData_rep(datafiles = rep.datafiles, 
+rep.data <- wrangleData_rep(P1.datafile = P1.datafile, 
+                            P2.datafile = P2.datafile,
                             Amax = Amax, 
                             minYear = minYear)
 
 
-# 1c) Environmental data #
+# 1d) Harvest effort data #
 #------------------------#
 
-## Set data paths/filenames
-rodent.datafile <- "Data/stor_intensiv_04_20-year-var.txt"
+## Prepare harvest effort data
+hunter.data <- reformatData_hunters(area_selection = area_selection,
+                                    carcass.dataset = carcass.data.raw,
+                                    shapefile.dir = shapefile.dir)
+
+
+# 1e) Environmental data #
+#------------------------#
+
+## Download rodent data
+rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
+                                     COATdataset.name = rodent.dataset.name,
+                                     COATdataset.version = rodent.dataset.version)
+
+## Reformat rodent data
+rodent.data.reform <- reformatData_rodent(rodent.dataset = rodent.data.raw)
 
 ## Prepare rodent abundance data
-rodent.data <- wrangleData_rodent(datafile = rodent.datafile,
+rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.data.reform,
                                   minYear = minYear,
                                   adjust = TRUE)
 
-## Prepare harvest effort data
-hunter.data <- makeData_hunters()
+# Question Stijn: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
 
 
-# 1d) Conceptual year information #
+# 1f) Conceptual year information #
 #---------------------------------#
 
 YearInfo <- collate_yearInfo(minYear = minYear,

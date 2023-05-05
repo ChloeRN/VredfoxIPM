@@ -1,6 +1,6 @@
 #' Prepare rodent abundance covariate data
 #'
-#' @param datafile character string. Path/file name for raw data file.
+#' @param rodent.datafile Dataframe with rodent abundance data
 #' @param minYear integer. First year to consider in analyses.
 #' @param adjust logical. Default = FALSE. If TRUE, adjust levels of 3-category
 #' covariate in years 2018 and 2019 from 1 to 2 (in accordance with Dorothee's 
@@ -12,20 +12,20 @@
 #'
 #' @examples
 
-wrangleData_rodent <- function(datafile, minYear, adjust = FALSE){
+wrangleData_rodent <- function(rodent.reform.dat, minYear, adjust){
   
-  ## Load raw data
-  RodentData <- read.table(datafile, header = T)
+  ## Load reformatted data
+  RodentData <- rodent.reform.dat
   
   ## Discard earlier years (if present)
   RodentData <- subset(RodentData, year >= minYear)
   
   ## Adjust 3-level indices if necessary
   # TODO: Double-check neccessity of this with Doro
-  if(adjust){
-    adj_idx <- which(RodentData$year %in% c(2018, 2019))
-    RodentData$cat3[adj_idx] <- 2
-  }
+ # if(adjust){
+ #   adj_idx <- which(RodentData$year %in% c(2018, 2019))
+ #   RodentData$cat3[adj_idx] <- 2
+ # }
   
   ## Format rodent abundance data
   # Continuous
@@ -36,10 +36,14 @@ wrangleData_rodent <- function(datafile, minYear, adjust = FALSE){
   
   # 3-level categorical
   RodentIndex3 <- RodentData$cat3
+  
+  # 3-level categorical-phases
+  RodentIndex4 <- RodentData$catphase
 
   ## List and return
-  return(list(cont = RodentAbundance,
-              cat2 = RodentIndex2,
-              cat3 = RodentIndex3))
+  return(list(cont     = RodentAbundance,
+              cat2     = RodentIndex2,
+              cat3     = RodentIndex3,
+              catphase = RodentIndex4))
   
 }
