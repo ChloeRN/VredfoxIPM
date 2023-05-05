@@ -1,16 +1,16 @@
 #' Makes a yearly rodent abundance variable, mean nr of rodents in a plot, for each year
 #'
-#' @param rodent.dataset rodent dataset downloaded from COAT dataportal
+#' @param rodent.dataset dataframe containing the carcass dataset downloaded from the COAT dataportal
 #'
-#' @return a dataset with the mean nr of rodents (in a plot), for each year
+#' @return a dataframe containing the mean nr of rodents (in a plot), for each year
 #' @export
 #'
 #' @examples
 
 
-data_reformatting_rodent <- function(rodent.dataset) {
+reformatData_rodent <- function(rodent.dataset) {
 
-  #========= LOAD DATA ==============
+#========= LOAD DATA ==============
 allrod <- rodent.dataset
 #================ Select rodents from storskala areas ==============================
 
