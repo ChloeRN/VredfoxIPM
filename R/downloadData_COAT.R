@@ -10,7 +10,7 @@
 #' @examples
 
 
-data_downloadingCOAT <- function(COAT_key, COATdataset.name, COATdataset.version) {
+downloadData_COAT <- function(COAT_key, COATdataset.name, COATdataset.version) {
 
 #### ------------------------------------------------------------------------------------------------------------ ####
 #### DOWNLOAD DATA FROM THE COAT DATA PORTAL

@@ -8,9 +8,9 @@
 #' @examples
 
 
-data_reformatting_rodent <- function(rodent.dataset) {
+reformatData_rodent <- function(rodent.dataset) {
 
-  #========= LOAD DATA ==============
+#========= LOAD DATA ==============
 allrod <- rodent.dataset
 #================ Select rodents from storskala areas ==============================
 

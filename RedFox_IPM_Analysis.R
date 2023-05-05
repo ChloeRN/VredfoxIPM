@@ -76,21 +76,20 @@ sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted
 #-------------------------------#
 
 ## Download carcass data
-carcass.dataset <- data_downloadingCOAT (COAT_key = COAT_key, 
-                                        COATdataset.name    = carcass.dataset.name,
-                                        COATdataset.version = carcass.dataset.version)
+carcass.dataset <- downloadData_COAT(COAT_key = COAT_key, 
+                                     COATdataset.name = carcass.dataset.name,
+                                     COATdataset.version = carcass.dataset.version)
 
 ## Reformat carcass data
-carcassData<- data_reformatting_carcass (
-  Amax               = Amax,   
-  summer_removal     = summer_removal ,
-  area_selection     = area_selection,
-  plac_start         = plac_start,
-  plac_end           = plac_end ,
-  embr_start         = embr_start ,
-  embr_end           = embr_end,
-  carcass.dataset    = carcass.dataset,
-  shapefile.dir      = shapefile.dir
+carcassData <- reformatData_carcass (Amax = Amax,   
+                                     summer_removal = summer_removal ,
+                                     area_selection = area_selection,
+                                     plac_start = plac_start,
+                                     plac_end = plac_end ,
+                                     embr_start = embr_start ,
+                                     embr_end = embr_end,
+                                     carcass.dataset = carcass.dataset,
+                                     shapefile.dir = shapefile.dir
 )
 
 # 1b) Winter Age-at-Harvest data #
@@ -120,9 +119,9 @@ rep.data <- wrangleData_rep(P1.datafile  = P1.datafile,
 #------------------------#
 
 ## Prepare harvest effort data
-hunter.data <- data_reformatting_hunters( area_selection = area_selection,
-                                         carcass.dataset = carcass.dataset,
-                                           shapefile.dir = shapefile.dir)
+hunter.data <- reformatData_hunters(area_selection = area_selection,
+                                    carcass.dataset = carcass.dataset,
+                                    shapefile.dir = shapefile.dir)
 
 #TODO: Add option where hunting effort not taken into account in analysis (assumed equal)
  # how to do this, make hunter data 0, or remove that step from analysis?
@@ -130,12 +129,12 @@ hunter.data <- data_reformatting_hunters( area_selection = area_selection,
 # 1e) Environmental data #
 #------------------------#
 ##download rodent data
-rodent.dataset <- data_downloadingCOAT (COAT_key = COAT_key, 
-                                       COATdataset.name    = rodent.dataset.name,
-                                       COATdataset.version = rodent.dataset.version)
+rodent.dataset <- downloadData_COAT(COAT_key = COAT_key, 
+                                    COATdataset.name = rodent.dataset.name,
+                                    COATdataset.version = rodent.dataset.version)
 
 ## reformat rodent data
-rodent.reform.dat<- data_reformatting_rodent(rodent.dataset = rodent.dataset)
+rodent.reform.dat <- reformatData_rodent(rodent.dataset = rodent.dataset)
 
 ## Prepare rodent abundance data
 rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.reform.dat,

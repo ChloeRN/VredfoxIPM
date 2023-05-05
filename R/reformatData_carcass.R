@@ -16,7 +16,7 @@
 #' @examples
 
 
-data_reformatting_carcass <- function (Amax, summer_removal, area_selection,
+reformatData_carcass <- function (Amax, summer_removal, area_selection,
                               plac_start, plac_end , embr_start, embr_end,
                               carcass.dataset, 
                               shapefile.dir) {

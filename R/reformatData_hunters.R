@@ -10,7 +10,7 @@
 #' @examples
 
 
-data_reformatting_hunters <- function(area_selection,
+reformatData_hunters <- function(area_selection,
                                       carcass.dataset, shapefile.dir){
   
 
