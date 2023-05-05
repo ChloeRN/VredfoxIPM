@@ -3,7 +3,7 @@ library(nimble)
 library(sf)
 library(reshape2)
 library(remotes)
-remotes::install_github("ropensci/ckanr"); library('ckanr')
+library('ckanr')
 library('purrr')
 library(dplyr)
 
@@ -29,12 +29,16 @@ embr_end   <- 140 #until, not including
 
 ## set dataset names, versions, and directories, and access
 carcass.dataset.name <- "v_redfox_carcass_examination_v1"
-carcass.dataset.version <-1
+carcass.dataset.version <- 1
 
 rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
 rodent.dataset.version <- 5
 
-shapefile.dir      <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
+# Stijn
+shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
+
+# Chloe
+shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
 
 COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
@@ -76,27 +80,26 @@ sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted
 #-------------------------------#
 
 ## Download carcass data
-carcass.dataset <- downloadData_COAT(COAT_key = COAT_key, 
+carcass.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
                                      COATdataset.name = carcass.dataset.name,
                                      COATdataset.version = carcass.dataset.version)
 
 ## Reformat carcass data
-carcassData <- reformatData_carcass (Amax = Amax,   
+carcass.data <- reformatData_carcass(Amax = Amax,   
                                      summer_removal = summer_removal ,
                                      area_selection = area_selection,
                                      plac_start = plac_start,
                                      plac_end = plac_end ,
                                      embr_start = embr_start ,
                                      embr_end = embr_end,
-                                     carcass.dataset = carcass.dataset,
-                                     shapefile.dir = shapefile.dir
-)
+                                     carcass.dataset = carcass.data.raw,
+                                     shapefile.dir = shapefile.dir)
 
 # 1b) Winter Age-at-Harvest data #
 #--------------------------------#
 
 ## Set data path/filename
-wAaH.datafile <- carcassData$AaH.matrix
+wAaH.datafile <- carcass.data$AaH.matrix
 
 ## Prepare winter AaH data
 wAaH.data <- wrangleData_winterAaH(wAaH.datafile = wAaH.datafile, 
@@ -106,40 +109,42 @@ wAaH.data <- wrangleData_winterAaH(wAaH.datafile = wAaH.datafile,
 #-----------------------#
 
 ## Set data paths/filenames
-P1.datafile <- carcassData$P1var # Placental scar/embryo count
-P2.datafile <- carcassData$P2var # Presence of placental scars/embryos/pregnancy signs
+P1.datafile <- carcass.data$P1var # Placental scar/embryo count
+P2.datafile <- carcass.data$P2var # Presence of placental scars/embryos/pregnancy signs
 
 ## Prepare reproduction data
-rep.data <- wrangleData_rep(P1.datafile  = P1.datafile, 
-                            P2.datafile  = P2.datafile,
+rep.data <- wrangleData_rep(P1.datafile = P1.datafile, 
+                            P2.datafile = P2.datafile,
                             Amax = Amax, 
                             minYear = minYear)
+
 
 # 1d) Harvest effort data #
 #------------------------#
 
 ## Prepare harvest effort data
 hunter.data <- reformatData_hunters(area_selection = area_selection,
-                                    carcass.dataset = carcass.dataset,
+                                    carcass.dataset = carcass.data.raw,
                                     shapefile.dir = shapefile.dir)
 
 
 # 1e) Environmental data #
 #------------------------#
-##download rodent data
-rodent.dataset <- downloadData_COAT(COAT_key = COAT_key, 
-                                    COATdataset.name = rodent.dataset.name,
-                                    COATdataset.version = rodent.dataset.version)
 
-## reformat rodent data
-rodent.reform.dat <- reformatData_rodent(rodent.dataset = rodent.dataset)
+## Download rodent data
+rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
+                                     COATdataset.name = rodent.dataset.name,
+                                     COATdataset.version = rodent.dataset.version)
+
+## Reformat rodent data
+rodent.data.reform <- reformatData_rodent(rodent.dataset = rodent.data.raw)
 
 ## Prepare rodent abundance data
-rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.reform.dat,
+rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.data.reform,
                                   minYear = minYear,
                                   adjust = TRUE)
 
-#Question Stijn: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
+# Question Stijn: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
 
 
 # 1f) Conceptual year information #
