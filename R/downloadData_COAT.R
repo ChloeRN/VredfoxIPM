@@ -1,10 +1,14 @@
 #' Downloads data from the COAT dataportal
 #'
-#' @param COAT_key #Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer (see master script)
-#' @param COATdataset.name #the name including the version of the dataset you want to download
-#' @param COATdataset.version  #the version of the dataset
+#' This function is based on scripts provided in the COATnor repository:
+#' https://github.com/COATnor/data_management_scripts/blob/master/download_dataset_from_coat_data_portal_long.R
+#' https://github.com/COATnor/data_management_scripts/blob/master/download_dataset_from_coat_data_portal.R
+#' 
+#' @param COAT_key string. API key for the COAT dataportal. Should be saved as an environmental variable.
+#' @param COATdataset.name string. Name (including the version) of the dataset you want to download
+#' @param COATdataset.version integer. Version of the dataset to download.
 #'
-#' @return the dataset from the COAT dataportal
+#' @return a dataframe containing the dataset downloaded from the COAT dataportal
 #' @export
 #'
 #' @examples

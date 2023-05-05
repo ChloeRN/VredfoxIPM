@@ -1,10 +1,10 @@
 #' Reformat the carcass data to get hunting effort --> nr of succesfull hunters per year
 #'
-#' @param area_selection a vector of study-area sub-area names to consider in the analyses: c("Inner", "BB",  "Tana")
-#' @param carcass.dataset Carcass dataset from the COAT datapotal
-#' @param shapefile.dir directory of shapefile data with study areas sub-areas
+#' @param area_selection vector of study-area sub-area names to consider in the analyses: c("Inner", "BB",  "Tana")
+#' @param carcass.dataset dataframe containing the carcass dataset downloaded from the COAT dataportal
+#' @param shapefile.dir string. Directory of shapefile data with study areas sub-areas
 #'
-#' @return a dataset with the nr of succesfull hunters per year, standardised
+#' @return a dataframe containing numbers of succesfull hunters per year (regular and standardised)
 #' @export
 #'
 #' @examples

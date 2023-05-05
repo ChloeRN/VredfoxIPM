@@ -7,10 +7,10 @@
 #' @param plac_end integer. Julian day (not including)until  we use placental scars presence to calculate breeding or not breeding for P2
 #' @param embr_start integer. Julian day (including) from which we use embryos presence to calculate breeding or not breeding for P2
 #' @param embr_end integer. Julian day (not including) until we use embryos presence to calculate breeding or not breeding for P2
-#' @param carcass.dataset carcass dataset downloaded from COAT dataportal
-#' @param shapefile.dir directory of shapefile data with study areas sub-areas
+#' @param carcass.dataset dataframe containing the dataset downloaded from the COAT dataportal.
+#' @param shapefile.dir string. Directory of shapefiles delineating study areas and sub-areas.
 #'
-#' @return a list containing the Age at harvest matrix, P1var and P2var
+#' @return a list containing the age-at-harvest matrix and dataframes with embryo count (P1var) and placental scar presence-absence (P2var) data.
 #' @export
 #'
 #' @examples

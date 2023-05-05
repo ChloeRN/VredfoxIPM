@@ -1,8 +1,8 @@
 #' Makes a yearly rodent abundance variable, mean nr of rodents in a plot, for each year
 #'
-#' @param rodent.dataset rodent dataset downloaded from COAT dataportal
+#' @param rodent.dataset dataframe containing the carcass dataset downloaded from the COAT dataportal
 #'
-#' @return a dataset with the mean nr of rodents (in a plot), for each year
+#' @return a dataframe containing the mean nr of rodents (in a plot), for each year
 #' @export
 #'
 #' @examples
