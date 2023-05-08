@@ -59,8 +59,47 @@ if( (length(check$season)) %% 2 !=0 ){    #check if even nr of seasons
   stop("uneven number of seasons in rodent dataset")  #this will return an error when using google disc folders because autumn 2022 not included
 }
 
-agdat <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + foxreg, stor, mean)  #the mean nr of rodents per plot, for each year
+agdat <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + season + foxreg, stor, mean)  #the mean nr of rodents per plot, for each year and season
 agdat<-agdat[agdat$foxreg=="varanger",] # we only use varanger
+
+#--- continuous rodent variables winter and fall ---
+agdat$winter <- ifelse(agdat$season == "fall", agdat$year+1, agdat$year) #add +1 year to fall, so we can add spring to form "winter rodent" instead fo adding spring and fall from the same year
+
+agdat_fall <- agdat[agdat$season=="fall",]
+agdat_fall$st.tot <- (agdat_fall$tot-mean(agdat_fall$tot))/sd(agdat_fall$tot) #vole and lemming actual numbers together
+agdat_fall$st.lem <- (agdat_fall$Llem-mean(agdat_fall$Llem))/sd(agdat_fall$Llem)  #standardise lemming
+agdat_fall$st.vole <- (agdat_fall$vole-mean(agdat_fall$vole))/sd(agdat_fall$vole) #standardise vole
+agdat_fall$st.lemvole<-(agdat_fall$st.lem+ agdat_fall$st.vole) # vole and lemming together after standardised
+
+agdat_spring <- agdat[agdat$season=="spring",]
+agdat_spring$st.tot <- (agdat_spring$tot-mean(agdat_spring$tot))/sd(agdat_spring$tot)#vole and lemming actual numbers together
+agdat_spring$st.lem <- (agdat_spring$Llem-mean(agdat_spring$Llem))/sd(agdat_spring$Llem) #standardise lemming
+agdat_spring$st.vole <- (agdat_spring$vole-mean(agdat_spring$vole))/sd(agdat_spring$vole)#standardise vole
+agdat_spring$st.lemvole<-  (agdat_spring$st.lem+ agdat_spring$st.vole) # vole and lemming together after standardised
+
+agdat_winter <- rbind(agdat_fall, agdat_spring)
+agdat_winter <- aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot, st.tot, st.lem, st.vole, st.lemvole) ~ winter , agdat_winter, mean)
+
+# TODO: not sure how to make following go autimatic when you add more years, check if there is a fall and a sring for each year?
+
+#remove winter 2004 (only spring)
+agdat_winter<- agdat_winter[!agdat_winter$winter==2004,]
+#remove winter 2023 (only fall)
+agdat_winter<- agdat_winter[!agdat_winter$winter==2023,]
+
+#--- categorical rodent variable winter---
+#if we split the continuous abundance into 2 -> high and low, at threshold -0.34, 9 years are high and 9 are low, 
+# and the categories are the same whether we split based on st.tot or st.lemvole (as long as you choose -0.34 as your threshold)
+agdat_winter$cat2 <- ifelse(agdat_winter$st.tot>-0.34, 1,0)
+
+#--- categorical rodent variable fall---
+#if we split the continuous abundance into 2 -> high and low, at threshold 0, 8 years are high and 11 are low, 
+# and the categories are the same whether we split based on st.tot or st.lemvole (as long as you choose 0 as your threshold)
+agdat_fall$cat2 <- ifelse(agdat_fall$st.tot>0, 1,0)
+
+#TODO: now how to add this together?
+#TODO: How to add all these abundances together in one dataframe and then make clear which "year" / winter / hunting year we are talking about
+
 
 #make categories of rodent abundance
 #1) cat2, higher or lower than 2 (SUMMER)
