@@ -59,48 +59,61 @@ if( (length(check$season)) %% 2 !=0 ){    #check if even nr of seasons
   stop("uneven number of seasons in rodent dataset")  #this will return an error when using google disc folders because autumn 2022 not included
 }
 
-agdat <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + season + foxreg, stor, mean)  #the mean nr of rodents per plot, for each year and season
-agdat<-agdat[agdat$foxreg=="varanger",] # we only use varanger
 
-#--- continuous rodent variables winter and fall ---
-agdat$start_hunting_year <- ifelse(agdat$season == "spring", agdat$year-1, agdat$year) # -1 year from spring, so we can add fall to form a hunting year representative rodent variable instead of adding spring and fall from the same year
+#--- continuous rodent variables WINTER (VARANGER only) ---
+agvar <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + season + foxreg, stor, mean)  #the mean nr of rodents per plot, for each year and season
+agvar<-agvar[agvar$foxreg=="varanger",] # we only use varanger
 
-agdat_fall <- agdat[agdat$season=="fall",]
-agdat_fall$st.tot <- (agdat_fall$tot-mean(agdat_fall$tot))/sd(agdat_fall$tot) #vole and lemming actual numbers together
-agdat_fall$st.lem <- (agdat_fall$Llem-mean(agdat_fall$Llem))/sd(agdat_fall$Llem)  #standardise lemming
-agdat_fall$st.vole <- (agdat_fall$vole-mean(agdat_fall$vole))/sd(agdat_fall$vole) #standardise vole
-agdat_fall$st.lemvole<-(agdat_fall$st.lem+ agdat_fall$st.vole) # vole and lemming together after standardised
+agvar$start_hunting_year <- ifelse(agvar$season == "spring", agvar$year-1, agvar$year) # -1 year from spring, so we can add fall to form a hunting year representative rodent variable instead of adding spring and fall from the same year
 
-agdat_spring <- agdat[agdat$season=="spring",]
-agdat_spring$st.tot <- (agdat_spring$tot-mean(agdat_spring$tot))/sd(agdat_spring$tot)#vole and lemming actual numbers together
-agdat_spring$st.lem <- (agdat_spring$Llem-mean(agdat_spring$Llem))/sd(agdat_spring$Llem) #standardise lemming
-agdat_spring$st.vole <- (agdat_spring$vole-mean(agdat_spring$vole))/sd(agdat_spring$vole)#standardise vole
-agdat_spring$st.lemvole<-  (agdat_spring$st.lem+ agdat_spring$st.vole) # vole and lemming together after standardised
+agvar_fall <- agvar[agvar$season=="fall",]
+agvar_fall$st.tot <- (agvar_fall$tot-mean(agvar_fall$tot))/sd(agvar_fall$tot) #vole and lemming actual numbers together
+agvar_fall$st.lem <- (agvar_fall$Llem-mean(agvar_fall$Llem))/sd(agvar_fall$Llem)  #standardise lemming
+agvar_fall$st.vole <- (agvar_fall$vole-mean(agvar_fall$vole))/sd(agvar_fall$vole) #standardise vole
+agvar_fall$st.lemvole<-(agvar_fall$st.lem+ agvar_fall$st.vole) # vole and lemming together after standardised
 
-agdat_winter <- rbind(agdat_fall, agdat_spring)
-agdat_winter <- aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot, st.tot, st.lem, st.vole, st.lemvole) ~ start_hunting_year , agdat_winter, mean)
+agvar_spring <- agvar[agvar$season=="spring",]
+agvar_spring$st.tot <- (agvar_spring$tot-mean(agvar_spring$tot))/sd(agvar_spring$tot)#vole and lemming actual numbers together
+agvar_spring$st.lem <- (agvar_spring$Llem-mean(agvar_spring$Llem))/sd(agvar_spring$Llem) #standardise lemming
+agvar_spring$st.vole <- (agvar_spring$vole-mean(agvar_spring$vole))/sd(agvar_spring$vole)#standardise vole
+agvar_spring$st.lemvole<-  (agvar_spring$st.lem+ agvar_spring$st.vole) # vole and lemming together after standardised
+
+agvar_winter <- rbind(agvar_fall, agvar_spring)
+agvar_winter <- aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot, st.tot, st.lem, st.vole, st.lemvole) ~ start_hunting_year , agvar_winter, mean)
 
 #remove start_hunting year 2003 (only spring 2004, no rodents from 2003 fall)
-agdat_winter[ agdat_winter$start_hunting_year==2003, -1] <-NA
+agvar_winter[ agvar_winter$start_hunting_year==2003, -1] <-NA
 
 #if spring and fall have dissimilar "start_hunting_year" in the final row, this "start_hunting_year" should also be NA (because spring rodents not collected yet for that year)
-if (agdat_spring[nrow(agdat_spring), 11] != agdat_fall[nrow(agdat_fall), 11]) {
- agdat_winter[nrow(agdat_winter), -1] <-NA    
+if (agvar_spring[nrow(agvar_spring), 11] != agvar_fall[nrow(agvar_fall), 11]) {
+ agvar_winter[nrow(agvar_winter), -1] <-NA    
 }
   
 
-#--- categorical rodent variable winter---
+#--- categorical rodent variable WINTER (VARANGER only)---
 #if we split the continuous abundance into 2 -> high and low, at threshold -0.34, 9 years are high and 9 are low, 
 # and the categories are the same whether we split based on st.tot or st.lemvole (as long as you choose -0.34 as your threshold)
-agdat_winter$cat2 <- ifelse(agdat_winter$st.tot>-0.34, 1,0)
+agvar_winter$cat2 <- ifelse(agvar_winter$st.tot>-0.34, 1,0)
 
-#--- categorical rodent variable fall---
-#if we split the continuous abundance into 2 -> high and low, at threshold 0, 8 years are high and 11 are low, 
-# and the categories are the same whether we split based on st.tot or st.lemvole (as long as you choose 0 as your threshold)
-agdat_fall$cat2 <- ifelse(agdat_fall$st.tot>0, 1,0)
+
+#--- continuous rodent variables FALL (Varanger + IFJORD + NORDKYNN), because immigration ---
+agstor <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + season , stor, mean)  #the mean nr of rodents per plot, for each year and season
+
+agstor$start_hunting_year <- ifelse(agstor$season == "spring", agstor$year-1, agstor$year) # -1 year from spring, so we can add fall to form a hunting year representative rodent variable instead of adding spring and fall from the same year
+agstor_fall <- agstor[agstor$season=="fall",]
+
+agstor_fall$st.tot <- (agstor_fall$tot-mean(agstor_fall$tot))/sd(agstor_fall$tot) #vole and lemming actual numbers together
+agstor_fall$st.lem <- (agstor_fall$Llem-mean(agstor_fall$Llem))/sd(agstor_fall$Llem)  #standardise lemming
+agstor_fall$st.vole <- (agstor_fall$vole-mean(agstor_fall$vole))/sd(agstor_fall$vole) #standardise vole
+agstor_fall$st.lemvole<-(agstor_fall$st.lem+ agstor_fall$st.vole) # vole and lemming together after standardised
+
+#--- categorical rodent variable FALL (Varanger + IFJORD + NORDKYNN), because immigration---
+#if we split the continuous abundance into 2 -> high and low, at threshold 0.25, 8 years are high and 11 are low, 
+# and the categories are the same whether we split based on st.tot or st.lemvole (as long as you choose 0.25 as your threshold)
+agstor_fall$cat2 <- ifelse(agstor_fall$st.tot>0.25, 1,0)
 
 #--- Add all rodent variables together
-merged_fallwinter<-merge(agdat_winter, agdat_fall, by="start_hunting_year", all = T, suffixes = c(".winter",".fall"))
+merged_fallwinter<-merge(agvar_winter, agstor_fall, by="start_hunting_year", all = T, suffixes = c(".wintvar",".fallstor"))
 
 return(merged_fallwinter)
 }

@@ -20,25 +20,12 @@ wrangleData_rodent <- function(rodent.reform.dat, minYear, adjust){
   ## Discard earlier years (if present)
   RodentData <- subset(RodentData, year >= minYear)
   
-  ## Format rodent abundance data
-  # Continuous winter and fall, standardised for seasons
-  RodentAbundance_winter_seas.st <- RodentData$st.tot.winter
-  RodentAbundance_fall_seas.st <- RodentData$st.tot.fall
-  
-  #Continuous winter and fall, standardised for seasons and species
-  RodentAbundance_winter_seas.sp.st <- RodentData$st.lemvole.winter
-  RodentAbundance_fall_seas.sp.st <- RodentData$st.lemvole.fall
-  
-  # 2-level categorical, winter and fall
-  RodentIndex2_winter <- RodentData$cat2.winter
-  RodentIndex2_fall   <- RodentData$cat2.fall
-
   ## List and return
-  return(list(cont.wint          =   RodentAbundance_winter_seas.st,
-              cont.fall          =   RodentAbundance_fall_seas.st,
-              cont.wint.stsp     =   RodentAbundance_winter_seas.sp.st,
-              cont.fall.stsp     =   RodentAbundance_fall_seas.sp.st,
-              cat2.wint          =   RodentIndex2_winter,
-              cat2.fall          =   RodentIndex2_fall))
-  
+  return(list(cont.wintvar          =   RodentData$st.tot.wintvar,     #winter varanger continuous, only standardised for seasons
+              cont.wintvar.stsp     =   RodentData$st.lemvole.wintvar, #winter varanger continuous, standardised for seasons and species
+              cat2.wintvar          =   RodentData$cat2.wintvar,       #winter varanger 2 categories
+              
+              cont.fallstor         =   RodentData$st.tot.fallstor,    #fall storskala continuous
+              cont.fallstor.stsp    =   RodentData$st.lemvole.fallstor,#fall storskala continuous, standardised for species
+              cat2.fallstor         =   RodentData$cat2.fallstor))     #fall storskala 2 factors
 }
