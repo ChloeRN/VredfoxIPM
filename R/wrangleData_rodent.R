@@ -20,30 +20,25 @@ wrangleData_rodent <- function(rodent.reform.dat, minYear, adjust){
   ## Discard earlier years (if present)
   RodentData <- subset(RodentData, year >= minYear)
   
-  ## Adjust 3-level indices if necessary
-  # TODO: Double-check neccessity of this with Doro
- # if(adjust){
- #   adj_idx <- which(RodentData$year %in% c(2018, 2019))
- #   RodentData$cat3[adj_idx] <- 2
- # }
-  
   ## Format rodent abundance data
-  # Continuous
-  RodentAbundance <- (RodentData$tot-mean(RodentData$tot))/sd(RodentData$tot)
+  # Continuous winter and fall, standardised for seasons
+  RodentAbundance_winter_seas.st <- RodentData$st.tot.winter
+  RodentAbundance_fall_seas.st <- RodentData$st.tot.fall
   
-  # 2-level categorical
-  RodentIndex2 <- RodentData$cat2
+  #Continuous winter and fall, standardised for seasons and species
+  RodentAbundance_winter_seas.sp.st <- RodentData$st.lemvole.winter
+  RodentAbundance_fall_seas.sp.st <- RodentData$st.lemvole.fall
   
-  # 3-level categorical
-  RodentIndex3 <- RodentData$cat3
-  
-  # 3-level categorical-phases
-  RodentIndex4 <- RodentData$catphase
+  # 2-level categorical, winter and fall
+  RodentIndex2_winter <- RodentData$cat2.winter
+  RodentIndex2_fall   <- RodentData$cat2.fall
 
   ## List and return
-  return(list(cont     = RodentAbundance,
-              cat2     = RodentIndex2,
-              cat3     = RodentIndex3,
-              catphase = RodentIndex4))
+  return(list(cont.wint          =   RodentAbundance_winter_seas.st,
+              cont.fall          =   RodentAbundance_fall_seas.st,
+              cont.wint.stsp     =   RodentAbundance_winter_seas.sp.st,
+              cont.fall.stsp     =   RodentAbundance_fall_seas.sp.st,
+              cat2.wint          =   RodentIndex2_winter,
+              cat2.fall          =   RodentIndex2_fall))
   
 }

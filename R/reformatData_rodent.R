@@ -63,7 +63,7 @@ agdat <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + sea
 agdat<-agdat[agdat$foxreg=="varanger",] # we only use varanger
 
 #--- continuous rodent variables winter and fall ---
-agdat$winter <- ifelse(agdat$season == "fall", agdat$year+1, agdat$year) #add +1 year to fall, so we can add spring to form "winter rodent" instead fo adding spring and fall from the same year
+agdat$start_hunting_year <- ifelse(agdat$season == "spring", agdat$year-1, agdat$year) # -1 year from spring, so we can add fall to form a hunting year representative rodent variable instead of adding spring and fall from the same year
 
 agdat_fall <- agdat[agdat$season=="fall",]
 agdat_fall$st.tot <- (agdat_fall$tot-mean(agdat_fall$tot))/sd(agdat_fall$tot) #vole and lemming actual numbers together
@@ -78,14 +78,16 @@ agdat_spring$st.vole <- (agdat_spring$vole-mean(agdat_spring$vole))/sd(agdat_spr
 agdat_spring$st.lemvole<-  (agdat_spring$st.lem+ agdat_spring$st.vole) # vole and lemming together after standardised
 
 agdat_winter <- rbind(agdat_fall, agdat_spring)
-agdat_winter <- aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot, st.tot, st.lem, st.vole, st.lemvole) ~ winter , agdat_winter, mean)
+agdat_winter <- aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot, st.tot, st.lem, st.vole, st.lemvole) ~ start_hunting_year , agdat_winter, mean)
 
-# TODO: not sure how to make following go autimatic when you add more years, check if there is a fall and a sring for each year?
+#remove start_hunting year 2003 (only spring 2004, no rodents from 2003 fall)
+agdat_winter[ agdat_winter$start_hunting_year==2003, -1] <-NA
 
-#remove winter 2004 (only spring)
-agdat_winter<- agdat_winter[!agdat_winter$winter==2004,]
-#remove winter 2023 (only fall)
-agdat_winter<- agdat_winter[!agdat_winter$winter==2023,]
+#if spring and fall have dissimilar "start_hunting_year" in the final row, this "start_hunting_year" should also be NA (because spring rodents not collected yet for that year)
+if (agdat_spring[nrow(agdat_spring), 11] != agdat_fall[nrow(agdat_fall), 11]) {
+ agdat_winter[nrow(agdat_winter), -1] <-NA    
+}
+  
 
 #--- categorical rodent variable winter---
 #if we split the continuous abundance into 2 -> high and low, at threshold -0.34, 9 years are high and 9 are low, 
@@ -97,22 +99,10 @@ agdat_winter$cat2 <- ifelse(agdat_winter$st.tot>-0.34, 1,0)
 # and the categories are the same whether we split based on st.tot or st.lemvole (as long as you choose 0 as your threshold)
 agdat_fall$cat2 <- ifelse(agdat_fall$st.tot>0, 1,0)
 
-#TODO: now how to add this together?
-#TODO: How to add all these abundances together in one dataframe and then make clear which "year" / winter / hunting year we are talking about
+#--- Add all rodent variables together
+merged_fallwinter<-merge(agdat_winter, agdat_fall, by="start_hunting_year", all = T, suffixes = c(".winter",".fall"))
 
-
-#make categories of rodent abundance
-#1) cat2, higher or lower than 2 (SUMMER)
-agdat$cat2<- ifelse(agdat$tot>2, 1,0)
-#2) cat3, >= 1, >= 3 (SUMMER)
-agdat$cat3<- ifelse(agdat$tot>=1, 1,0)
-agdat$cat3<- ifelse(agdat$tot>=3, 2, agdat$cat3)
-#3) phase of cycle, (WINTER)/hunting period (stoessel et al. 2019)
-agdat$catphase <- ifelse(dplyr::lead(agdat$tot)>(agdat$tot+0.5), "pre-peak", "-")
-agdat$catphase <- ifelse(dplyr::lead(agdat$tot)<=(agdat$tot+0.5), "low", agdat$catphase)
-agdat$catphase <- ifelse(dplyr::lead(agdat$tot)<agdat$tot & dplyr::lag(agdat$tot)<agdat$tot, "post-peak", agdat$catphase)
-
-return(agdat)
+return(merged_fallwinter)
 }
 
 
