@@ -3,8 +3,8 @@ library(nimble)
 library(sf)
 library(reshape2)
 library(remotes)
-library('ckanr')
-library('purrr')
+library(ckanr)
+library(purrr)
 library(dplyr)
 
 #**********#
@@ -68,9 +68,9 @@ nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate
 
 # Annual survival prior type toggles
-HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
-sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
-#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+HoeningPrior <- TRUE # Use prior on natural mortality derived from Hoening model
+#sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
+sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
 #sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
@@ -218,7 +218,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           fitCov.Psi = fitCov.Psi, 
                           rCov.idx = rCov.idx, 
                           HoeningPrior = HoeningPrior,
-                          testRun = TRUE,
+                          testRun = FALSE,
                           initVals.seed = mySeed)
 
 ####################
@@ -237,3 +237,16 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       samplesAsCodaMCMC = TRUE, 
                       setSeed = 0)
 
+
+#######################
+# 5) MODEL COMPARISON #
+#######################
+
+compareModels(Amax = Amax,
+              Tmax = Tmax,
+              minYear = minYear,
+              #post.filepaths = c("NSweden.rds", "NSweden_mHageCon.rds", "Hoening.rds", "Hoening_mHageCon.rds"), 
+              #model.names = c("NSweden", "NSweden_mHcon", "Hoening", "Hoening_mHcon"), 
+              post.filepaths = c("NSweden.rds", "NSweden_mHageCon.rds"), 
+              model.names = c("NSweden", "NSweden_mHcon"), 
+              plotFolder = "Plots/Comp_mHageCon")
