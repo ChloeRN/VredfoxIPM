@@ -65,6 +65,7 @@ fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
 fitCov.Psi <- FALSE # Fit covariates on Psi (rodent abundance)
 rCov.idx <- TRUE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
+standSpec.rCov <- TRUE # standardise different rodent species before summing (offset catchability) v.s. simply sum all numbers
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate
 
 # Annual survival prior type toggles
@@ -196,6 +197,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  uLim.N = 800,
                                  uLim.Imm = 800,
                                  nLevels.rCov = nLevels.rCov,
+                                 standSpec.rCov = standSpec.rCov,
                                  wAaH.data = wAaH.data, 
                                  rep.data = rep.data, 
                                  rodent.data = rodent.data, 

@@ -6,6 +6,8 @@
 #' @param maxPups integer. Upper prior bound for average litter size.
 #' @param uLim.N integer. Upper prior bound for initial number of individuals per age class.
 #' @param nLevels.rCov integer. Number of levels of categorical rodent abundance to use.
+#' @param standSpec.rCov logical. If TRUE, standardises rodent numbers per species before summing 
+#' to offset catchability, If FALSE simple sums alls rodent numbers. Default = ??. 
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
 #' @param wAaH.data a list containing an Age-at-Harvest matrix (winterC) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
@@ -30,7 +32,7 @@
 assemble_inputData <- function(Amax, Tmax, minYear,
                                maxPups, uLim.N, uLim.Imm, nLevels.rCov = NA,
                                wAaH.data, rep.data, rodent.data, hunter.data, 
-                               surv.priors, survPriorType, 
+                               surv.priors, survPriorType, standSpec.rCov,
                                save = FALSE){
   
   ## Select relevant years from observational data
@@ -50,11 +52,25 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   }else{
     
     if(nLevels.rCov == 2){
-      RodentIndex <- rodent.data$cat2
+      RodentIndex <- rodent.data$cat2.wintvar
     }else{
-      RodentIndex <- rodent.data$cat3
+      #RodentIndex <- rodent.data$cat3
+      stop("3 level rodent covariate not currently supported")
     }
   }
+  
+  ## Select relevant continuous rodent covariate
+  if(is.na(standSpec.rCov)){
+    RodentAbundance <- NA
+  }else{
+  
+  if(standSpec.rCov == TRUE){
+    RodentAbundance <- rodent.data$cont.wintvar.stsp
+  }else{
+    RodentAbundance <- rodent.data$cont.wintvar
+  }
+}
+
   
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
@@ -87,7 +103,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     P2_year = P2$RepYearIndex,
     X2 = length(P2$P2),
     
-    RodentAbundance = rodent.data$cont,
+    RodentAbundance = RodentAbundance,
     RodentIndex = RodentIndex,
     nLevels.rCov = nLevels.rCov
   )
