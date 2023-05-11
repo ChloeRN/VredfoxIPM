@@ -3,8 +3,8 @@ library(nimble)
 library(sf)
 library(reshape2)
 library(remotes)
-library('ckanr')
-library('purrr')
+library(ckanr)
+library(purrr)
 library(dplyr)
 
 #**********#
@@ -43,10 +43,6 @@ shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox
 COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
 #TODO: change version numbers and names as soon as I get access
-#TODO: these directories can be removed when import from COAT dataportal and NIRD works
-#carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
-#rodent.dir         <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
-#TODO: share API key with Chloe and Doro so they can save it as env variable on their computer
 
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
@@ -73,6 +69,12 @@ sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted
 #sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
 #sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
+
+# Genetic immigration data toggles (details in documentation of wrangleData_gen function
+#GeneClass.approach <- 1 # Using first approach for GeneClass analysis 
+GeneClass.approach <- 2 # Using second approach for GeneClass analysis
+poolYrs.genData <- TRUE # Pool data across all years
+
 
 #*********************#
 # 1) DATA PREPARATION #
@@ -129,7 +131,11 @@ genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
 
 ## Prepare genetic data
 gen.data <- wrangleData_gen(datapath = genetics.datapath,
-                            )
+                            minYear, 
+                            onlyFemales = FALSE, 
+                            GeneClass.approach = GeneClass.approach, 
+                            poolYrs.genData = poolYrs.genData)
+
 
 # 1e) Harvest effort data #
 #-------------------------#
@@ -155,8 +161,6 @@ rodent.data.reform <- reformatData_rodent(rodent.dataset = rodent.data.raw)
 rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.data.reform,
                                   minYear = minYear,
                                   adjust = TRUE)
-
-# Question Stijn: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
 
 
 # 1g) Conceptual year information #
@@ -206,8 +210,10 @@ input.data <- assemble_inputData(Amax = Amax,
                                  uLim.N = 800,
                                  uLim.Imm = 800,
                                  nLevels.rCov = nLevels.rCov,
+                                 poolYrs.genData = poolYrs.genData,
                                  wAaH.data = wAaH.data, 
                                  rep.data = rep.data, 
+                                 gen.data = gen.data,
                                  rodent.data = rodent.data, 
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,

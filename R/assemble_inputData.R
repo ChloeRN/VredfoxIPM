@@ -6,11 +6,14 @@
 #' @param maxPups integer. Upper prior bound for average litter size.
 #' @param uLim.N integer. Upper prior bound for initial number of individuals per age class.
 #' @param nLevels.rCov integer. Number of levels of categorical rodent abundance to use.
+#' @param poolYrs.genData integer. Whether or not genetic immigration data is pooled across years.
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
 #' @param wAaH.data a list containing an Age-at-Harvest matrix (winterC) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @param rep.data a list containing formatted reproduction data in two data 
 #' frames: 'P1' (counts) and 'P2' (presences/absences).
+#' @param gen.data a list containing relevant data on genetically determined 
+#' probabilities of individuals being immigrants.
 #' @param rodent.data a list containing rodent abundance data as a continuous variable (cont),
 #' and categorical variable with two (cat2) and three (cat3) levels.
 #' @param hunter.data a dataframe containing original and scaled counts of successful 
@@ -28,8 +31,10 @@
 #' @examples
 
 assemble_inputData <- function(Amax, Tmax, minYear,
-                               maxPups, uLim.N, uLim.Imm, nLevels.rCov = NA,
-                               wAaH.data, rep.data, rodent.data, hunter.data, 
+                               maxPups, uLim.N, uLim.Imm, 
+                               nLevels.rCov = NA, poolYrs.genData,
+                               wAaH.data, rep.data, gen.data,
+                               rodent.data, hunter.data, 
                                surv.priors, survPriorType, 
                                save = FALSE){
   
@@ -91,6 +96,17 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     RodentIndex = RodentIndex,
     nLevels.rCov = nLevels.rCov
   )
+  
+  ## Append relevant data from genetic immigration assignments
+  if(poolYrs.genData){
+    nim.data$pImm <- gen.data$pImm
+    nim.constants$Xgen <- gen.data$Xgen
+  }else{
+    nim.data$pImm <- gen.data$pImm_in
+    nim.data$pImm_pre <- gen.data$pImm_pre
+    nim.constants$Xgen <- gen.data$Xgen_in
+    nim.constants$Xgen_pre <- gen.data$Xgen_pre
+  }
   
   ## Add relevant prior information
   nim.constants <- c(nim.constants, surv.priors$earlySurv)
