@@ -121,8 +121,18 @@ rep.data <- wrangleData_rep(P1.datafile = P1.datafile,
                             minYear = minYear)
 
 
-# 1d) Harvest effort data #
-#------------------------#
+# 1d) Genetic data #
+#------------------#
+
+## Set data paths
+genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
+
+## Prepare genetic data
+gen.data <- wrangleData_gen(datapath = genetics.datapath,
+                            )
+
+# 1e) Harvest effort data #
+#-------------------------#
 
 ## Prepare harvest effort data
 hunter.data <- reformatData_hunters(area_selection = area_selection,
@@ -130,7 +140,7 @@ hunter.data <- reformatData_hunters(area_selection = area_selection,
                                     shapefile.dir = shapefile.dir)
 
 
-# 1e) Environmental data #
+# 1f) Environmental data #
 #------------------------#
 
 ## Download rodent data
@@ -149,7 +159,7 @@ rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.data.reform,
 # Question Stijn: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
 
 
-# 1f) Conceptual year information #
+# 1g) Conceptual year information #
 #---------------------------------#
 
 YearInfo <- collate_yearInfo(minYear = minYear,
