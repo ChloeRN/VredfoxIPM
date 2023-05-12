@@ -2,48 +2,36 @@
 #'
 #' @param rodent.datafile Dataframe with rodent abundance data
 #' @param minYear integer. First year to consider in analyses.
-#' @param adjust logical. Default = FALSE. If TRUE, adjust levels of 3-category
-#' covariate in years 2018 and 2019 from 1 to 2 (in accordance with Dorothee's 
-#' suggestion). May become redundant once we update data. 
 #'
-#' @return a list containing rodent abundance data as a continuous variable (cont),
-#' and categorical variable with two (cat2) and three (cat3) levels.
+#' @return a list containing rodent abundance data as continuous variables (cont),
+#' and categorical variables with two (cat2). Data are provided for winter 
+#' (fall + spring) in Varanger (.wintvar) and for fall for the larger area (.fallstor).
+#' Continuous data are provided as total sums of individuals across all species
+#' and as sums weighed by species (voles vs. lemmings, .stsp). 
+#' Note that the time indices are shifted forward to represent that reproduction
+#' is a function of past rodent abundance.
 #' @export
 #'
 #' @examples
 
-wrangleData_rodent <- function(rodent.reform.dat, minYear, adjust){
+wrangleData_rodent <- function(rodent.reform.dat, minYear){
   
   ## Load reformatted data
   RodentData <- rodent.reform.dat
   
   ## Discard earlier years (if present)
-  RodentData <- subset(RodentData, year >= minYear)
+  RodentData <- subset(RodentData, year >= (minYear-1))
   
-  ## Adjust 3-level indices if necessary
-  # TODO: Double-check neccessity of this with Doro
- # if(adjust){
- #   adj_idx <- which(RodentData$year %in% c(2018, 2019))
- #   RodentData$cat3[adj_idx] <- 2
- # }
-  
-  ## Format rodent abundance data
-  # Continuous
-  RodentAbundance <- (RodentData$tot-mean(RodentData$tot))/sd(RodentData$tot)
-  
-  # 2-level categorical
-  RodentIndex2 <- RodentData$cat2
-  
-  # 3-level categorical
-  RodentIndex3 <- RodentData$cat3
-  
-  # 3-level categorical-phases
-  RodentIndex4 <- RodentData$catphase
-
   ## List and return
-  return(list(cont     = RodentAbundance,
-              cat2     = RodentIndex2,
-              cat3     = RodentIndex3,
-              catphase = RodentIndex4))
-  
-}
+  return(list(cont.wintvar          =   RodentData$st.tot.wintvar,     #winter varanger continuous, only standardised for seasons
+              cont.wintvar.stsp     =   RodentData$st.lemvole.wintvar, #winter varanger continuous, standardised for seasons and species
+              cat2.wintvar          =   RodentData$cat2.wintvar + 1,       #winter varanger 2 categories
+              
+              cont.fallstor         =   RodentData$st.tot.fallstor,    #fall storskala continuous
+              cont.fallstor.stsp    =   RodentData$st.lemvole.fallstor,#fall storskala continuous, standardised for species
+              cat2.fallstor         =   RodentData$cat2.fallstor + 1,     #fall storskala 2 factors
+              
+              YearInfo.wint         =   paste0("fall ", RodentData$start_hunting_year, " - spring ", RodentData$start_hunting_year + 1),
+              YearInfo.fall         =   paste0("fall ", RodentData$start_hunting_year)))
+
+  }

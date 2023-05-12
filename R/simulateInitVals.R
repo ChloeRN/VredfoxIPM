@@ -39,6 +39,18 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     NHunters[which(is.na(NHunters))] <- mean(NHunters, na.rm = TRUE)
   }
   
+  ## Rodent abundance (continuous)
+  RodentAbundance <- nim.data$RodentAbundance
+  if(NA %in% RodentAbundance){
+    RodentAbundance[which(is.na(RodentAbundance))] <- mean(RodentAbundance, na.rm = TRUE)
+  }
+  
+  ## Rodent abundance (categorical)
+  RodentIndex <- nim.data$RodentIndex
+  if(NA %in% RodentIndex){
+    RodentIndex[which(is.na(RodentIndex))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex))))
+  }
+  
   #---------------------------------------------------#
   # Set initial values for vital rate base parameters #
   #---------------------------------------------------#
@@ -130,9 +142,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     Psi[1, t] <- 0
     
     if(fitCov.Psi & rCov.idx){
-      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi[nim.constants$RodentIndex[t]+1] + epsilon.Psi[t])
+      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t])
     }else{
-      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi*nim.constants$RodentAbundance[t] + epsilon.Psi[t])
+      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t])
     }
 
     ## Placental scars
@@ -286,6 +298,19 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     Inits_NHunters <- rep(NA, length(NHunters))
     Inits_NHunters[which(is.na(nim.data$HarvestEffort))] <- NHunters[which(is.na(nim.data$HarvestEffort))]
     InitVals$HarvestEffort <- Inits_NHunters
+  }
+  
+  if(fitCov.Psi){
+    if(rCov.idx & (NA %in% nim.data$RodentIndex)){
+      Inits_RodentIndex <- rep(NA, length(RodentIndex))
+      Inits_RodentIndex[which(is.na(nim.data$RodentIndex))] <- RodentIndex[which(is.na(nim.data$RodentIndex))]
+      InitVals$RodentIndex <- Inits_RodentIndex
+    }
+    if(!rCov.idx & (NA %in% nim.data$RodentAbundance)){
+      Inits_RodentAbundance <- rep(NA, length(RodentAbundance))
+      Inits_RodentAbundance[which(is.na(nim.data$RodentAbundance))] <- RodentAbundance[which(is.na(nim.data$RodentAbundance))]
+      InitVals$RodentAbundance <- Inits_RodentAbundance
+    }
   }
   
   ## Return initial values

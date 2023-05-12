@@ -3,8 +3,8 @@ library(nimble)
 library(sf)
 library(reshape2)
 library(remotes)
-library('ckanr')
-library('purrr')
+library(ckanr)
+library(purrr)
 library(dplyr)
 
 #**********#
@@ -62,15 +62,16 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
-fitCov.Psi <- FALSE # Fit covariates on Psi (rodent abundance)
-rCov.idx <- TRUE # Use discrete vs. continuous rodent covariate
+fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
+rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
-#nLevels.rCov <- 3 # 3-level discrete rodent covariate
+#nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
+standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
 
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
-sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
-#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+#sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
+sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
 #sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
@@ -143,10 +144,7 @@ rodent.data.reform <- reformatData_rodent(rodent.dataset = rodent.data.raw)
 
 ## Prepare rodent abundance data
 rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.data.reform,
-                                  minYear = minYear,
-                                  adjust = TRUE)
-
-# Question Stijn: Why is it nice to have rodent abundance just as numbers and not in a dataframe with a year column?
+                                  minYear = minYear)
 
 
 # 1f) Conceptual year information #
@@ -196,6 +194,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  uLim.N = 800,
                                  uLim.Imm = 800,
                                  nLevels.rCov = nLevels.rCov,
+                                 standSpec.rCov = standSpec.rCov,
                                  wAaH.data = wAaH.data, 
                                  rep.data = rep.data, 
                                  rodent.data = rodent.data, 
