@@ -7,7 +7,7 @@
 #' @param uLim.N integer. Upper prior bound for initial number of individuals per age class.
 #' @param nLevels.rCov integer. Number of levels of categorical rodent abundance to use.
 #' @param standSpec.rCov logical. If TRUE, standardises rodent numbers per species before summing 
-#' to offset catchability, If FALSE simple sums alls rodent numbers. Default = ??. 
+#' to offset catchability, If FALSE simple sums alls rodent numbers. 
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
 #' @param wAaH.data a list containing an Age-at-Harvest matrix (winterC) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
@@ -30,9 +30,10 @@
 #' @examples
 
 assemble_inputData <- function(Amax, Tmax, minYear,
-                               maxPups, uLim.N, uLim.Imm, nLevels.rCov = NA,
+                               maxPups, uLim.N, uLim.Imm, 
+                               nLevels.rCov = NA, standSpec.rCov,
                                wAaH.data, rep.data, rodent.data, hunter.data, 
-                               surv.priors, survPriorType, standSpec.rCov,
+                               surv.priors, survPriorType,
                                save = FALSE){
   
   ## Select relevant years from observational data
@@ -60,17 +61,11 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   }
   
   ## Select relevant continuous rodent covariate
-  if(is.na(standSpec.rCov)){
-    RodentAbundance <- NA
-  }else{
-  
-  if(standSpec.rCov == TRUE){
+  if(standSpec.rCov){
     RodentAbundance <- rodent.data$cont.wintvar.stsp
   }else{
     RodentAbundance <- rodent.data$cont.wintvar
   }
-}
-
   
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data

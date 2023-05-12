@@ -2,17 +2,19 @@
 #'
 #' @param rodent.datafile Dataframe with rodent abundance data
 #' @param minYear integer. First year to consider in analyses.
-#' @param adjust logical. Default = FALSE. If TRUE, adjust levels of 3-category
-#' covariate in years 2018 and 2019 from 1 to 2 (in accordance with Dorothee's 
-#' suggestion). May become redundant once we update data. 
 #'
-#' @return a list containing rodent abundance data as a continuous variable (cont),
-#' and categorical variable with two (cat2) and three (cat3) levels.
+#' @return a list containing rodent abundance data as continuous variables (cont),
+#' and categorical variables with two (cat2). Data are provided for winter 
+#' (fall + spring) in Varanger (.wintvar) and for fall for the larger area (.fallstor).
+#' Continuous data are provided as total sums of individuals across all species
+#' and as sums weighed by species (voles vs. lemmings, .stsp). 
+#' Note that the time indices are shifted forward to represent that reproduction
+#' is a function of past rodent abundance.
 #' @export
 #'
 #' @examples
 
-wrangleData_rodent <- function(rodent.reform.dat, minYear, adjust){
+wrangleData_rodent <- function(rodent.reform.dat, minYear){
   
   ## Load reformatted data
   RodentData <- rodent.reform.dat
