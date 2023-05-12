@@ -328,6 +328,22 @@ writeCode_redfoxIPM <- function(){
       }
     }
     
+    ## Missing covariate value(s) in rodent abundance
+    if(rCov.idx){
+      
+      for(t in 1:Tmax){
+        RodentIndex[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
+      }
+      DU.prior.rCov[1:nLevels.rCov] <- 1/nLevels.rCov
+      
+    }else{
+      
+      for(t in 1:Tmax){
+        RodentAbundance[t] ~ dnorm(0, sd = 1)
+      }
+    }
+     
+     
   })
   
   return(redfox.code)
