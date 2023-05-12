@@ -20,7 +20,7 @@ wrangleData_rodent <- function(rodent.reform.dat, minYear){
   RodentData <- rodent.reform.dat
   
   ## Discard earlier years (if present)
-  RodentData <- subset(RodentData, year >= minYear)
+  RodentData <- subset(RodentData, year >= (minYear-1))
   
   ## List and return
   return(list(cont.wintvar          =   RodentData$st.tot.wintvar,     #winter varanger continuous, only standardised for seasons
@@ -30,4 +30,8 @@ wrangleData_rodent <- function(rodent.reform.dat, minYear){
               cont.fallstor         =   RodentData$st.tot.fallstor,    #fall storskala continuous
               cont.fallstor.stsp    =   RodentData$st.lemvole.fallstor,#fall storskala continuous, standardised for species
               cat2.fallstor         =   RodentData$cat2.fallstor + 1,     #fall storskala 2 factors
-}
+              
+              YearInfo.wint         =   paste0("fall ", RodentData$start_hunting_year, " - spring ", RodentData$start_hunting_year + 1),
+              YearInfo.fall         =   paste0("fall ", RodentData$start_hunting_year)))
+
+  }
