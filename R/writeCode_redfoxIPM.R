@@ -266,22 +266,38 @@ writeCode_redfoxIPM <- function(){
     
     
     ## Immigration
-    
+  
     Imm[1] <- 0 # (Immigration in the first year cannot be disentangled from reproduction)
     #ImmT[1] <- 0 
     
-    for(t in 2:(Tmax+1)){
-      Imm[t] ~ dcat(DU.prior.Imm[1:uLim.Imm]) 
-      #Imm[t] ~ dpois(ImmT[t])
-      #ImmT[t] ~ T(dnorm(Mu.Imm, sd = sigma.Imm), 0, uLim.Imm)
+    
+    if(imm.asRate){
+     
+      for(t in 2:(Tmax+1)){ 
+        Imm[t] ~ dpois(R[t]*immR[t])
+      } 
+      
+      log(immR[2:(Tmax+1)]) <- log(Mu.immR)
+      
+      Mu.immR ~ dunif(0, 5)
+      
+    }else{
+      
+      for(t in 2:(Tmax+1)){
+        Imm[t] ~ dcat(DU.prior.Imm[1:uLim.Imm]) 
+        #Imm[t] ~ dpois(ImmT[t])
+        #ImmT[t] ~ T(dnorm(Mu.Imm, sd = sigma.Imm), 0, uLim.Imm)
+      }
+      
+      DU.prior.Imm[1:uLim.Imm] <- 1/uLim.Imm
+      
+      #Mu.Imm ~ dunif(0, 400) #TODO: UPPER LIMIT NEEDS TO BE ADJUSTED
+      #sigma.Imm ~ dunif(0, 500) #TODO: UPPER LIMIT NEEDS TO BE ADJUSTED
+      
+      # NOTE: Try constraining this again once the rest of the model is structured!
     }
     
-    DU.prior.Imm[1:uLim.Imm] <- 1/uLim.Imm
     
-    #Mu.Imm ~ dunif(0, 400) #TODO: UPPER LIMIT NEEDS TO BE ADJUSTED
-    #sigma.Imm ~ dunif(0, 500) #TODO: UPPER LIMIT NEEDS TO BE ADJUSTED
-    
-    # NOTE: Try constraining this again once the rest of the model is structured!
     
     #---------------------------------------------------------------------------------------------
     
