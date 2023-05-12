@@ -321,8 +321,8 @@ writeCode_redfoxIPM <- function(){
     #### COVARIATE IMPUTATION ####
     ##############################
     
+    ## Missing covariate value(s) in number of successful hunters
     if(fitCov.mH){
-      ## Missing covariate value(s) in number of successful hunters
       for(t in 1:Tmax){
         HarvestEffort[t] ~ dnorm(0, sd = 1)
       }
