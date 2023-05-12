@@ -130,7 +130,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     Psi[1, t] <- 0
     
     if(fitCov.Psi & rCov.idx){
-      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi[nim.constants$RodentIndex[t]+1] + epsilon.Psi[t])
+      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t])
     }else{
       Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi*nim.constants$RodentAbundance[t] + epsilon.Psi[t])
     }

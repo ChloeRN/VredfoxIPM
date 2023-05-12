@@ -25,9 +25,9 @@ wrangleData_rodent <- function(rodent.reform.dat, minYear){
   ## List and return
   return(list(cont.wintvar          =   RodentData$st.tot.wintvar,     #winter varanger continuous, only standardised for seasons
               cont.wintvar.stsp     =   RodentData$st.lemvole.wintvar, #winter varanger continuous, standardised for seasons and species
-              cat2.wintvar          =   RodentData$cat2.wintvar,       #winter varanger 2 categories
+              cat2.wintvar          =   RodentData$cat2.wintvar + 1,       #winter varanger 2 categories
               
               cont.fallstor         =   RodentData$st.tot.fallstor,    #fall storskala continuous
               cont.fallstor.stsp    =   RodentData$st.lemvole.fallstor,#fall storskala continuous, standardised for species
-              cat2.fallstor         =   RodentData$cat2.fallstor))     #fall storskala 2 factors
+              cat2.fallstor         =   RodentData$cat2.fallstor + 1,     #fall storskala 2 factors
 }
