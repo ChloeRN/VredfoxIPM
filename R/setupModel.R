@@ -15,6 +15,8 @@
 #' effects on harvest mortality.
 #' @param fitCov.Psi logical. If TRUE, sets up model including covariate
 #' effects on pregnancy rates. 
+#' @param fitCov.rho logical. If TRUE, sets up model including covariate
+#' effects on litter size. 
 #' @param rCov.idx logical. Only required if fitCov.Psi = TRUE. If TRUE, assumes
 #' a categorical rodent abundance covariate. If FALSE, assumes a continuous rodent
 #' abundance covariate.
@@ -38,7 +40,7 @@
 setupModel <- function(modelCode,
                        nim.data, nim.constants,
                        minN1, maxN1, minImm, maxImm,
-                       fitCov.mH, fitCov.Psi, rCov.idx, HoeningPrior,
+                       fitCov.mH, fitCov.Psi, fitCov.rho, rCov.idx, HoeningPrior,
                        niter = 30000, nthin = 4, nburn = 5000, nchains = 3,
                        testRun = FALSE, initVals.seed){
   
@@ -66,6 +68,10 @@ setupModel <- function(modelCode,
     params <- c(params, "betaR.Psi")
   }
   
+  if(fitCov.rho){
+    params <- c(params, "betaR.rho")
+  }
+  
   ## Simulate initial values
   set.seed(initVals.seed)
   initVals <- list()
@@ -76,6 +82,7 @@ setupModel <- function(modelCode,
                                       minImm = minImm, maxImm = maxImm, 
                                       fitCov.mH = fitCov.mH, 
                                       fitCov.Psi = fitCov.Psi, 
+                                      fitCov.rho = fitCov.rho, 
                                       rCov.idx = rCov.idx, 
                                       HoeningPrior = HoeningPrior)
   }

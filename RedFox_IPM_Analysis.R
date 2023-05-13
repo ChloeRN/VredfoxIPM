@@ -42,12 +42,6 @@ shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox
 
 COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
-#TODO: change version numbers and names as soon as I get access
-#TODO: these directories can be removed when import from COAT dataportal and NIRD works
-#carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
-#rodent.dir         <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
-#TODO: share API key with Chloe and Doro so they can save it as env variable on their computer
-
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
   for (nm in list.files(path, pattern = "[.][RrSsQq]$")) {
@@ -63,6 +57,7 @@ sourceDir('R')
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
+fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
 rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
@@ -215,6 +210,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           maxImm = 600,
                           fitCov.mH = fitCov.mH, 
                           fitCov.Psi = fitCov.Psi, 
+                          fitCov.rho = fitCov.rho,
                           rCov.idx = rCov.idx, 
                           HoeningPrior = HoeningPrior,
                           testRun = TRUE,
