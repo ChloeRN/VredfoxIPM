@@ -28,8 +28,8 @@ embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
 ## set dataset names, versions, and directories, and access
-carcass.dataset.name <- "v_redfox_carcass_examination_v1"
-carcass.dataset.version <- 1
+carcass.dataset.name <- "v_redfox_carcass_examination_v3"
+carcass.dataset.version <- 3
 
 rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
 rodent.dataset.version <- 5
