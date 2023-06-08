@@ -22,7 +22,7 @@ maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9) #removal of summer months: numerical months to be removed from age at harvest data
 area_selection<- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
 # start and end of placental scars and embryo sample periods (julian day)
-plac_start <- 140 #including
+plac_start <- 180 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
