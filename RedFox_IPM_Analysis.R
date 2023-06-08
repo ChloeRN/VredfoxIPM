@@ -16,7 +16,7 @@ mySeed <- 0
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
-Tmax <- 15  # Number of years
+Tmax <- 18  # Number of years
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9) #removal of summer months: numerical months to be removed from age at harvest data
