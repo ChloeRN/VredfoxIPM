@@ -164,7 +164,11 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
 
     ## Placental scars
     rho[1, t] <- 0
-    rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + epsilon.rho[t])
+    if(fitCov.Psi & rCov.idx){
+      rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t])
+    }else{
+      rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t])
+    }
     
     ## Early survival
     S0[t] <- Mu.S0
