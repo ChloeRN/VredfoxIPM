@@ -238,9 +238,19 @@ writeCode_redfoxIPM <- function(){
     
     ## Litter size
     
+ 
     for(t in 1:(Tmax+1)){
-      rho[1,t] <- 0
-      log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]	
+      rho[1, t] <- 0
+      
+      if(fitCov.rho){
+        if(rCov.idx){
+          log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t]
+        }else{
+          log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t]
+        }
+      }else{
+        log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]
+      }
     }
     
     Mu.rho[1] <- 0
@@ -248,6 +258,16 @@ writeCode_redfoxIPM <- function(){
       Mu.rho[a] ~ dunif(0, maxPups) # Baseline number of pups 
     }
     
+    if(fitCov.rho){
+      if(rCov.idx){
+        betaR.rho[1] <- 0 # --> Lowest level corresponds to intercept
+        for(x in 2:nLevels.rCov){
+          betaR.rho[x] ~ dunif(-5, 5)
+        }
+      }else{
+        betaR.rho ~ dunif(-5, 5)
+      }
+    }
     
     #---------------------------------------------------------------------------------------------  
     
@@ -331,14 +351,14 @@ writeCode_redfoxIPM <- function(){
     ## Missing covariate value(s) in rodent abundance
     if(rCov.idx){
       
-      for(t in 1:Tmax){
+      for(t in 1:Tmax+1){
         RodentIndex[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
       }
       DU.prior.rCov[1:nLevels.rCov] <- 1/nLevels.rCov
       
     }else{
       
-      for(t in 1:Tmax){
+      for(t in 1:Tmax+1){
         RodentAbundance[t] ~ dnorm(0, sd = 1)
       }
     }

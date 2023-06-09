@@ -10,6 +10,8 @@
 #' effects on harvest mortality.
 #' @param fitCov.Psi logical. If TRUE, simulates initial values including covariate
 #' effects on pregnancy rates. 
+#' @param fitCov.rho logical. If TRUE, simulates initial values including covariate
+#' effects on litter size. 
 #' @param rCov.idx logical. Only required if fitCov.Psi = TRUE. If TRUE, assumes
 #' a categorical rodent abundance covariate. If FALSE, assumes a continuous rodent
 #' abundance covariate.
@@ -24,7 +26,7 @@
 #'
 #' @examples
 
-simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, fitCov.mH, fitCov.Psi, rCov.idx, HoeningPrior){
+simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, fitCov.mH, fitCov.Psi, fitCov.rho, rCov.idx, HoeningPrior){
   
   Amax <- nim.constants$Amax
   Tmax <- nim.constants$Tmax
@@ -119,6 +121,19 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     betaR.Psi <- 0
   }
 
+  # Rodent abundance on rho
+  if(fitCov.rho){
+    if(rCov.idx){
+      betaR.rho <- rep(0, nLevels.rCov)
+      for(x in 2:nim.constants$nLevels.rCov){
+        betaR.rho[x] <- runif(1, -5, 5)
+      }
+    }else{
+      betaR.rho <- runif(1, 0, 2)
+    }
+  }else{
+    betaR.rho <- 0
+  }
   
   #-------------------------------------#
   # Calculate year-specific vital rates #
@@ -149,7 +164,11 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
 
     ## Placental scars
     rho[1, t] <- 0
-    rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + epsilon.rho[t])
+    if(fitCov.Psi & rCov.idx){
+      rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t])
+    }else{
+      rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t])
+    }
     
     ## Early survival
     S0[t] <- Mu.S0
@@ -258,7 +277,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     Mu.mH = Mu.mH,
     Mu.mO = Mu.mO,
     Mu.Psi = Mu.Psi,
-    Mu.rho = Mu.Psi,
+    Mu.rho = Mu.rho,
     Mu.S0 = Mu.S0,
     
     sigma.mH = sigma.mH,
@@ -271,6 +290,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     
     betaHE.mH = betaHE.mH,
     betaR.Psi = betaR.Psi,
+    betaR.rho = betaR.rho,
     
     mH = mH,
     mO = mO, 
@@ -301,6 +321,20 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   if(fitCov.Psi){
+    if(rCov.idx & (NA %in% nim.data$RodentIndex)){
+      Inits_RodentIndex <- rep(NA, length(RodentIndex))
+      Inits_RodentIndex[which(is.na(nim.data$RodentIndex))] <- RodentIndex[which(is.na(nim.data$RodentIndex))]
+      InitVals$RodentIndex <- Inits_RodentIndex
+    }
+    if(!rCov.idx & (NA %in% nim.data$RodentAbundance)){
+      Inits_RodentAbundance <- rep(NA, length(RodentAbundance))
+      Inits_RodentAbundance[which(is.na(nim.data$RodentAbundance))] <- RodentAbundance[which(is.na(nim.data$RodentAbundance))]
+      InitVals$RodentAbundance <- Inits_RodentAbundance
+    }
+  }
+  
+  
+  if(fitCov.rho){
     if(rCov.idx & (NA %in% nim.data$RodentIndex)){
       Inits_RodentIndex <- rep(NA, length(RodentIndex))
       Inits_RodentIndex[which(is.na(nim.data$RodentIndex))] <- RodentIndex[which(is.na(nim.data$RodentIndex))]

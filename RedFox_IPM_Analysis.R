@@ -16,20 +16,20 @@ mySeed <- 0
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
-Tmax <- 15  # Number of years
+Tmax <- 18  # Number of years
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9) #removal of summer months: numerical months to be removed from age at harvest data
 area_selection<- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
 # start and end of placental scars and embryo sample periods (julian day)
-plac_start <- 140 #including
+plac_start <- 180 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
 ## set dataset names, versions, and directories, and access
-carcass.dataset.name <- "v_redfox_carcass_examination_v1"
-carcass.dataset.version <- 1
+carcass.dataset.name <- "v_redfox_carcass_examination_v3"
+carcass.dataset.version <- 3
 
 rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
 rodent.dataset.version <- 5
@@ -41,12 +41,6 @@ shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\
 shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
 
 COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
-
-#TODO: change version numbers and names as soon as I get access
-#TODO: these directories can be removed when import from COAT dataportal and NIRD works
-#carcass.dir        <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\carcass_examination"
-#rodent.dir         <-"C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Data from google disk\\Plot_based_data-database"
-#TODO: share API key with Chloe and Doro so they can save it as env variable on their computer
 
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
@@ -63,6 +57,7 @@ sourceDir('R')
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
+fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
 rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
@@ -215,6 +210,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           maxImm = 600,
                           fitCov.mH = fitCov.mH, 
                           fitCov.Psi = fitCov.Psi, 
+                          fitCov.rho = fitCov.rho,
                           rCov.idx = rCov.idx, 
                           HoeningPrior = HoeningPrior,
                           testRun = TRUE,
