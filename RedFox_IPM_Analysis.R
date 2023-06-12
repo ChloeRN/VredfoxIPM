@@ -135,11 +135,8 @@ rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key,
                                      COATdataset.version = rodent.dataset.version)
 
 ## Reformat rodent data
-rodent.data.reform <- reformatData_rodent(rodent.dataset = rodent.data.raw)
-
-## Prepare rodent abundance data
-rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.data.reform,
-                                  minYear = minYear)
+rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
+                                          minYear = minYear)
 
 
 # 1f) Conceptual year information #
