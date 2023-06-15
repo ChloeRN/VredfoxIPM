@@ -114,10 +114,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(rCov.idx){
       betaR.Psi <- rep(0, nLevels.rCov)
       for(x in 2:nim.constants$nLevels.rCov){
-        betaR.Psi[x] <- runif(1, -5, 5)
+        betaR.Psi[x] <- runif(1, 2, 2)
       }
     }else{
-      betaR.Psi <- runif(1, 0, 2)
+      betaR.Psi <- runif(1, 0, 0.2)
     }
   }else{
     betaR.Psi <- 0
@@ -128,10 +128,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(rCov.idx){
       betaR.rho <- rep(0, nLevels.rCov)
       for(x in 2:nim.constants$nLevels.rCov){
-        betaR.rho[x] <- runif(1, -5, 5)
+        betaR.rho[x] <- runif(1, 2, 2)
       }
     }else{
-      betaR.rho <- runif(1, 0, 2)
+      betaR.rho <- runif(1, 0, 0.2)
     }
   }else{
     betaR.rho <- 0
