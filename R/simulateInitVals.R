@@ -19,14 +19,16 @@
 #' using informative natural mortality priors based on the Hoening model. If 
 #' FALSE, simulates initial values for a model using informative survival priors
 #' based on literature. 
-#'
+#' @param imm.asRate logical. If TRUE, returns initial values associated with 
+#' immigration rate.
+#' 
 #' @return a list containing a complete set of initial values for all parameters
 #' in the IPM. 
 #' @export
 #'
 #' @examples
 
-simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, fitCov.mH, fitCov.Psi, fitCov.rho, rCov.idx, HoeningPrior){
+simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, fitCov.mH, fitCov.Psi, fitCov.rho, rCov.idx, HoeningPrior, imm.asRate){
   
   Amax <- nim.constants$Amax
   Tmax <- nim.constants$Tmax
@@ -183,7 +185,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   ## Harvest rate
   h <- (1 - S)*alpha
 
-  ## Immigration
+  ## Immigrant numbers
   Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))
   Imm[1] <- 0
   
@@ -264,7 +266,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   #       matter what numbers they contain. Filling them in prevents a warning
   #       about NA nodes when building the model. 
   
-  
+  ## Calculate immigration rates
+  immR <- colSums(R) / Imm
+  immR[1] <- 0
+    
   ## List all initial values
   InitVals <- list(
     N = N, 
@@ -311,6 +316,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     InitVals$Mu.mO.ad <- Mu.mO.ad
   }else{
     InitVals$Mu.Snat <- Mu.Snat
+  }
+  
+  ## Add initial values specific to immigration model versions
+  if(imm.asRate){
+    InitVals$immR <- immR
+    InitVals$Mu.immR <- mean(immR[2:(Tmax+1)])
   }
   
   ## Add initial values for missing covariate values (if applicable)

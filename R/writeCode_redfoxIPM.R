@@ -293,12 +293,13 @@ writeCode_redfoxIPM <- function(){
     if(imm.asRate){
      
       for(t in 2:(Tmax+1)){ 
-        Imm[t] ~ dpois(R[t]*immR[t])
+        Imm[t] ~ dpois(sum(R[2:Amax, t])*immR[t])
       } 
       
+      immR[1] <- 0
       log(immR[2:(Tmax+1)]) <- log(Mu.immR)
       
-      Mu.immR ~ dunif(0, 5)
+      Mu.immR ~ dunif(0, 10)
       
     }else{
       

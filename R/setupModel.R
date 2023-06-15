@@ -23,6 +23,8 @@
 #' @param HoeningPrior logical. If TRUE, sets up a model using informative natural 
 #' mortality priors based on the Hoening model. If FALSE, sets up a model using 
 #' informative survival priors based on literature. 
+#' @param imm.asRate logical. If TRUE, sets up a model that estimates immigration
+#' as a rate. 
 #' @param niter integer. Number of MCMC iterations (default = 30000)
 #' @param nthin integer. Thinning factor (default = 4)
 #' @param nburn integer. Number of iterations to discard as burn-in (default = 5000)
@@ -72,6 +74,10 @@ setupModel <- function(modelCode,
     params <- c(params, "betaR.rho")
   }
   
+  if(imm.asRate){
+    params <- c(params, "Mu.immR", "immR")
+  } 
+  
   ## Simulate initial values
   set.seed(initVals.seed)
   initVals <- list()
@@ -84,7 +90,8 @@ setupModel <- function(modelCode,
                                       fitCov.Psi = fitCov.Psi, 
                                       fitCov.rho = fitCov.rho, 
                                       rCov.idx = rCov.idx, 
-                                      HoeningPrior = HoeningPrior)
+                                      HoeningPrior = HoeningPrior,
+                                      imm.asRate = imm.asRate)
   }
   
   ## Adjust MCMC parameters if doing a test run
