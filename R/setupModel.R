@@ -75,7 +75,7 @@ setupModel <- function(modelCode,
   }
   
   if(imm.asRate){
-    params <- c(params, "Mu.immR", "immR")
+    params <- c(params, "Mu.immR", "sigma.immR", "immR")
   } 
   
   ## Simulate initial values

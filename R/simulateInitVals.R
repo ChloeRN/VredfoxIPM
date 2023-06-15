@@ -265,10 +265,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # NOTE: These nodes do not appear in the model and it therefore does not 
   #       matter what numbers they contain. Filling them in prevents a warning
   #       about NA nodes when building the model. 
-  
-  ## Calculate immigration rates
-  immR <- colSums(R) / Imm
-  immR[1] <- 0
     
   ## List all initial values
   InitVals <- list(
@@ -332,7 +328,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       InitVals$Mu.immR <- mean(immR[2:(Tmax+1)])
     }
     
-    InitVals$immR <- rep(InitVals$Mu.immR, Tmax+1)
+    InitVals$immR <- c(0, rep(InitVals$Mu.immR, Tmax))
+    InitVals$sigma.immR <- runif(1, 0, 0.5)
+    InitVals$epsilon.immR <- rep(0, Tmax+1)
   }
   
 

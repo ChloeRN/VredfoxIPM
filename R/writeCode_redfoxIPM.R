@@ -327,7 +327,7 @@ writeCode_redfoxIPM <- function(){
       } 
       
       immR[1] <- 0
-      log(immR[2:(Tmax+1)]) <- log(Mu.immR)
+      log(immR[2:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[2:(Tmax+1)]
       
     }else{
       
@@ -377,7 +377,14 @@ writeCode_redfoxIPM <- function(){
     sigma.mH ~ dunif(0, 5)
     sigma.Psi ~ dunif(0, 5)
     sigma.rho ~ dunif(0, 5)
-    #sigma.m0 ~ dunif(0, 5) 
+    #sigma.m0 ~ dunif(0, 5)
+    
+    if(imm.asRate){
+      for(t in 1:(Tmax+1)){
+        epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+      }
+      sigma.immR ~ dunif(0, 10)
+    }
     
     #===============================================================================================
     
