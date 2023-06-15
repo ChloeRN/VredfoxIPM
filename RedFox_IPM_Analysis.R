@@ -36,11 +36,11 @@ rodent.dataset.version <- 5
 
 # Stijn
 shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
+COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
 # Chloe
 shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
-
-COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
+COAT_key <- Sys.getenv("COAT_API")
 
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
@@ -135,11 +135,8 @@ rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key,
                                      COATdataset.version = rodent.dataset.version)
 
 ## Reformat rodent data
-rodent.data.reform <- reformatData_rodent(rodent.dataset = rodent.data.raw)
-
-## Prepare rodent abundance data
-rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.data.reform,
-                                  minYear = minYear)
+rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
+                                          minYear = minYear)
 
 
 # 1f) Conceptual year information #

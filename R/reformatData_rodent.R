@@ -2,13 +2,21 @@
 #'
 #' @param rodent.dataset dataframe containing the carcass dataset downloaded from the COAT dataportal
 #'
-#' @return a dataframe containing the mean numbers of rodents (in a plot), for each year
+#' @param minYear integer. First year to consider in analyses.
+#'
+#' @return a list containing rodent abundance data as continuous variables (cont),
+#' and categorical variables with two (cat2). Data are provided for winter 
+#' (fall + spring) in Varanger (.wintvar) and for fall for the larger area (.fallstor).
+#' Continuous data are provided as total sums of individuals across all species
+#' and as sums weighed by species (voles vs. lemmings, .stsp). 
+#' Note that the time indices are shifted forward to represent that reproduction
+#' is a function of past rodent abundance.
 #' @export
 #'
 #' @examples
 
 
-reformatData_rodent <- function(rodent.dataset) {
+reformatData_rodent <- function(rodent.dataset, minYear) {
 
 #========= LOAD DATA ==============
 allrod <- rodent.dataset
@@ -118,6 +126,22 @@ merged_fallwinter <- merge(agvar_winter, agstor_fall, by="start_hunting_year", a
 
 #--- Re-add missing year labels
 merged_fallwinter$year <- ifelse(is.na(merged_fallwinter$year), merged_fallwinter$start_hunting_year, merged_fallwinter$year)
+
+## Discard earlier years (if present)
+merged_fallwinter <- subset(merged_fallwinter, year >= (minYear-1))
+
+## List and return
+return(list(cont.wintvar          =   merged_fallwinter$st.tot.wintvar,      #winter varanger continuous, only standardised for seasons
+            cont.wintvar.stsp     =   merged_fallwinter$st.lemvole.wintvar,  #winter varanger continuous, standardised for seasons and species
+            cat2.wintvar          =   merged_fallwinter$cat2.wintvar + 1,    #winter varanger 2 categories
+            
+            cont.fallstor         =   merged_fallwinter$st.tot.fallstor,     #fall storskala continuous
+            cont.fallstor.stsp    =   merged_fallwinter$st.lemvole.fallstor, #fall storskala continuous, standardised for species
+            cat2.fallstor         =   merged_fallwinter$cat2.fallstor + 1,   #fall storskala 2 factors
+            
+            YearInfo.wint         =   paste0("fall ", merged_fallwinter$start_hunting_year, " - spring ", merged_fallwinter$start_hunting_year + 1),
+            YearInfo.fall         =   paste0("fall ", merged_fallwinter$start_hunting_year)))
+
 
 return(merged_fallwinter)
 }
