@@ -193,7 +193,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   #---------------------------------------------------------#
   
   ## Prepare empty vectors and matrices
-  H <- N <- B <- L <- R <- matrix(NA, nrow = Amax, ncol = Tmax)
+  H <- N <- B <- L <- R <- matrix(NA, nrow = Amax, ncol = Tmax+1)
   
   ## Set initial population sizes
   for(a in 1:Amax){
@@ -201,10 +201,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   ## Set age class 0 reproductive contributions to 0
-  B[1, 1:Tmax] <- L[1, 1:Tmax] <- R[1, 1:Tmax] <- 0
+  B[1, 1:(Tmax+1)] <- L[1, 1:(Tmax+1)] <- R[1, 1:(Tmax+1)] <- 0
   
   
-  for (t in 1:(Tmax-1)){
+  for (t in 1:Tmax){
 
     # a) Project local survivors to the next year
     #---------------------------------------------
@@ -244,7 +244,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # d) Check for years with more harvests than alive individuals
   #-------------------------------------------------------------
   
-  if(any(nim.data$C > N)){
+  if(any(nim.data$C > N[, 1:Tmax])){
     stop('Simulation resulted in less alive than harvested. Retry.')
   }
   

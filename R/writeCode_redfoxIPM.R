@@ -18,7 +18,7 @@ writeCode_redfoxIPM <- function(){
     
     ## Survival
     
-    for(t in 1:(Tmax-1)){ 
+    for(t in 1:Tmax){ 
       
       # Age class 0 (index = 1): sum of local reproduction & immigrants
       N[1, t+1] <- sum(R[2:Amax, t+1]) + Imm[t+1]     
@@ -35,12 +35,12 @@ writeCode_redfoxIPM <- function(){
     ## Reproduction
     
     # Age class 0 (young of the year --> do not reproduce in year of birth)
-    B[1, 1:Tmax] <- 0
-    L[1, 1:Tmax] <- 0
-    R[1, 1:Tmax] <- 0
+    B[1, 1:(Tmax+1)] <- 0
+    L[1, 1:(Tmax+1)] <- 0
+    R[1, 1:(Tmax+1)] <- 0
     
     # Age classes 1 to 3+    	    
-    for(t in 1:Tmax){        				
+    for(t in 1:(Tmax+1)){        				
       for(a in 2:Amax){
         
         # Breeding Population Size: Number of females that reproduce
@@ -62,7 +62,7 @@ writeCode_redfoxIPM <- function(){
     #### DERIVED QUANTITIES ####
     ############################
     
-    for(t in 1:Tmax){
+    for(t in 1:(Tmax+1)){
       N.tot[t] <- sum(N[1:Amax, t])
       R.tot[t] <- sum(R[1:Amax, t])		
       B.tot[t] <- sum(B[1:Amax, t])
@@ -87,7 +87,6 @@ writeCode_redfoxIPM <- function(){
     ### Likelihood
     
     for(t in 1:Tmax){
-      
       for(a in 1:Amax){
         C[a, t] ~ dbin(h[a, t]*pData[t], N[a, t])
       }
