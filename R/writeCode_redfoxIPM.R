@@ -275,7 +275,7 @@ writeCode_redfoxIPM <- function(){
     ## Denning survival
     #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE
     
-    for(t in 1:Tmax){ 
+    for(t in 1:(Tmax+1)){ 
       S0[t] <- Mu.S0
       #S0[t] <- exp(-m0[t])
       #log(m0[t]) <- log(-log(Mu.S0)) + epsilon.m0[t]
@@ -320,9 +320,11 @@ writeCode_redfoxIPM <- function(){
     
     
     ## Random year variation
-    
     for(t in 1:Tmax){  
       epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+    }
+    
+    for(t in 1:(Tmax+1)){
       epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
       epsilon.rho[t] ~ dnorm(0, sd = sigma.rho) 
       # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
