@@ -75,6 +75,7 @@ sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (light
 GeneClass.approach <- 2 # Using second approach for GeneClass analysis
 poolYrs.genData <- TRUE # Pool data across all years
 imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
+useData.gen <- TRUE # Use genetic data for estimation of immigration rate
 
 
 #*********************#

@@ -320,9 +320,22 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   ## Add initial values specific to immigration model versions
   if(imm.asRate){
-    InitVals$immR <- immR
-    InitVals$Mu.immR <- mean(immR[2:(Tmax+1)])
+    
+    if(useData.gen){
+      ImmData <- rbinom(n = nim.constants$Xgen, size = 1, p = mean(nim.data$pImm))
+      ImmData[which(nim.data$pImm == 0)] <- 0
+      
+      InitVals$ImmData <- ImmData
+      InitVals$Mu.immR <- sum(InitVals$ImmData)/(nim.constants$Xgen-sum(InitVals$ImmData))
+      
+    }else{
+      InitVals$Mu.immR <- mean(immR[2:(Tmax+1)])
+    }
+    
+    InitVals$immR <- rep(InitVals$Mu.immR, Tmax+1)
   }
+  
+
   
   ## Add initial values for missing covariate values (if applicable)
   if(fitCov.mH & (NA %in% nim.data$HarvestEffort)){

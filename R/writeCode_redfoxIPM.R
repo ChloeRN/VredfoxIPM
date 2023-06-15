@@ -129,6 +129,36 @@ writeCode_redfoxIPM <- function(){
     #===============================================================================================
     
     
+    ###########################################
+    #### GENETIC IMMIGRATION STATUS MODULE ####
+    ###########################################
+    
+    ### Parameters:
+    # Mu.immR = average immigration rate
+    # immR = annual immigration rates
+    
+    ## Data:
+    # pImm = individual probability of being an immigrant
+
+    
+    ### Likelihood (immigration status of sampled individuals)
+    
+    if(useData.gen){
+      
+      for(x in 1:Xgen){
+        ImmData[x] ~ dbern(pImm[x])
+      }
+      
+      Mu.immR <- sum(ImmData[1:Xgen]) / (Xgen - sum(ImmData[1:Xgen]))
+      
+    }else{
+      
+      Mu.immR ~ dunif(0, 10)
+      
+    }
+
+    
+    
     
     ################################
     #### PRIORS AND CONSTRAINTS ####
@@ -298,8 +328,6 @@ writeCode_redfoxIPM <- function(){
       
       immR[1] <- 0
       log(immR[2:(Tmax+1)]) <- log(Mu.immR)
-      
-      Mu.immR ~ dunif(0, 10)
       
     }else{
       
