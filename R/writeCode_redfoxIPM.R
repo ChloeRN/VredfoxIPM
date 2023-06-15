@@ -207,7 +207,7 @@ writeCode_redfoxIPM <- function(){
       
       if(fitCov.Psi){
         if(rCov.idx){
-          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]+1] + epsilon.Psi[t]
+          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t]
         }else{
           logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
         }
@@ -238,9 +238,19 @@ writeCode_redfoxIPM <- function(){
     
     ## Litter size
     
+ 
     for(t in 1:(Tmax+1)){
-      rho[1,t] <- 0
-      log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]	
+      rho[1, t] <- 0
+      
+      if(fitCov.rho){
+        if(rCov.idx){
+          log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t]
+        }else{
+          log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t]
+        }
+      }else{
+        log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]
+      }
     }
     
     Mu.rho[1] <- 0
@@ -248,6 +258,16 @@ writeCode_redfoxIPM <- function(){
       Mu.rho[a] ~ dunif(0, maxPups) # Baseline number of pups 
     }
     
+    if(fitCov.rho){
+      if(rCov.idx){
+        betaR.rho[1] <- 0 # --> Lowest level corresponds to intercept
+        for(x in 2:nLevels.rCov){
+          betaR.rho[x] ~ dunif(-5, 5)
+        }
+      }else{
+        betaR.rho ~ dunif(-5, 5)
+      }
+    }
     
     #---------------------------------------------------------------------------------------------  
     
@@ -255,7 +275,7 @@ writeCode_redfoxIPM <- function(){
     ## Denning survival
     #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE
     
-    for(t in 1:Tmax){ 
+    for(t in 1:(Tmax+1)){ 
       S0[t] <- Mu.S0
       #S0[t] <- exp(-m0[t])
       #log(m0[t]) <- log(-log(Mu.S0)) + epsilon.m0[t]
@@ -316,9 +336,11 @@ writeCode_redfoxIPM <- function(){
     
     
     ## Random year variation
-    
     for(t in 1:Tmax){  
       epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+    }
+    
+    for(t in 1:(Tmax+1)){
       epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
       epsilon.rho[t] ~ dnorm(0, sd = sigma.rho) 
       # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
@@ -337,13 +359,29 @@ writeCode_redfoxIPM <- function(){
     #### COVARIATE IMPUTATION ####
     ##############################
     
+    ## Missing covariate value(s) in number of successful hunters
     if(fitCov.mH){
-      ## Missing covariate value(s) in number of successful hunters
       for(t in 1:Tmax){
         HarvestEffort[t] ~ dnorm(0, sd = 1)
       }
     }
     
+    ## Missing covariate value(s) in rodent abundance
+    if(rCov.idx){
+      
+      for(t in 1:Tmax+1){
+        RodentIndex[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
+      }
+      DU.prior.rCov[1:nLevels.rCov] <- 1/nLevels.rCov
+      
+    }else{
+      
+      for(t in 1:Tmax+1){
+        RodentAbundance[t] ~ dnorm(0, sd = 1)
+      }
+    }
+     
+     
   })
   
   return(redfox.code)

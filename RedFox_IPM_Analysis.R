@@ -16,33 +16,31 @@ mySeed <- 0
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
-Tmax <- 15  # Number of years
+Tmax <- 18  # Number of years
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9) #removal of summer months: numerical months to be removed from age at harvest data
 area_selection<- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
 # start and end of placental scars and embryo sample periods (julian day)
-plac_start <- 140 #including
+plac_start <- 180 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
 ## set dataset names, versions, and directories, and access
-carcass.dataset.name <- "v_redfox_carcass_examination_v1"
-carcass.dataset.version <- 1
+carcass.dataset.name <- "v_redfox_carcass_examination_v3"
+carcass.dataset.version <- 3
 
 rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
 rodent.dataset.version <- 5
 
 # Stijn
 shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
+COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
 # Chloe
 shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
-
-COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
-
-#TODO: change version numbers and names as soon as I get access
+COAT_key <- Sys.getenv("COAT_API")
 
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
@@ -58,15 +56,17 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
-fitCov.Psi <- FALSE # Fit covariates on Psi (rodent abundance)
-rCov.idx <- TRUE # Use discrete vs. continuous rodent covariate
+fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
+fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
+rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
-#nLevels.rCov <- 3 # 3-level discrete rodent covariate
+#nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
+standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
 
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
-sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
-#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+#sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
+sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
 #sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
@@ -155,12 +155,8 @@ rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key,
                                      COATdataset.version = rodent.dataset.version)
 
 ## Reformat rodent data
-rodent.data.reform <- reformatData_rodent(rodent.dataset = rodent.data.raw)
-
-## Prepare rodent abundance data
-rodent.data <- wrangleData_rodent(rodent.reform.dat = rodent.data.reform,
-                                  minYear = minYear,
-                                  adjust = TRUE)
+rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
+                                          minYear = minYear)
 
 
 # 1g) Conceptual year information #
@@ -210,6 +206,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  uLim.N = 800,
                                  uLim.Imm = 800,
                                  nLevels.rCov = nLevels.rCov,
+                                 standSpec.rCov = standSpec.rCov,
                                  poolYrs.genData = poolYrs.genData,
                                  wAaH.data = wAaH.data, 
                                  rep.data = rep.data, 
@@ -232,6 +229,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           maxImm = 600,
                           fitCov.mH = fitCov.mH, 
                           fitCov.Psi = fitCov.Psi, 
+                          fitCov.rho = fitCov.rho,
                           rCov.idx = rCov.idx, 
                           HoeningPrior = HoeningPrior,
                           testRun = TRUE,
