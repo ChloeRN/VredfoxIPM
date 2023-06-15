@@ -70,6 +70,12 @@ sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (light
 #sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
+# Genetic immigration data toggles (details in documentation of wrangleData_gen function
+#GeneClass.approach <- 1 # Using first approach for GeneClass analysis 
+GeneClass.approach <- 2 # Using second approach for GeneClass analysis
+poolYrs.genData <- TRUE # Pool data across all years
+
+
 #*********************#
 # 1) DATA PREPARATION #
 #*********************#
@@ -117,8 +123,22 @@ rep.data <- wrangleData_rep(P1.datafile = P1.datafile,
                             minYear = minYear)
 
 
-# 1d) Harvest effort data #
-#------------------------#
+# 1d) Genetic data #
+#------------------#
+
+## Set data paths
+genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
+
+## Prepare genetic data
+gen.data <- wrangleData_gen(datapath = genetics.datapath,
+                            minYear, 
+                            onlyFemales = FALSE, 
+                            GeneClass.approach = GeneClass.approach, 
+                            poolYrs.genData = poolYrs.genData)
+
+
+# 1e) Harvest effort data #
+#-------------------------#
 
 ## Prepare harvest effort data
 hunter.data <- reformatData_hunters(area_selection = area_selection,
@@ -126,7 +146,7 @@ hunter.data <- reformatData_hunters(area_selection = area_selection,
                                     shapefile.dir = shapefile.dir)
 
 
-# 1e) Environmental data #
+# 1f) Environmental data #
 #------------------------#
 
 ## Download rodent data
@@ -139,7 +159,7 @@ rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
                                           minYear = minYear)
 
 
-# 1f) Conceptual year information #
+# 1g) Conceptual year information #
 #---------------------------------#
 
 YearInfo <- collate_yearInfo(minYear = minYear,
@@ -187,8 +207,10 @@ input.data <- assemble_inputData(Amax = Amax,
                                  uLim.Imm = 800,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
+                                 poolYrs.genData = poolYrs.genData,
                                  wAaH.data = wAaH.data, 
                                  rep.data = rep.data, 
+                                 gen.data = gen.data,
                                  rodent.data = rodent.data, 
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,
