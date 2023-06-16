@@ -325,7 +325,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       InitVals$Mu.immR <- sum(InitVals$ImmData)/(nim.constants$Xgen-sum(InitVals$ImmData))
       
     }else{
-      InitVals$Mu.immR <- mean(immR[2:(Tmax+1)])
+      InitVals$Mu.immR <- mean(Imm[2:(Tmax+1)]/colSums(R)[2:(Tmax+1)])
     }
     
     InitVals$immR <- c(0, rep(InitVals$Mu.immR, Tmax))

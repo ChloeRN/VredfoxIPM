@@ -74,8 +74,8 @@ sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (light
 #GeneClass.approach <- 1 # Using first approach for GeneClass analysis 
 GeneClass.approach <- 2 # Using second approach for GeneClass analysis
 poolYrs.genData <- TRUE # Pool data across all years
-imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
-useData.gen <- TRUE # Use genetic data for estimation of immigration rate
+imm.asRate <- FALSE # Estimating immigration as a rate as opposed to numbers
+useData.gen <- FALSE # Use genetic data for estimation of immigration rate
 
 
 #*********************#
@@ -206,7 +206,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  minYear = minYear,
                                  maxPups = 14,
                                  uLim.N = 800,
-                                 uLim.Imm = 800,
+                                 uLim.Imm = 3000,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
                                  poolYrs.genData = poolYrs.genData,
@@ -234,13 +234,14 @@ model.setup <- setupModel(modelCode = redfox.code,
                           fitCov.rho = fitCov.rho,
                           rCov.idx = rCov.idx, 
                           HoeningPrior = HoeningPrior,
-                          testRun = TRUE,
+                          testRun = FALSE,
                           initVals.seed = mySeed)
 
 ####################
 # 4) MODEL FITTING #
 ####################
 
+t1 <- Sys.time()
 IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       data = input.data$nim.data, 
                       constants = input.data$nim.constants,
@@ -252,4 +253,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
                       setSeed = 0)
+Sys.time() - t1
 
+saveRDS(IPM.out, file = "ImmNum_naive.rds")
+MCMCvis::MCMCtrace(IPM.out)

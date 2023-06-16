@@ -142,23 +142,22 @@ writeCode_redfoxIPM <- function(){
 
     
     ### Likelihood (immigration status of sampled individuals)
-    
-    if(useData.gen){
-      
-      for(x in 1:Xgen){
-        ImmData[x] ~ dbern(pImm[x])
+    if(imm.asRate){
+      if(useData.gen){
+        
+        for(x in 1:Xgen){
+          ImmData[x] ~ dbern(pImm[x])
+        }
+        
+        Mu.immR <- sum(ImmData[1:Xgen]) / (Xgen - sum(ImmData[1:Xgen]))
+        
+      }else{
+        
+        Mu.immR ~ dunif(0, 10)
+        
       }
-      
-      Mu.immR <- sum(ImmData[1:Xgen]) / (Xgen - sum(ImmData[1:Xgen]))
-      
-    }else{
-      
-      Mu.immR ~ dunif(0, 10)
-      
     }
 
-    
-    
     
     ################################
     #### PRIORS AND CONSTRAINTS ####
