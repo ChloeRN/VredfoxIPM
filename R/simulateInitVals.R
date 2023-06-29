@@ -324,6 +324,13 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       InitVals$ImmData <- ImmData
       InitVals$Mu.immR <- sum(InitVals$ImmData)/(nim.constants$Xgen-sum(InitVals$ImmData))
       
+      if(!poolYrs.genData){
+        ImmData_pre <- rbinom(n = nim.constants$Xgen_pre, size = 1, p = mean(nim.data$pImm_pre))
+        ImmData_pre[which(nim.data$pImm_pre == 0)] <- 0
+        
+        InitVals$ImmData_pre <- ImmData_pre
+      }
+      
     }else{
       InitVals$Mu.immR <- mean(Imm[2:(Tmax+1)]/colSums(R)[2:(Tmax+1)])
     }

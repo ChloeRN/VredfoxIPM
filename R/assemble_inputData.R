@@ -117,6 +117,10 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     nim.data$pImm_pre <- gen.data$pImm_pre
     nim.constants$Xgen <- gen.data$Xgen_in
     nim.constants$Xgen_pre <- gen.data$Xgen_pre
+    nim.constants$pImm_yrs <- gen.data$pImm_yrsB_in
+    nim.constants$pImm_yrs_pre <- gen.data$pImm_yrsB_pre
+    nim.constants$Tmax_Gen <- max(nim.constants$pImm_yrs)
+    nim.constants$Tmax_Gen_pre <- max(nim.constants$pImm_yrs_pre)
   }
   
   ## Add relevant prior information
