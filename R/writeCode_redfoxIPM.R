@@ -145,11 +145,35 @@ writeCode_redfoxIPM <- function(){
     if(imm.asRate){
       if(useData.gen){
         
+        ## Likelihood for individuals (within study period) to be immigrants
         for(x in 1:Xgen){
           ImmData[x] ~ dbern(pImm[x])
         }
         
-        Mu.immR <- sum(ImmData[1:Xgen]) / (Xgen - sum(ImmData[1:Xgen]))
+        if(poolYrs.genData){
+          
+          ## Derivation of average immigration rate
+          Mu.immR <- sum(ImmData[1:Xgen]) / (Xgen - sum(ImmData[1:Xgen]))
+        
+        }else{
+          
+          ## Likelihood for individuals outside the study period to be immigrants
+          for(x in 1:Xgen_pre){
+            ImmData_pre[x] ~ dbern(pImm_pre[x])
+          }
+          
+          ## Derivation of year-specific immigration rates
+          # Within study period
+          immR[1:Tmax_Gen] <- calculateImmR(ImmData = ImmData[1:Xgen], 
+                                            yearIdx = pImm_yrs[1:Xgen],
+                                            Tmax = Tmax_Gen, skip_t1 = FALSE)
+          
+          # Outside study period
+          immR_pre[1:Tmax_Gen_pre] <- calculateImmR(ImmData = ImmData_pre[1:Xgen_pre], 
+                                                    yearIdx = pImm_yrs_pre[1:Xgen_pre],
+                                                    Tmax = Tmax_Gen_pre, skip_t1 = FALSE)
+          
+        }
         
       }else{
         
@@ -314,21 +338,36 @@ writeCode_redfoxIPM <- function(){
     
     
     ## Immigration
-  
-    Imm[1] <- 0 # (Immigration in the first year cannot be disentangled from reproduction)
-    #ImmT[1] <- 0 
-    
     
     if(imm.asRate){
-     
-      for(t in 2:(Tmax+1)){ 
-        Imm[t] ~ dpois(sum(R[2:Amax, t])*immR[t])
-      } 
       
-      immR[1] <- 0
-      log(immR[2:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[2:(Tmax+1)]
+      if(useData.gen & !poolYrs.genData){
+        
+        ## Extraction of log mean and sd for immigration rate
+        log(Mu.immR) <- log(mean(c(immR[1:Tmax_Gen], immR_pre[1:Tmax_Gen_pre]))) 
+        sigma.immR <- calculateLogSD(immR = c(immR[1:Tmax_Gen], immR_pre[1:Tmax_Gen_pre]),
+                                     replace0 = 0.01)
+        
+        ## Projection of immigration rates beyond genetic data coverage
+        for(t in (Tmax_Gen+1):(Tmax+1)){
+          immR[t] ~ dlnorm(meanlog = log(Mu.immR), sdlog = sigma.immR)
+        }
+        
+      }else{
+        
+        for(t in 1:(Tmax+1)){ 
+          Imm[t] ~ dpois(sum(R[2:Amax, t])*immR[t])
+        } 
+        
+        log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
+        
+      }
       
     }else{
+      
+      ## Discrete uniform prior for immigrant numbers
+      Imm[1] <- 0 # (Immigration in the first year cannot be disentangled from reproduction)
+      #ImmT[1] <- 0 
       
       for(t in 2:(Tmax+1)){
         Imm[t] ~ dcat(DU.prior.Imm[1:uLim.Imm]) 
@@ -338,10 +377,12 @@ writeCode_redfoxIPM <- function(){
       
       DU.prior.Imm[1:uLim.Imm] <- 1/uLim.Imm
       
-      #Mu.Imm ~ dunif(0, 400) #TODO: UPPER LIMIT NEEDS TO BE ADJUSTED
-      #sigma.Imm ~ dunif(0, 500) #TODO: UPPER LIMIT NEEDS TO BE ADJUSTED
-      
-      # NOTE: Try constraining this again once the rest of the model is structured!
+      ## Derivation of immigration rates
+      immR[1] <- 0
+      for(t in 2:(Tmax+1)){
+        immR[t] <- Imm[t] / sum(R[2:Amax, t])
+      }
+
     }
     
     
@@ -378,7 +419,7 @@ writeCode_redfoxIPM <- function(){
     sigma.rho ~ dunif(0, 5)
     #sigma.m0 ~ dunif(0, 5)
     
-    if(imm.asRate){
+    if(imm.asRate & poolYrs.genData){
       for(t in 1:(Tmax+1)){
         epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
       }

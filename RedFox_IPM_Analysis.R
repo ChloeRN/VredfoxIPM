@@ -234,7 +234,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           fitCov.rho = fitCov.rho,
                           rCov.idx = rCov.idx, 
                           HoeningPrior = HoeningPrior,
-                          testRun = FALSE,
+                          testRun = TRUE,
                           initVals.seed = mySeed)
 
 ####################

@@ -53,7 +53,7 @@ setupModel <- function(modelCode,
               "Psi", "rho", "mH", "mO", "S",
               "initN",
               "N.tot", "B.tot", "R.tot", 
-              "N", "B", "L", "Imm")
+              "N", "B", "L", "Imm", "immR")
   
   ## Add additional parameters to monitor depending on model version
   if(HoeningPrior){
@@ -75,7 +75,11 @@ setupModel <- function(modelCode,
   }
   
   if(imm.asRate){
-    params <- c(params, "Mu.immR", "sigma.immR", "immR")
+    params <- c(params, "Mu.immR", "sigma.immR")
+    
+    if(!poolYrs.genData){
+      params <- c(params, "immR_pre")
+    }
   } 
   
   ## Simulate initial values
