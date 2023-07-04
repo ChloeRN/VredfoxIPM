@@ -237,6 +237,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           testRun = TRUE,
                           initVals.seed = mySeed)
 
+
 ####################
 # 4) MODEL FITTING #
 ####################
@@ -257,3 +258,16 @@ Sys.time() - t1
 
 saveRDS(IPM.out, file = "ImmNum_naive.rds")
 MCMCvis::MCMCtrace(IPM.out)
+
+
+#######################
+# 5) MODEL COMPARISON #
+#######################
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("ImmNum_naive.rds", "ImmRate_naive.rds", "ImmRate_genData.rds"), 
+              model.names = c("Number, naive", "Rate, naive", "Rate, pooled gen data"), 
+              plotFolder = "Plots/Comp_ImmModels")
+
