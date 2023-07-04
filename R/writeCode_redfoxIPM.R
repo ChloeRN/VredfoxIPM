@@ -355,13 +355,14 @@ writeCode_redfoxIPM <- function(){
         
       }else{
         
-        for(t in 1:(Tmax+1)){ 
-          Imm[t] ~ dpois(sum(R[2:Amax, t])*immR[t])
-        } 
-        
         log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
         
       }
+      
+      for(t in 1:(Tmax+1)){ 
+        Imm[t] ~ dpois(sum(R[2:Amax, t])*immR[t])
+      }
+      
       
     }else{
       
