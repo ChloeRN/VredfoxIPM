@@ -9,27 +9,27 @@ RedFox_LiteratureData <- read_csv("Data/RedFox_LiteratureData.csv")
 
 ## subset by include_MetaAnalysis
 
-RedFox_MA<-RedFox_LiteratureData |> 
-  filter(include_MetaAnalysis==1)
+RedFox_MA <- RedFox_LiteratureData |> 
+  dplyr::filter(include_MetaAnalysis==1)
 
 ## We need SD but we can take the SD across all studies and use a single value for each age class
 ## We can improve this though!
 
-RedFox_MA_1SD<-RedFox_MA |>
-  mutate(Age0_mean=mean(Age0, na.rm=TRUE)) |>
-  mutate(Age1_mean=mean(Age1, na.rm=TRUE)) |>
-  mutate(Age2_mean=mean(Age2, na.rm=TRUE)) |>
-  mutate(Age3_mean=mean(Age3, na.rm=TRUE)) |>
-  mutate(Age4_mean=mean(Age4, na.rm=TRUE))
+RedFox_MA_1SD <- RedFox_MA |>
+  dplyr::mutate(Age0_mean=mean(Age0, na.rm=TRUE),
+                Age1_mean=mean(Age1, na.rm=TRUE),
+                Age2_mean=mean(Age2, na.rm=TRUE),
+                Age3_mean=mean(Age3, na.rm=TRUE),
+                Age4_mean=mean(Age4, na.rm=TRUE))
 
 ## imputation of SDs?
 
 RedFox_MAsd<-RedFox_MA |> 
   rowwise() |> 
-  mutate(Age0_sd=sd(TruncatedNormal::rtnorm(maxN_all,Age0, lb=0, ub=1)),
-         Age1_sd=sd(TruncatedNormal::rtnorm(maxN_all,Age1, lb=0, ub=1)),
-         Age2_sd=sd(TruncatedNormal::rtnorm(maxN_all,Age2, lb=0, ub=1)),
-         Age3_sd=sd(TruncatedNormal::rtnorm(maxN_all,Age3, lb=0, ub=1))) 
+  dplyr::mutate(Age0_sd=sd(TruncatedNormal::rtnorm(maxN_all,Age0, lb=0, ub=1)),
+                Age1_sd=sd(TruncatedNormal::rtnorm(maxN_all,Age1, lb=0, ub=1)),
+                Age2_sd=sd(TruncatedNormal::rtnorm(maxN_all,Age2, lb=0, ub=1)),
+                Age3_sd=sd(TruncatedNormal::rtnorm(maxN_all,Age3, lb=0, ub=1))) 
 
 RedFox_MAsd$Age4_sd<-NULL
 
