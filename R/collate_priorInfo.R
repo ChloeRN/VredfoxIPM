@@ -1,15 +1,15 @@
 #' Collate prior information for use in the model
 #'
-#' @param datafile character string. Path/file name for file containing posterior
+#' @param meta.datafile character strin. Path file name for file containing literature data extracted from Devenish-Nelson et al. 2012
+#' @param simulateSD logical. If TRUE (default), missing standard deviations for literature data are simulated using truncated normal distributions (with sd = 1).
+#' If FALSE, missing standard deviations are instead calculated as within-age-class variation in raw literature data.
+#' @param hoening.datafile character string. Path/file name for file containing posterior
 #' samples from Tom Porteus' run of the phylogenetic Hoening model. Used by the
 #' dependency function predict_mO_HoeningMod().
 #' @param mu.t.max  numeric. Offset parameter for maximum age in the Hoening 
 #' model (= 22.61062). Provided by Tom Porteus. 
 #' @param maxAge integer. Maximum recorded age of harvested foxes. 
 #' @param nsim integer. Number of simulation replicates for each posterior sample. 
-#' @param plot.mO logical. If TRUE, plots predicted prior distributions for natural
-#' mortality using the exact posterior samples for Hoening model parameters vs. 
-#' de novo simulation from extracted log-mean and log-sd. 
 #'
 #' @return a list of lists containing parameters to define informative priors
 #' for early survival, age-specific annual survival, and juvenile/adult natural
@@ -18,16 +18,19 @@
 #'
 #' @examples
 
-collate_priorInfo <- function(datafile, mu.t.max, maxAge, nsim, plot.mO = FALSE){
+collate_priorInfo <- function(meta.datafile, simulateSD = TRUE, hoening.datafile, mu.t.max, maxAge, nsim){
   
   
   ## Simulate / load prior distribution parameters from Hoening model
   if(file.exists("mO_prior_Parameters.rds")){
     mO.prior <- readRDS("mO_prior_Parameters.rds")
   }else{
-    mO.prior <- predict_mO_HoeningMod(datafile, mu.t.max, maxAge, nsim = nsim, plot = plot.mO)
+    mO.prior <- predict_mO_HoeningMod(hoening.datafile, mu.t.max, maxAge, nsim = nsim, plot = FALSE)
   }
   
+  ## Simulate prior distribution parameters via meta-analysis
+  metaS_all <- estimate_metaS(meta.datafile, lowHarvestOnly = FALSE, simulateSD = simulateSD)
+  metaS_lowHarvest <- estimate_metaS(meta.datafile, lowHarvestOnly = TRUE, simulateSD = simulateSD)
   
   ## Assemble prior data
   prior.data <- list(
@@ -57,17 +60,16 @@ collate_priorInfo <- function(datafile, mu.t.max, maxAge, nsim, plot.mO = FALSE)
       
       #*Literature meta-analysis (all)
       metaAll = list(
-        Snat.mean = c(0.38, 0.53, 0.57, 0.50, 0.52),
-        Snat.sd = c(0.10, 0.16, 0.18, 0.20, 0.21)
+        Snat.mean = metaS_all$Estimate,
+        Snat.sd = metaS_all$se
       ),
       
       
       #*Literature meta-analysis (non/lightly hunted)
       metaSub = list(
-        Snat.mean = c(0.38, 0.53, 0.54, 0.46, 0.55),
-        Snat.sd = c(0.09, 0.10, 0.18, 0.25, 0.25)
+        Snat.mean = metaS_lowHarvest$Estimate,
+        Snat.sd = metaS_lowHarvest$se
       )
-      # TODO: Check with Matt if we can re-do these meta-analyses properly
     ),
     
     
