@@ -1,4 +1,16 @@
-
+#' Run weighted regression on literature data for obtaining prior information on survival
+#'
+#' @param datafile character string. Path file name for file containing literature data extracted from Devenish-Nelson et al. 2012
+#' @param lowHarvestOnly logical. If TRUE, only analyses studies that documented either none or only low levels of harvest.
+#' Studies mentioning moderate to substantial harvest and studies for which no information on harvest level was available are excluded in this case.
+#' @param simulateSD logical. If TRUE (default), standard deviations are simulated from a truncated normal distribution with mean = reported mean and sd = 1.
+#' If FALSE, standard deviations are instead derived from variation of reported means for each age class. 
+#' @param simSeed integer. The seed to use for simulating standard deviations. 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 
 estimate_metaS <- function(datafile, lowHarvestOnly, simulateSD = TRUE, simSeed = 0){
   

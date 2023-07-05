@@ -1,6 +1,6 @@
 #' Collate prior information for use in the model
 #'
-#' @param meta.datafile character strin. Path file name for file containing literature data extracted from Devenish-Nelson et al. 2012
+#' @param meta.datafile character string. Path file name for file containing literature data extracted from Devenish-Nelson et al. 2012
 #' @param simulateSD logical. If TRUE (default), missing standard deviations for literature data are simulated using truncated normal distributions (with sd = 1).
 #' If FALSE, missing standard deviations are instead calculated as within-age-class variation in raw literature data.
 #' @param hoening.datafile character string. Path/file name for file containing posterior
