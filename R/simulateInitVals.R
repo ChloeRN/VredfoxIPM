@@ -19,14 +19,16 @@
 #' using informative natural mortality priors based on the Hoening model. If 
 #' FALSE, simulates initial values for a model using informative survival priors
 #' based on literature. 
-#'
+#' @param imm.asRate logical. If TRUE, returns initial values associated with 
+#' immigration rate.
+#' 
 #' @return a list containing a complete set of initial values for all parameters
 #' in the IPM. 
 #' @export
 #'
 #' @examples
 
-simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, fitCov.mH, fitCov.Psi, fitCov.rho, rCov.idx, HoeningPrior){
+simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, fitCov.mH, fitCov.Psi, fitCov.rho, rCov.idx, HoeningPrior, imm.asRate){
   
   Amax <- nim.constants$Amax
   Tmax <- nim.constants$Tmax
@@ -112,10 +114,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(rCov.idx){
       betaR.Psi <- rep(0, nLevels.rCov)
       for(x in 2:nim.constants$nLevels.rCov){
-        betaR.Psi[x] <- runif(1, -5, 5)
+        betaR.Psi[x] <- runif(1, 2, 2)
       }
     }else{
-      betaR.Psi <- runif(1, 0, 2)
+      betaR.Psi <- runif(1, 0, 0.2)
     }
   }else{
     betaR.Psi <- 0
@@ -126,10 +128,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(rCov.idx){
       betaR.rho <- rep(0, nLevels.rCov)
       for(x in 2:nim.constants$nLevels.rCov){
-        betaR.rho[x] <- runif(1, -5, 5)
+        betaR.rho[x] <- runif(1, 2, 2)
       }
     }else{
-      betaR.rho <- runif(1, 0, 2)
+      betaR.rho <- runif(1, 0, 0.2)
     }
   }else{
     betaR.rho <- 0
@@ -183,7 +185,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   ## Harvest rate
   h <- (1 - S)*alpha
 
-  ## Immigration
+  ## Immigrant numbers
   Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))
   Imm[1] <- 0
   
@@ -193,7 +195,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   #---------------------------------------------------------#
   
   ## Prepare empty vectors and matrices
-  H <- N <- B <- L <- R <- matrix(NA, nrow = Amax, ncol = Tmax)
+  H <- N <- B <- L <- R <- matrix(NA, nrow = Amax, ncol = Tmax+1)
   
   ## Set initial population sizes
   for(a in 1:Amax){
@@ -201,10 +203,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   ## Set age class 0 reproductive contributions to 0
-  B[1, 1:Tmax] <- L[1, 1:Tmax] <- R[1, 1:Tmax] <- 0
+  B[1, 1:(Tmax+1)] <- L[1, 1:(Tmax+1)] <- R[1, 1:(Tmax+1)] <- 0
   
   
-  for (t in 1:(Tmax-1)){
+  for (t in 1:Tmax){
 
     # a) Project local survivors to the next year
     #---------------------------------------------
@@ -244,7 +246,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # d) Check for years with more harvests than alive individuals
   #-------------------------------------------------------------
   
-  if(any(nim.data$C > N)){
+  if(any(nim.data$C > N[, 1:Tmax])){
     stop('Simulation resulted in less alive than harvested. Retry.')
   }
   
@@ -263,8 +265,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # NOTE: These nodes do not appear in the model and it therefore does not 
   #       matter what numbers they contain. Filling them in prevents a warning
   #       about NA nodes when building the model. 
-  
-  
+    
   ## List all initial values
   InitVals <- list(
     N = N, 
@@ -312,6 +313,34 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }else{
     InitVals$Mu.Snat <- Mu.Snat
   }
+  
+  ## Add initial values specific to immigration model versions
+  if(imm.asRate){
+    
+    if(useData.gen){
+      ImmData <- rbinom(n = nim.constants$Xgen, size = 1, p = mean(nim.data$pImm))
+      ImmData[which(nim.data$pImm == 0)] <- 0
+      
+      InitVals$ImmData <- ImmData
+      InitVals$Mu.immR <- sum(InitVals$ImmData)/(nim.constants$Xgen-sum(InitVals$ImmData))
+      
+      if(!poolYrs.genData){
+        ImmData_pre <- rbinom(n = nim.constants$Xgen_pre, size = 1, p = mean(nim.data$pImm_pre))
+        ImmData_pre[which(nim.data$pImm_pre == 0)] <- 0
+        
+        InitVals$ImmData_pre <- ImmData_pre
+      }
+      
+    }else{
+      InitVals$Mu.immR <- mean(Imm[2:(Tmax+1)]/colSums(R)[2:(Tmax+1)])
+    }
+    
+    InitVals$immR <- c(0, rep(InitVals$Mu.immR, Tmax))
+    InitVals$sigma.immR <- runif(1, 0, 0.5)
+    InitVals$epsilon.immR <- rep(0, Tmax+1)
+  }
+  
+
   
   ## Add initial values for missing covariate values (if applicable)
   if(fitCov.mH & (NA %in% nim.data$HarvestEffort)){

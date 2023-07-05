@@ -74,10 +74,12 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
                 paste0("Mu.mO[", 1:Amax, "]"), 
                 paste0("Mu.Psi[", 2:Amax, "]"), 
                 paste0("Mu.rho[", 2:Amax, "]"),  
-                "Mu.S0"),
+                "Mu.S0", "Mu.immR"),
     
-    VReffects = c("sigma.mH", "sigma.Psi", "sigma.rho",
-                  "betaHE.mH", "betaR.Psi", paste0("betaR.Psi[", 2:3, "]")),
+    VReffects = c("sigma.mH", "sigma.Psi", "sigma.rho", "sigma.immR",
+                  "betaHE.mH", 
+                  "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
+                  "betaR.rho", paste0("betaR.rho[", 2:3, "]")),
     
     Imm = paste0("Imm[", 1:Tmax, "]"),
     
@@ -92,10 +94,10 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   plotTS.params <- list(
     ParamNames = c("N.tot", "B.tot", "R.tot", "Imm",
                    #"mO", "S", "S0"
-                   "mH", "Psi", "rho"),
+                   "mH", "Psi", "rho", "immR"),
     ParamLabels = c("Female population size", "# breeding females", "# female recruits", "# female immigrants",
                     # "Natural mortality", "Survival", "Early survival",
-                    "Harvest mortality", "Pregnancy rate", "# fetuses/female")
+                    "Harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
   )
 
   ## Plot posterior overlaps
@@ -127,6 +129,21 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
         ggtitle(plotTS.params$ParamLabels[x]) +  
         theme_bw() + theme(panel.grid = element_blank())
     )
+    
+    if(plotTS.params$ParamNames[x] %in% c("Imm", "immR")){
+      
+      subset.years <- (min(sum.data$Year, na.rm = TRUE) + 1):(max(sum.data$Year, na.rm = TRUE) - 1)
+      print(
+        ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x] & Year %in% subset.years), aes(group = Model)) + 
+          geom_line(aes(x = Year, y = median, color = Model)) + 
+          geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
+          scale_fill_viridis_d() + scale_color_viridis_d() + 
+          facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
+          ggtitle(paste0(plotTS.params$ParamLabels[x], " (without first/last year)")) +  
+          theme_bw() + theme(panel.grid = element_blank())
+      )
+      
+    }
   }
   dev.off()
   

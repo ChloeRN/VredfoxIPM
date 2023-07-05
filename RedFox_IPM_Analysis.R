@@ -74,7 +74,9 @@ sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all p
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 #GeneClass.approach <- 1 # Using first approach for GeneClass analysis 
 GeneClass.approach <- 2 # Using second approach for GeneClass analysis
-poolYrs.genData <- TRUE # Pool data across all years
+poolYrs.genData <- FALSE # Pool data across all years
+imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
+useData.gen <- TRUE # Use genetic data for estimation of immigration rate
 
 
 #*********************#
@@ -210,7 +212,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  minYear = minYear,
                                  maxPups = 14,
                                  uLim.N = 800,
-                                 uLim.Imm = 800,
+                                 uLim.Imm = 3000,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
                                  poolYrs.genData = poolYrs.genData,
@@ -241,10 +243,12 @@ model.setup <- setupModel(modelCode = redfox.code,
                           testRun = TRUE,
                           initVals.seed = mySeed)
 
+
 ####################
 # 4) MODEL FITTING #
 ####################
 
+t1 <- Sys.time()
 IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       data = input.data$nim.data, 
                       constants = input.data$nim.constants,
@@ -256,4 +260,20 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
                       setSeed = 0)
+Sys.time() - t1
+
+saveRDS(IPM.out, file = "ImmNum_naive.rds")
+MCMCvis::MCMCtrace(IPM.out)
+
+
+#######################
+# 5) MODEL COMPARISON #
+#######################
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("ImmNum_naive.rds", "ImmRate_naive.rds", "ImmRate_genData.rds"), 
+              model.names = c("Number, naive", "Rate, naive", "Rate, pooled gen data"), 
+              plotFolder = "Plots/Comp_ImmModels")
 
