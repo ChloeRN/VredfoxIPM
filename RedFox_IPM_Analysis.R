@@ -67,8 +67,8 @@ standSpec.rCov <- TRUE # standardize different rodent species before summing (of
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
 #sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
-#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
-sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
+sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+#sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function

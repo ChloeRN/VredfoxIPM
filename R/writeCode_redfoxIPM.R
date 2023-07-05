@@ -199,7 +199,7 @@ writeCode_redfoxIPM <- function(){
       }
       
       # Other (natural) mortality hazard rate
-      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax])
+      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
       
       # Survival probability
       S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
@@ -408,6 +408,7 @@ writeCode_redfoxIPM <- function(){
     ## Random year variation
     for(t in 1:Tmax){  
       epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+      epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
     }
     
     for(t in 1:(Tmax+1)){
@@ -417,6 +418,7 @@ writeCode_redfoxIPM <- function(){
     }
     
     sigma.mH ~ dunif(0, 5)
+    sigma.mO ~ dunif(0, 5)
     sigma.Psi ~ dunif(0, 5)
     sigma.rho ~ dunif(0, 5)
     #sigma.m0 ~ dunif(0, 5)

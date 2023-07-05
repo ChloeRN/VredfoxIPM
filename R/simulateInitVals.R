@@ -97,11 +97,13 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   ## Random effect standard deviations
   sigma.mH <- runif(1, 0.05, 0.5)
+  sigma.mO <- runif(1, 0.05, 0.5)
   sigma.Psi <- runif(1, 0.05, 0.5)
   sigma.rho <- runif(1, 0.05, 0.5)
   
   ## Random effects (initialize at to 0)
   epsilon.mH <- rep(0, Tmax)
+  epsilon.mO <- rep(0, Tmax)
   epsilon.Psi <- rep(0, Tmax+1)
   epsilon.rho <- rep(0, Tmax+1)
   
@@ -157,7 +159,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]))
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax])) + epsilon.mO[t]
     }
     
     ## Pregnancy rate
@@ -287,10 +289,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     Mu.S0 = Mu.S0,
     
     sigma.mH = sigma.mH,
+    sigma.mO = sigma.mO,
     sigma.Psi = sigma.Psi,
     sigma.rho = sigma.rho,
     
     epsilon.mH = epsilon.mH,
+    epsilon.mO = epsilon.mO,
     epsilon.Psi = epsilon.Psi,
     epsilon.rho = epsilon.Psi,
     

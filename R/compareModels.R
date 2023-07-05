@@ -76,7 +76,7 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
                 paste0("Mu.rho[", 2:Amax, "]"),  
                 "Mu.S0", "Mu.immR"),
     
-    VReffects = c("sigma.mH", "sigma.Psi", "sigma.rho", "sigma.immR",
+    VReffects = c("sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho", "sigma.immR",
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]")),
@@ -93,10 +93,10 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   ## Set parameters plotting time series of posterior summaries
   plotTS.params <- list(
     ParamNames = c("N.tot", "B.tot", "R.tot", "Imm",
-                   #"mO", "S", "S0"
+                   "mO", "S", #"S0",
                    "mH", "Psi", "rho", "immR"),
     ParamLabels = c("Female population size", "# breeding females", "# female recruits", "# female immigrants",
-                    # "Natural mortality", "Survival", "Early survival",
+                    "Natural mortality", "Survival", #"Early survival",
                     "Harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
   )
 
