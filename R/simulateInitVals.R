@@ -111,6 +111,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     betaHE.mH <- 0
   }
   
+  # Rodent abundance on mO
+  betaR.mO <- runif(1, -0.2, 0)
+  
   # Rodent abundance on Psi
   if(fitCov.Psi){
     if(rCov.idx){
@@ -154,7 +157,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax])) + epsilon.mO[t]
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax])) + betaR.mO*RodentAbundance[t] + epsilon.mO[t]
     }
     
     ## Pregnancy rate
@@ -294,6 +297,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     epsilon.rho = epsilon.Psi,
     
     betaHE.mH = betaHE.mH,
+    betaR.mO = betaR.mO,
     betaR.Psi = betaR.Psi,
     betaR.rho = betaR.rho,
     
