@@ -6,6 +6,7 @@ library(remotes)
 library(ckanr)
 library(purrr)
 library(dplyr)
+library(metafor)
 
 #**********#
 # 0) SETUP #
@@ -66,8 +67,8 @@ standSpec.rCov <- TRUE # standardize different rodent species before summing (of
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
 #sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
-sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
-#sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
+#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
@@ -170,14 +171,19 @@ YearInfo <- collate_yearInfo(minYear = minYear,
 # 2) PRIOR INFORMATION #
 #**********************#
 
-## Make informative priors for natural mortality using Tom Porteus' Hoening model approach
+## Parameters/paths for making informative priors for survival based on meta-analysis of literature data
+meta.datafile <- "Data/RedFox_LiteratureData.csv"
+simulateSD <- TRUE
+
+## Parameters/paths for making informative priors for natural mortality using Tom Porteus' Hoening model approach
 mu.t.max <- 22.61062
 hoening.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
 nsim <- 30
 
-
 ## Collate all prior information
-surv.priors <- collate_priorInfo(datafile = hoening.datafile, 
+surv.priors <- collate_priorInfo(meta.datafile = meta.datafile,
+                                 simulateSD = simulateSD,
+                                 hoening.datafile = hoening.datafile, 
                                  nsim = nsim, 
                                  mu.t.max = mu.t.max, 
                                  maxAge = maxAge_yrs)
