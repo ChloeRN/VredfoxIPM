@@ -240,7 +240,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           fitCov.rho = fitCov.rho,
                           rCov.idx = rCov.idx, 
                           HoeningPrior = HoeningPrior,
-                          testRun = TRUE,
+                          testRun = FALSE,
                           initVals.seed = mySeed)
 
 
@@ -262,7 +262,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "ImmNum_naive.rds")
+saveRDS(IPM.out, file = "immR_rodentsEff&mO_varT.rds")
 MCMCvis::MCMCtrace(IPM.out)
 
 
