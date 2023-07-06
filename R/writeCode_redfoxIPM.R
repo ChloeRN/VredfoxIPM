@@ -199,7 +199,7 @@ writeCode_redfoxIPM <- function(){
       }
       
       # Other (natural) mortality hazard rate
-      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
+      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t] + epsilon.mO[t]
       
       # Survival probability
       S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
@@ -248,6 +248,8 @@ writeCode_redfoxIPM <- function(){
     if(fitCov.mH){
       betaHE.mH ~ dunif(0, 5) # Effect of harvest effort on mH
     }
+    
+    betaR.mO ~ dunif(-5, 5)
     
     #---------------------------------------------------------------------------------------------
     
