@@ -262,7 +262,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "immR_rodentsEff&mO_varT.rds")
+saveRDS(IPM.out, file = "immR_rodentEff&mO_varT.rds")
 MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -273,7 +273,8 @@ MCMCvis::MCMCtrace(IPM.out)
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("ImmRate_genData.rds", "mO_varT.rds", "mO_varT_rodent.rds"), 
-              model.names = c("Constant mO", "Time var. in mO", "Time var. + rodent effect in mO"), 
-              plotFolder = "Plots/Comp_mOvarTModels")
+              post.filepaths = c("ImmRate_genData_pool.rds", "immR_rodentEff.rds", "immR_rodentEff&mO_varT.rds", "immR_rodentEff&mO_varT_rodent.rds"), 
+              model.names = c("Baseline", "Rodent eff. (immR)", "Rodent eff. (immR) + varT (mO)", "Rodent eff. (immR) + varT & rodent eff. (mO)"), 
+              plotFolder = "Plots/Comp_ImmCovariates")
+
 
