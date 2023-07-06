@@ -49,6 +49,11 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     RodentAbundance[which(is.na(RodentAbundance))] <- mean(RodentAbundance, na.rm = TRUE)
   }
   
+  RodentAbundance2 <- nim.data$RodentAbundance2
+  if(NA %in% RodentAbundance2){
+    RodentAbundance2[which(is.na(RodentAbundance2))] <- mean(RodentAbundance2, na.rm = TRUE)
+  }
+  
   ## Rodent abundance (categorical)
   RodentIndex <- nim.data$RodentIndex
   if(NA %in% RodentIndex){
@@ -293,6 +298,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     betaR.Psi = betaR.Psi,
     betaR.rho = betaR.rho,
     
+    betaR.immR = 0,
+    
     mH = mH,
     mO = mO, 
     S = S,
@@ -374,6 +381,13 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       Inits_RodentAbundance[which(is.na(nim.data$RodentAbundance))] <- RodentAbundance[which(is.na(nim.data$RodentAbundance))]
       InitVals$RodentAbundance <- Inits_RodentAbundance
     }
+  }
+  
+  
+  if(NA %in% nim.data$RodentAbundance2){
+    Inits_RodentAbundance2 <- rep(NA, length(RodentAbundance2))
+    Inits_RodentAbundance2[which(is.na(nim.data$RodentAbundance2))] <- RodentAbundance2[which(is.na(nim.data$RodentAbundance2))]
+    InitVals$RodentAbundance2 <- Inits_RodentAbundance2
   }
   
   ## Return initial values

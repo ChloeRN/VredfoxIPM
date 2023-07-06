@@ -82,6 +82,8 @@ setupModel <- function(modelCode,
     }
   } 
   
+  params <- c(params, "betaR.immR")
+  
   ## Simulate initial values
   set.seed(initVals.seed)
   initVals <- list()

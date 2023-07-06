@@ -74,7 +74,7 @@ sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all p
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 #GeneClass.approach <- 1 # Using first approach for GeneClass analysis 
 GeneClass.approach <- 2 # Using second approach for GeneClass analysis
-poolYrs.genData <- FALSE # Pool data across all years
+poolYrs.genData <- TRUE # Pool data across all years
 imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 useData.gen <- TRUE # Use genetic data for estimation of immigration rate
 

@@ -72,6 +72,12 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     RodentAbundance <- rodent.data$cont.wintvar
   }
   
+  if(standSpec.rCov){
+    RodentAbundance2 <- rodent.data$cont.fallstor.stsp
+  }else{
+    RodentAbundance2 <- rodent.data$cont.fallstor
+  }
+  
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
   nim.data <- list(
@@ -84,6 +90,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     HarvestEffort = hunter.data$NHunters_std,
     RodentAbundance = RodentAbundance,
+    RodentAbundance2 = RodentAbundance2,
     RodentIndex = RodentIndex
   )
   

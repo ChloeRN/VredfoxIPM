@@ -355,7 +355,7 @@ writeCode_redfoxIPM <- function(){
         
       }else{
         
-        log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
+        log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
         
       }
       
@@ -386,7 +386,8 @@ writeCode_redfoxIPM <- function(){
 
     }
     
-    
+    ## Prior for rodent effect
+    betaR.immR ~ dunif(-5, 5)
     
     #---------------------------------------------------------------------------------------------
     
@@ -457,6 +458,9 @@ writeCode_redfoxIPM <- function(){
       }
     }
      
+    for(t in 1:Tmax+1){
+      RodentAbundance2[t] ~ dnorm(0, sd = 1)
+    }
      
   })
   
