@@ -55,10 +55,12 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   ## Select relevant categorical rodent covariate
   if(is.na(nLevels.rCov)){
     RodentIndex <- NA
+    RodentIndex2 <- NA
   }else{
     
     if(nLevels.rCov == 2){
       RodentIndex <- rodent.data$cat2.wintvar
+      RodentIndex2 <- rodent.data$cat2.fallstor
     }else{
       #RodentIndex <- rodent.data$cat3
       stop("3 level rodent covariate not currently supported")
@@ -91,7 +93,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     HarvestEffort = hunter.data$NHunters_std,
     RodentAbundance = RodentAbundance,
     RodentAbundance2 = RodentAbundance2,
-    RodentIndex = RodentIndex
+    RodentIndex = RodentIndex,
+    RodentIndex2 = RodentIndex2
   )
   
   # Constants

@@ -12,6 +12,9 @@
 #' effects on pregnancy rates. 
 #' @param fitCov.rho logical. If TRUE, simulates initial values including covariate
 #' effects on litter size. 
+#' @param fitCov.immR logical. If TRUE, adds 0 inital values for covariate effects
+#' on immigration rates (these effects are not currently formally incorporated into
+#' the initial value simulation).
 #' @param rCov.idx logical. Only required if fitCov.Psi = TRUE. If TRUE, assumes
 #' a categorical rodent abundance covariate. If FALSE, assumes a continuous rodent
 #' abundance covariate.
@@ -28,7 +31,7 @@
 #'
 #' @examples
 
-simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, fitCov.mH, fitCov.Psi, fitCov.rho, rCov.idx, HoeningPrior, imm.asRate){
+simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, fitCov.mH, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, HoeningPrior, imm.asRate){
   
   Amax <- nim.constants$Amax
   Tmax <- nim.constants$Tmax
@@ -58,6 +61,11 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   RodentIndex <- nim.data$RodentIndex
   if(NA %in% RodentIndex){
     RodentIndex[which(is.na(RodentIndex))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex))))
+  }
+  
+  RodentIndex2 <- nim.data$RodentIndex2
+  if(NA %in% RodentIndex2){
+    RodentIndex2[which(is.na(RodentIndex2))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex2))))
   }
   
   #---------------------------------------------------#
@@ -142,6 +150,15 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     }
   }else{
     betaR.rho <- 0
+  }
+  
+  # Rodent abundance on immR
+  if(fitCov.immR){
+    if(rCov.idx){
+      betaR.immR <- rep(0, nLevels.rCov)
+    }else{
+      betaR.immR <- 0
+    }
   }
   
   #-------------------------------------#
@@ -298,12 +315,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     epsilon.Psi = epsilon.Psi,
     epsilon.rho = epsilon.Psi,
     
-    betaHE.mH = betaHE.mH,
-    betaR.Psi = betaR.Psi,
-    betaR.rho = betaR.rho,
-    
-    betaR.immR = 0,
-    
     mH = mH,
     mO = mO, 
     S = S,
@@ -324,6 +335,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }else{
     InitVals$Mu.Snat <- Mu.Snat
   }
+  
+  ## Add initial values for covariate effects
+  if(fitCov.mH){InitVals$betaHE.mH = betaHE.mH}
+  if(fitCov.Psi){InitVals$betaR.Psi = betaR.Psi}
+  if(fitCov.rho){InitVals$betaR.rho = betaR.rho}
+  if(fitCov.immR){InitVals$betaR.immR = betaR.immR}
   
   ## Add initial values specific to immigration model versions
   if(imm.asRate){
@@ -350,8 +367,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     InitVals$sigma.immR <- runif(1, 0, 0.5)
     InitVals$epsilon.immR <- rep(0, Tmax+1)
   }
-  
-
   
   ## Add initial values for missing covariate values (if applicable)
   if(fitCov.mH & (NA %in% nim.data$HarvestEffort)){
@@ -387,12 +402,19 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     }
   }
   
-  
-  if(NA %in% nim.data$RodentAbundance2){
-    Inits_RodentAbundance2 <- rep(NA, length(RodentAbundance2))
-    Inits_RodentAbundance2[which(is.na(nim.data$RodentAbundance2))] <- RodentAbundance2[which(is.na(nim.data$RodentAbundance2))]
-    InitVals$RodentAbundance2 <- Inits_RodentAbundance2
+  if(fitCov.immR){
+    if(rCov.idx & (NA %in% nim.data$RodentIndex2)){
+      Inits_RodentIndex2 <- rep(NA, length(RodentIndex2))
+      Inits_RodentIndex2[which(is.na(nim.data$RodentIndex2))] <- RodentIndex2[which(is.na(nim.data$RodentIndex2))]
+      InitVals$RodentIndex2 <- Inits_RodentIndex2
+    }
+    if(!rCov.idx & (NA %in% nim.data$RodentAbundance2)){
+      Inits_RodentAbundance2 <- rep(NA, length(RodentAbundance2))
+      Inits_RodentAbundance2[which(is.na(nim.data$RodentAbundance2))] <- RodentAbundance2[which(is.na(nim.data$RodentAbundance2))]
+      InitVals$RodentAbundance2 <- Inits_RodentAbundance2
+    }
   }
+
   
   ## Return initial values
   return(InitVals)

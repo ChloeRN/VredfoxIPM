@@ -7,6 +7,12 @@
 
 writeCode_redfoxIPM <- function(){
   
+  ## Check for incompatible toggles
+  if(!imm.asRate & fitCov.immR){
+    stop("Incompatible model settings. Rodent covariate effect on immigration can only be fit (fitCov.immR = TRUE) if immigration is estimated as a rate (imm.asRate = TRUE). ")
+  }
+  
+  ## Write model code
   redfox.code <- nimbleCode({
     
     
@@ -355,8 +361,17 @@ writeCode_redfoxIPM <- function(){
         
       }else{
         
-        log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
-        
+        if(fitCov.immR){
+          if(rCov.idx){
+            for(t in 1:(Tmax+1)){
+              log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
+            }
+          }else{
+            log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+          }
+        }else{
+          log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
+        }
       }
       
       for(t in 1:(Tmax+1)){ 
@@ -387,7 +402,16 @@ writeCode_redfoxIPM <- function(){
     }
     
     ## Prior for rodent effect
-    betaR.immR ~ dunif(-5, 5)
+    if(fitCov.immR){
+      if(rCov.idx){
+        betaR.immR[1] <- 0 # --> Lowest level corresponds to intercept
+        for(x in 2:nLevels.rCov){
+          betaR.immR[x] ~ dunif(-5, 5)
+        }
+      }else{
+        betaR.immR ~ dunif(-5, 5)
+      }
+    }
     
     #---------------------------------------------------------------------------------------------
     
@@ -450,6 +474,7 @@ writeCode_redfoxIPM <- function(){
       
       for(t in 1:Tmax+1){
         RodentIndex[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
+        RodentIndex2[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
       }
       DU.prior.rCov[1:nLevels.rCov] <- 1/nLevels.rCov
       
@@ -457,12 +482,10 @@ writeCode_redfoxIPM <- function(){
       
       for(t in 1:Tmax+1){
         RodentAbundance[t] ~ dnorm(0, sd = 1)
+        RodentAbundance2[t] ~ dnorm(0, sd = 1)
       }
     }
-     
-    for(t in 1:Tmax+1){
-      RodentAbundance2[t] ~ dnorm(0, sd = 1)
-    }
+
      
   })
   

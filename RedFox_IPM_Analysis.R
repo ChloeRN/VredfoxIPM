@@ -59,7 +59,8 @@ sourceDir('R')
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
-rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
+fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
+rCov.idx <- TRUE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
 standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
@@ -238,9 +239,10 @@ model.setup <- setupModel(modelCode = redfox.code,
                           fitCov.mH = fitCov.mH, 
                           fitCov.Psi = fitCov.Psi, 
                           fitCov.rho = fitCov.rho,
+                          fitCov.immR = fitCov.immR,
                           rCov.idx = rCov.idx, 
                           HoeningPrior = HoeningPrior,
-                          testRun = FALSE,
+                          testRun = TRUE,
                           initVals.seed = mySeed)
 
 
