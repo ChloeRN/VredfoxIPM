@@ -18,6 +18,8 @@
 #' @param rCov.idx logical. Only required if fitCov.Psi = TRUE. If TRUE, assumes
 #' a categorical rodent abundance covariate. If FALSE, assumes a continuous rodent
 #' abundance covariate.
+#' @param mO.varT logical. If TRUE, simulates initial values for a model with 
+#' time variation in natural mortality.
 #' @param HoeningPrior logical. If TRUE, simulates initial values for a model 
 #' using informative natural mortality priors based on the Hoening model. If 
 #' FALSE, simulates initial values for a model using informative survival priors
@@ -31,7 +33,9 @@
 #'
 #' @examples
 
-simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, fitCov.mH, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, HoeningPrior, imm.asRate){
+simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, 
+                             fitCov.mH, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
+                             mO.varT, HoeningPrior, imm.asRate){
   
   Amax <- nim.constants$Amax
   Tmax <- nim.constants$Tmax
@@ -105,9 +109,14 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   ## Random effect standard deviations
   sigma.mH <- runif(1, 0.05, 0.5)
-  sigma.mO <- runif(1, 0.05, 0.5)
   sigma.Psi <- runif(1, 0.05, 0.5)
   sigma.rho <- runif(1, 0.05, 0.5)
+  
+  if(mO.varT){
+    sigma.mO <- runif(1, 0.05, 0.5)
+  }else{
+    sigma.mO <- 0
+  }
   
   ## Random effects (initialize at to 0)
   epsilon.mH <- rep(0, Tmax)

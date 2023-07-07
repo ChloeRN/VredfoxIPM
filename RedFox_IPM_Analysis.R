@@ -60,10 +60,13 @@ fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
 fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
-rCov.idx <- TRUE # Use discrete vs. continuous rodent covariate
+rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
 standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
+
+# Random year effect toggles
+mO.varT <- FALSE
 
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
@@ -240,7 +243,8 @@ model.setup <- setupModel(modelCode = redfox.code,
                           fitCov.Psi = fitCov.Psi, 
                           fitCov.rho = fitCov.rho,
                           fitCov.immR = fitCov.immR,
-                          rCov.idx = rCov.idx, 
+                          rCov.idx = rCov.idx,
+                          mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
                           testRun = TRUE,
                           initVals.seed = mySeed)
@@ -264,7 +268,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "immR_rodentsEff&mO_varT.rds")
+#saveRDS(IPM.out, file = "immR_rodentsEff&mO_varT.rds")
 MCMCvis::MCMCtrace(IPM.out)
 
 

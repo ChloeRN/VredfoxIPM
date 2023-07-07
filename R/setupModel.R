@@ -22,6 +22,8 @@
 #' @param rCov.idx logical. Only required if fitCov.Psi = TRUE. If TRUE, assumes
 #' a categorical rodent abundance covariate. If FALSE, assumes a continuous rodent
 #' abundance covariate.
+#' @param mO.varT logical. If TRUE, sets up model with time variation in 
+#' natural mortality. 
 #' @param HoeningPrior logical. If TRUE, sets up a model using informative natural 
 #' mortality priors based on the Hoening model. If FALSE, sets up a model using 
 #' informative survival priors based on literature. 
@@ -45,7 +47,7 @@ setupModel <- function(modelCode,
                        nim.data, nim.constants,
                        minN1, maxN1, minImm, maxImm,
                        fitCov.mH, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
-                       HoeningPrior,
+                       mO.varT, HoeningPrior,
                        niter = 30000, nthin = 4, nburn = 5000, nchains = 3,
                        testRun = FALSE, initVals.seed){
   
@@ -102,6 +104,7 @@ setupModel <- function(modelCode,
                                       fitCov.rho = fitCov.rho, 
                                       fitCov.immR = fitCov.immR,
                                       rCov.idx = rCov.idx, 
+                                      mO.varT = mO.varT,
                                       HoeningPrior = HoeningPrior,
                                       imm.asRate = imm.asRate)
   }

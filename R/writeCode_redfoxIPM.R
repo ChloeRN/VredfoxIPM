@@ -442,10 +442,15 @@ writeCode_redfoxIPM <- function(){
     }
     
     sigma.mH ~ dunif(0, 5)
-    sigma.mO ~ dunif(0, 5)
     sigma.Psi ~ dunif(0, 5)
     sigma.rho ~ dunif(0, 5)
     #sigma.m0 ~ dunif(0, 5)
+    
+    if(mO.varT){
+      sigma.mO ~ dunif(0, 5)
+    }else{
+      sigma.mO <- 0
+    }
     
     if(imm.asRate & poolYrs.genData){
       for(t in 1:(Tmax+1)){
