@@ -72,6 +72,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     RodentIndex2[which(is.na(RodentIndex2))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex2))))
   }
   
+  ## Reindeer carcass abundance
+  Reindeer <- nim.data$Reindeer
+  if(NA %in% Reindeer){
+    Reindeer[which(is.na(Reindeer))] <- mean(Reindeer, na.rm = TRUE)
+  }
+  
   #---------------------------------------------------#
   # Set initial values for vital rate base parameters #
   #---------------------------------------------------#
@@ -138,27 +144,39 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(rCov.idx){
       betaR.Psi <- rep(0, nLevels.rCov)
       for(x in 2:nim.constants$nLevels.rCov){
-        betaR.Psi[x] <- runif(1, 2, 2)
+        betaR.Psi[x] <- runif(1, 0, 2)
       }
     }else{
       betaR.Psi <- runif(1, 0, 0.2)
     }
   }else{
-    betaR.Psi <- 0
+    
+    if(rCov.idx){
+      betaR.Psi <- rep(0, nLevels.rCov)
+    }else{
+      betaR.Psi <- 0
+    }
   }
-
+  
   # Rodent abundance on rho
   if(fitCov.rho){
+    
     if(rCov.idx){
       betaR.rho <- rep(0, nLevels.rCov)
       for(x in 2:nim.constants$nLevels.rCov){
-        betaR.rho[x] <- runif(1, 2, 2)
+        betaR.rho[x] <- runif(1, 0, 2)
       }
     }else{
       betaR.rho <- runif(1, 0, 0.2)
     }
+    
   }else{
-    betaR.rho <- 0
+    
+    if(rCov.idx){
+      betaR.rho <- rep(0, nLevels.rCov)
+    }else{
+      betaR.rho <- 0
+    }
   }
   
   # Rodent abundance on immR
@@ -346,10 +364,16 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   ## Add initial values for covariate effects
-  if(fitCov.mH){InitVals$betaHE.mH = betaHE.mH}
-  if(fitCov.Psi){InitVals$betaR.Psi = betaR.Psi}
-  if(fitCov.rho){InitVals$betaR.rho = betaR.rho}
-  if(fitCov.immR){InitVals$betaR.immR = betaR.immR}
+  if(fitCov.mH){InitVals$betaHE.mH <- betaHE.mH}
+  if(fitCov.Psi){
+    InitVals$betaR.Psi <- betaR.Psi
+    InitVals$betaRd.Psi <- 0
+    InitVals$betaRxRd.Psi <- 0
+  }
+  if(fitCov.rho){InitVals$betaR.rho <- betaR.rho}
+  if(fitCov.immR){InitVals$betaR.immR <- betaR.immR}
+  
+  InitVals$betaRd.mO <- 0
   
   ## Add initial values specific to immigration model versions
   if(imm.asRate){
@@ -424,6 +448,11 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     }
   }
 
+  if(NA %in% nim.data$Reindeer){
+    Inits_Reindeer <- rep(NA, length(Reindeer))
+    Inits_Reindeer[which(is.na(nim.data$Reindeer))] <- Reindeer[which(is.na(nim.data$Reindeer))]
+    InitVals$Reindeer <- Inits_Reindeer
+  }
   
   ## Return initial values
   return(InitVals)

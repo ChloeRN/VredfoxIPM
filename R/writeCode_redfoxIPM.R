@@ -205,7 +205,8 @@ writeCode_redfoxIPM <- function(){
       }
       
       # Other (natural) mortality hazard rate
-      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
+      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + epsilon.mO[t]
+      #log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
       
       # Survival probability
       S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
@@ -255,6 +256,8 @@ writeCode_redfoxIPM <- function(){
       betaHE.mH ~ dunif(0, 5) # Effect of harvest effort on mH
     }
     
+    betaRd.mO ~ dunif(-5, 5)
+    
     #---------------------------------------------------------------------------------------------
     
     
@@ -265,9 +268,9 @@ writeCode_redfoxIPM <- function(){
       
       if(fitCov.Psi){
         if(rCov.idx){
-          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t]
+          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + betaRd.Psi*Reindeer[t] + epsilon.Psi[t] # Reindeer.rodent interaction not (yet) written in
         }else{
-          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
+          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + betaRd.Psi*Reindeer[t] + betaRxRd.Psi*RodentAbundance[t]*Reindeer[t] + epsilon.Psi[t]
         }
       }else{
         logit(Psi[2:Amax, t]) <- logit(Mu.Psi[2:Amax]) + epsilon.Psi[t]
@@ -287,7 +290,9 @@ writeCode_redfoxIPM <- function(){
        }
      }else{
        betaR.Psi ~ dunif(-5, 5)
+       betaRxRd.Psi ~ dunif(-5, 5)
      }
+     betaRd.Psi ~ dunif(-5, 5)
     }
     
     
@@ -491,6 +496,10 @@ writeCode_redfoxIPM <- function(){
       }
     }
 
+    ## Missing covariate values in reindeer information
+    for(t in 1:Tmax+1){
+      Reindeer[t] ~ dnorm(0, sd = 1)
+    }
      
   })
   

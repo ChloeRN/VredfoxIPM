@@ -66,7 +66,7 @@ nLevels.rCov <- 2 # 2-level discrete rodent covariate
 standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
 
 # Random year effect toggles
-mO.varT <- FALSE
+mO.varT <- TRUE
 
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
@@ -165,6 +165,10 @@ rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key,
 rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
                                           minYear = minYear)
 
+## Reformat reindeer data
+reindeer.data <- reformatData_reindeer(minYear = minYear,
+                                       Tmax = Tmax)
+
 
 # 1g) Conceptual year information #
 #---------------------------------#
@@ -224,6 +228,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  rep.data = rep.data, 
                                  gen.data = gen.data,
                                  rodent.data = rodent.data, 
+                                 reindeer.data = reindeer.data,
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,
                                  survPriorType = survPriorType)
@@ -246,7 +251,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          testRun = TRUE,
+                          testRun = FALSE,
                           initVals.seed = mySeed)
 
 
@@ -268,7 +273,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-#saveRDS(IPM.out, file = "immR_rodentsEff&mO_varT.rds")
+saveRDS(IPM.out, file = "RDstomachs_effects.rds")
 MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -279,7 +284,7 @@ MCMCvis::MCMCtrace(IPM.out)
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("ImmNum_naive.rds", "ImmRate_naive.rds", "ImmRate_genData.rds"), 
-              model.names = c("Number, naive", "Rate, naive", "Rate, pooled gen data"), 
-              plotFolder = "Plots/Comp_ImmModels")
+              post.filepaths = c("immR_rodentsEff&mO_varT.rds", "RDcarcass_effects.rds", "RDstomachs_effects.rds"), 
+              model.names = c("No reindeer effect", "Reindeer carcass", "Reindeer stomach"), 
+              plotFolder = "Plots/Comp_ReindeerModels")
 

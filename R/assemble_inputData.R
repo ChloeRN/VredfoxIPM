@@ -18,6 +18,8 @@
 #' probabilities of individuals being immigrants.
 #' @param rodent.data a list containing rodent abundance data as a continuous variable (cont),
 #' and categorical variable with two (cat2) and three (cat3) levels.
+#' @param reindeer.data a list containing reindeer carcass abundance and proportion
+#' of foxes with reindeer in stomachs.
 #' @param hunter.data a dataframe containing original and scaled counts of successful 
 #' hunters per year.
 #' @param surv.priors a list of lists containing parameters to define informative priors
@@ -37,7 +39,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
                                nLevels.rCov = NA, standSpec.rCov,
                                poolYrs.genData,
                                wAaH.data, rep.data, gen.data,
-                               rodent.data, hunter.data, 
+                               rodent.data, reindeer.data, hunter.data, 
                                surv.priors, survPriorType,
                                save = FALSE){
   
@@ -80,6 +82,10 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     RodentAbundance2 <- rodent.data$cont.fallstor
   }
   
+  ## Select relevant reindeer covariates
+  #Reindeer <- reindeer.data$RDcarcass
+  Reindeer <- reindeer.data$RDstomachs
+  
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
   nim.data <- list(
@@ -94,7 +100,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     RodentAbundance = RodentAbundance,
     RodentAbundance2 = RodentAbundance2,
     RodentIndex = RodentIndex,
-    RodentIndex2 = RodentIndex2
+    RodentIndex2 = RodentIndex2,
+    Reindeer = Reindeer
   )
   
   # Constants
