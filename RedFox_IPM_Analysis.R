@@ -251,7 +251,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          testRun = FALSE,
+                          testRun = TRUE,
                           initVals.seed = mySeed)
 
 
@@ -273,7 +273,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RDstomachs_effects.rds")
+saveRDS(IPM.out, file = "RDcarcassRodent_effects_mO.rds")
 MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -285,6 +285,6 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("immR_rodentsEff&mO_varT.rds", "RDcarcass_effects.rds", "RDstomachs_effects.rds"), 
-              model.names = c("No reindeer effect", "Reindeer carcass", "Reindeer stomach"), 
-              plotFolder = "Plots/Comp_ReindeerModels")
+              model.names = c("No covariate effects", "Varanger reindeer x rodent", "EFinnmark reindeer x rodent"), 
+              plotFolder = "Plots/Comp_ReindeerRodentModels_mO")
 

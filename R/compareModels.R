@@ -80,7 +80,7 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]"),
-                  "betaRd.mO"),
+                  "betaRd.mO", "betaR.mO", "betaRxRd.mO"),
     
     Imm = paste0("Imm[", 1:Tmax, "]"),
     

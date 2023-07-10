@@ -205,7 +205,7 @@ writeCode_redfoxIPM <- function(){
       }
       
       # Other (natural) mortality hazard rate
-      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + epsilon.mO[t]
+      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t] + epsilon.mO[t]
       #log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
       
       # Survival probability
@@ -257,6 +257,8 @@ writeCode_redfoxIPM <- function(){
     }
     
     betaRd.mO ~ dunif(-5, 0)
+    betaR.mO ~ dunif(-5, 0)
+    betaRxRd.mO ~ dunif(-5, 5)
     
     #---------------------------------------------------------------------------------------------
     

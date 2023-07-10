@@ -372,6 +372,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   if(fitCov.immR){InitVals$betaR.immR <- betaR.immR}
   
   InitVals$betaRd.mO <- 0
+  InitVals$betaR.mO <- 0
+  InitVals$betaRxRd.mO <- 0
   
   ## Add initial values specific to immigration model versions
   if(imm.asRate){

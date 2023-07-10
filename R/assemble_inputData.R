@@ -83,9 +83,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   }
   
   ## Select relevant reindeer covariates
-  #Reindeer <- reindeer.data$RDcarcass
-  Reindeer <- reindeer.data$RDstomachs
-  
+  Reindeer <- reindeer.data$RDcarcass
+
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
   nim.data <- list(

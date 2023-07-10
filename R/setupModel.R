@@ -71,7 +71,7 @@ setupModel <- function(modelCode,
     params <- c(params, "betaHE.mH", "HarvestEffort")
   }
   
-  params <- c(params, "betaRd.mO")
+  params <- c(params, "betaRd.mO", "betaR.mO", "betaRxRd.mO")
   
   if(fitCov.Psi){
     params <- c(params, "betaR.Psi")
