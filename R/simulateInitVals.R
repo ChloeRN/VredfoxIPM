@@ -367,8 +367,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   if(fitCov.mH){InitVals$betaHE.mH <- betaHE.mH}
   if(fitCov.Psi){
     InitVals$betaR.Psi <- betaR.Psi
-    InitVals$betaRd.Psi <- 0
-    InitVals$betaRxRd.Psi <- 0
   }
   if(fitCov.rho){InitVals$betaR.rho <- betaR.rho}
   if(fitCov.immR){InitVals$betaR.immR <- betaR.immR}

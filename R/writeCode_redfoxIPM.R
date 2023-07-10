@@ -256,7 +256,7 @@ writeCode_redfoxIPM <- function(){
       betaHE.mH ~ dunif(0, 5) # Effect of harvest effort on mH
     }
     
-    betaRd.mO ~ dunif(-5, 5)
+    betaRd.mO ~ dunif(-5, 0)
     
     #---------------------------------------------------------------------------------------------
     
@@ -268,9 +268,9 @@ writeCode_redfoxIPM <- function(){
       
       if(fitCov.Psi){
         if(rCov.idx){
-          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + betaRd.Psi*Reindeer[t] + epsilon.Psi[t] # Reindeer.rodent interaction not (yet) written in
+          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t] # Reindeer.rodent interaction not (yet) written in
         }else{
-          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + betaRd.Psi*Reindeer[t] + betaRxRd.Psi*RodentAbundance[t]*Reindeer[t] + epsilon.Psi[t]
+          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
         }
       }else{
         logit(Psi[2:Amax, t]) <- logit(Mu.Psi[2:Amax]) + epsilon.Psi[t]
@@ -290,9 +290,7 @@ writeCode_redfoxIPM <- function(){
        }
      }else{
        betaR.Psi ~ dunif(-5, 5)
-       betaRxRd.Psi ~ dunif(-5, 5)
      }
-     betaRd.Psi ~ dunif(-5, 5)
     }
     
     
