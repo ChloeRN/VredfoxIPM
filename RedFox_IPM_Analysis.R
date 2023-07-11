@@ -57,24 +57,29 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
+fitCov.mO <- FALSE # Fit covariates on mO (rodent abundance x reindeer carcasses)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
+fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
 rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
 standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
 
+# Random year effect toggles
+mO.varT <- TRUE
+
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
 #sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
-#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
-sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
+sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+#sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 #GeneClass.approach <- 1 # Using first approach for GeneClass analysis 
 GeneClass.approach <- 2 # Using second approach for GeneClass analysis
-poolYrs.genData <- FALSE # Pool data across all years
+poolYrs.genData <- TRUE # Pool data across all years
 imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 useData.gen <- TRUE # Use genetic data for estimation of immigration rate
 
@@ -161,6 +166,10 @@ rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key,
 rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
                                           minYear = minYear)
 
+## Reformat reindeer data
+reindeer.data <- reformatData_reindeer(minYear = minYear,
+                                       Tmax = Tmax)
+
 
 # 1g) Conceptual year information #
 #---------------------------------#
@@ -220,6 +229,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  rep.data = rep.data, 
                                  gen.data = gen.data,
                                  rodent.data = rodent.data, 
+                                 reindeer.data = reindeer.data,
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,
                                  survPriorType = survPriorType)
@@ -236,9 +246,12 @@ model.setup <- setupModel(modelCode = redfox.code,
                           minImm = 50, 
                           maxImm = 600,
                           fitCov.mH = fitCov.mH, 
+                          fitCov.mO = fitCov.mO,
                           fitCov.Psi = fitCov.Psi, 
                           fitCov.rho = fitCov.rho,
-                          rCov.idx = rCov.idx, 
+                          fitCov.immR = fitCov.immR,
+                          rCov.idx = rCov.idx,
+                          mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
                           testRun = TRUE,
                           initVals.seed = mySeed)
@@ -262,7 +275,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "ImmNum_naive.rds")
+saveRDS(IPM.out, file = "RDcarcassRodent_effects_mO.rds")
 MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -273,7 +286,7 @@ MCMCvis::MCMCtrace(IPM.out)
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("ImmNum_naive.rds", "ImmRate_naive.rds", "ImmRate_genData.rds"), 
-              model.names = c("Number, naive", "Rate, naive", "Rate, pooled gen data"), 
-              plotFolder = "Plots/Comp_ImmModels")
+              post.filepaths = c("immR_rodentsEff&mO_varT.rds", "RDcarcassRodent_effects_mO.rds", "RDcarcass2Rodent_effects_mO.rds"), 
+              model.names = c("No covariate effects", "Varanger reindeer x rodent", "EFinnmark reindeer x rodent"), 
+              plotFolder = "Plots/Comp_ReindeerRodentModels_mO")
 

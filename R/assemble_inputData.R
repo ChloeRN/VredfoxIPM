@@ -18,6 +18,8 @@
 #' probabilities of individuals being immigrants.
 #' @param rodent.data a list containing rodent abundance data as a continuous variable (cont),
 #' and categorical variable with two (cat2) and three (cat3) levels.
+#' @param reindeer.data a list containing reindeer carcass abundance and proportion
+#' of foxes with reindeer in stomachs.
 #' @param hunter.data a dataframe containing original and scaled counts of successful 
 #' hunters per year.
 #' @param surv.priors a list of lists containing parameters to define informative priors
@@ -37,7 +39,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
                                nLevels.rCov = NA, standSpec.rCov,
                                poolYrs.genData,
                                wAaH.data, rep.data, gen.data,
-                               rodent.data, hunter.data, 
+                               rodent.data, reindeer.data, hunter.data, 
                                surv.priors, survPriorType,
                                save = FALSE){
   
@@ -55,10 +57,12 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   ## Select relevant categorical rodent covariate
   if(is.na(nLevels.rCov)){
     RodentIndex <- NA
+    RodentIndex2 <- NA
   }else{
     
     if(nLevels.rCov == 2){
       RodentIndex <- rodent.data$cat2.wintvar
+      RodentIndex2 <- rodent.data$cat2.fallstor
     }else{
       #RodentIndex <- rodent.data$cat3
       stop("3 level rodent covariate not currently supported")
@@ -72,6 +76,15 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     RodentAbundance <- rodent.data$cont.wintvar
   }
   
+  if(standSpec.rCov){
+    RodentAbundance2 <- rodent.data$cont.fallstor.stsp
+  }else{
+    RodentAbundance2 <- rodent.data$cont.fallstor
+  }
+  
+  ## Select relevant reindeer covariates
+  Reindeer <- reindeer.data$RDcarcass
+
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
   nim.data <- list(
@@ -84,7 +97,10 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     HarvestEffort = hunter.data$NHunters_std,
     RodentAbundance = RodentAbundance,
-    RodentIndex = RodentIndex
+    RodentAbundance2 = RodentAbundance2,
+    RodentIndex = RodentIndex,
+    RodentIndex2 = RodentIndex2,
+    Reindeer = Reindeer
   )
   
   # Constants

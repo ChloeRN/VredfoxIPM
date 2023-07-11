@@ -7,6 +7,20 @@
 
 writeCode_redfoxIPM <- function(){
   
+  ## Check for incompatible toggles
+  if(!imm.asRate & fitCov.immR){
+    stop("Incompatible model settings. Rodent covariate effect on immigration can only be fit (fitCov.immR = TRUE) if immigration is estimated as a rate (imm.asRate = TRUE).")
+  }
+  
+  if(fitCov.mO & rCov.idx){
+    stop("Incompatible model settings. Rodent effects on natural mortality (fitCov.mO = TRUE) are only implemented with continuous covariates (rCov.idx = FALSE).")
+  }
+  
+  if(fitCov.mO & mO.varT){
+    warning("Attempting to fit a model containing environmental covariates but no random year variation for natural mortality. This is not recommended as it may result in inflated effect size/precision due to due to pseudo-replication.")
+  }
+  
+  ## Write model code
   redfox.code <- nimbleCode({
     
     
@@ -199,7 +213,11 @@ writeCode_redfoxIPM <- function(){
       }
       
       # Other (natural) mortality hazard rate
-      log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax])
+      if(fitCov.mO){
+        log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t] + epsilon.mO[t]
+      }else{
+        log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
+      }
       
       # Survival probability
       S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
@@ -249,6 +267,13 @@ writeCode_redfoxIPM <- function(){
       betaHE.mH ~ dunif(0, 5) # Effect of harvest effort on mH
     }
     
+    if(fitCov.mO){
+      betaRd.mO ~ dunif(-5, 0) # Effect of reindeer carcasses on mO
+      betaR.mO ~ dunif(-5, 0) # Effect of rodent abundance on mO
+      betaRxRd.mO ~ dunif(-5, 5) # Interactive effect of reindeer x rodent on mO
+    }
+
+    
     #---------------------------------------------------------------------------------------------
     
     
@@ -259,7 +284,7 @@ writeCode_redfoxIPM <- function(){
       
       if(fitCov.Psi){
         if(rCov.idx){
-          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t]
+          logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t] # Reindeer.rodent interaction not (yet) written in
         }else{
           logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
         }
@@ -355,8 +380,17 @@ writeCode_redfoxIPM <- function(){
         
       }else{
         
-        log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
-        
+        if(fitCov.immR){
+          if(rCov.idx){
+            for(t in 1:(Tmax+1)){
+              log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
+            }
+          }else{
+            log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+          }
+        }else{
+          log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
+        }
       }
       
       for(t in 1:(Tmax+1)){ 
@@ -386,7 +420,17 @@ writeCode_redfoxIPM <- function(){
 
     }
     
-    
+    ## Prior for rodent effect
+    if(fitCov.immR){
+      if(rCov.idx){
+        betaR.immR[1] <- 0 # --> Lowest level corresponds to intercept
+        for(x in 2:nLevels.rCov){
+          betaR.immR[x] ~ dunif(-5, 5)
+        }
+      }else{
+        betaR.immR ~ dunif(-5, 5)
+      }
+    }
     
     #---------------------------------------------------------------------------------------------
     
@@ -407,6 +451,7 @@ writeCode_redfoxIPM <- function(){
     ## Random year variation
     for(t in 1:Tmax){  
       epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+      epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
     }
     
     for(t in 1:(Tmax+1)){
@@ -419,6 +464,12 @@ writeCode_redfoxIPM <- function(){
     sigma.Psi ~ dunif(0, 5)
     sigma.rho ~ dunif(0, 5)
     #sigma.m0 ~ dunif(0, 5)
+    
+    if(mO.varT){
+      sigma.mO ~ dunif(0, 5)
+    }else{
+      sigma.mO <- 0
+    }
     
     if(imm.asRate & poolYrs.genData){
       for(t in 1:(Tmax+1)){
@@ -447,6 +498,7 @@ writeCode_redfoxIPM <- function(){
       
       for(t in 1:Tmax+1){
         RodentIndex[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
+        RodentIndex2[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
       }
       DU.prior.rCov[1:nLevels.rCov] <- 1/nLevels.rCov
       
@@ -454,9 +506,14 @@ writeCode_redfoxIPM <- function(){
       
       for(t in 1:Tmax+1){
         RodentAbundance[t] ~ dnorm(0, sd = 1)
+        RodentAbundance2[t] ~ dnorm(0, sd = 1)
       }
     }
-     
+
+    ## Missing covariate values in reindeer information
+    for(t in 1:Tmax+1){
+      Reindeer[t] ~ dnorm(0, sd = 1)
+    }
      
   })
   

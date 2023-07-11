@@ -13,13 +13,19 @@
 #' use in initial value simulation. 
 #' @param fitCov.mH logical. If TRUE, sets up model including covariate
 #' effects on harvest mortality.
+#' @param fitCov.mO logical. If TRUE, sets up model including covariate
+#' effects on natural mortality.
 #' @param fitCov.Psi logical. If TRUE, sets up model including covariate
 #' effects on pregnancy rates. 
 #' @param fitCov.rho logical. If TRUE, sets up model including covariate
 #' effects on litter size. 
+#' @param fitCov.immR logical. If TRUE, sets up model including covariate
+#' effects on limmigration rate. 
 #' @param rCov.idx logical. Only required if fitCov.Psi = TRUE. If TRUE, assumes
 #' a categorical rodent abundance covariate. If FALSE, assumes a continuous rodent
 #' abundance covariate.
+#' @param mO.varT logical. If TRUE, sets up model with time variation in 
+#' natural mortality. 
 #' @param HoeningPrior logical. If TRUE, sets up a model using informative natural 
 #' mortality priors based on the Hoening model. If FALSE, sets up a model using 
 #' informative survival priors based on literature. 
@@ -42,14 +48,15 @@
 setupModel <- function(modelCode,
                        nim.data, nim.constants,
                        minN1, maxN1, minImm, maxImm,
-                       fitCov.mH, fitCov.Psi, fitCov.rho, rCov.idx, HoeningPrior,
+                       fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
+                       mO.varT, HoeningPrior,
                        niter = 30000, nthin = 4, nburn = 5000, nchains = 3,
                        testRun = FALSE, initVals.seed){
   
   
   ## Set parameters to monitor in all model versions
   params <- c("Mu.mH", "Mu.mO", "Mu.Psi", "Mu.rho", "Mu.S0",
-              "sigma.mH", "sigma.Psi", "sigma.rho",
+              "sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho",
               "Psi", "rho", "mH", "mO", "S",
               "initN",
               "N.tot", "B.tot", "R.tot", 
@@ -64,6 +71,10 @@ setupModel <- function(modelCode,
   
   if(fitCov.mH){
     params <- c(params, "betaHE.mH", "HarvestEffort")
+  }
+  
+  if(fitCov.mO){
+    params <- c(params, "betaRd.mO", "betaR.mO", "betaRxRd.mO")
   }
   
   if(fitCov.Psi){
@@ -82,6 +93,10 @@ setupModel <- function(modelCode,
     }
   } 
   
+  if(fitCov.immR){
+    params <- c(params, "betaR.immR")
+  }
+  
   ## Simulate initial values
   set.seed(initVals.seed)
   initVals <- list()
@@ -91,16 +106,19 @@ setupModel <- function(modelCode,
                                       minN1 = minN1, maxN1 = maxN1, 
                                       minImm = minImm, maxImm = maxImm, 
                                       fitCov.mH = fitCov.mH, 
+                                      fitCov.mO = fitCov.mO,
                                       fitCov.Psi = fitCov.Psi, 
                                       fitCov.rho = fitCov.rho, 
+                                      fitCov.immR = fitCov.immR,
                                       rCov.idx = rCov.idx, 
+                                      mO.varT = mO.varT,
                                       HoeningPrior = HoeningPrior,
                                       imm.asRate = imm.asRate)
   }
   
   ## Adjust MCMC parameters if doing a test run
   if(testRun){
-    niter <- 20
+    niter <- 50
     nthin <- 1
     nburn <- 0
   }
