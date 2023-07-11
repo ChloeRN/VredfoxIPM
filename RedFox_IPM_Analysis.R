@@ -284,7 +284,7 @@ MCMCvis::MCMCtrace(IPM.out)
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("immR_rodentsEff&mO_varT.rds", "RDcarcass_effects.rds", "RDstomachs_effects.rds"), 
+              post.filepaths = c("immR_rodentsEff&mO_varT.rds", "RDcarcassRodent_effects_mO.rds", "RDcarcass2Rodent_effects_mO.rds"), 
               model.names = c("No covariate effects", "Varanger reindeer x rodent", "EFinnmark reindeer x rodent"), 
               plotFolder = "Plots/Comp_ReindeerRodentModels_mO")
 
