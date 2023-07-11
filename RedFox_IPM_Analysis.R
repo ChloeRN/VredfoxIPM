@@ -57,6 +57,7 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
+fitCov.mO <- FALSE # Fit covariates on mO (rodent abundance x reindeer carcasses)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
 fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
@@ -245,6 +246,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           minImm = 50, 
                           maxImm = 600,
                           fitCov.mH = fitCov.mH, 
+                          fitCov.mO = fitCov.mO,
                           fitCov.Psi = fitCov.Psi, 
                           fitCov.rho = fitCov.rho,
                           fitCov.immR = fitCov.immR,

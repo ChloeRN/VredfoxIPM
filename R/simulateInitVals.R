@@ -8,6 +8,8 @@
 #' @param maxImm integer. Upper bound for the annual number of immigrants.
 #' @param fitCov.mH logical. If TRUE, simulates initial values including covariate
 #' effects on harvest mortality.
+#' @param fitCov.mO logical. If TRUE, simulates initial values including covariate
+#' effects on natural mortality.
 #' @param fitCov.Psi logical. If TRUE, simulates initial values including covariate
 #' effects on pregnancy rates. 
 #' @param fitCov.rho logical. If TRUE, simulates initial values including covariate
@@ -34,7 +36,7 @@
 #' @examples
 
 simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, 
-                             fitCov.mH, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
+                             fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
                              mO.varT, HoeningPrior, imm.asRate){
   
   Amax <- nim.constants$Amax
@@ -139,6 +141,17 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     betaHE.mH <- 0
   }
   
+  # Rodent abundance and reindeer carcasses on mO
+  if(fitCov.mO){
+    betaR.mO <- runif(1, -0.2, 0)
+    betaRd.mO <- runif(1, -0.2, 0)
+    betaRxRd.mO <- runif(1, 0, 0.2)
+  }else{
+    betaR.mO <- 0
+    betaRd.mO <- 0
+    betaRxRd.mO <- 0
+  }
+  
   # Rodent abundance on Psi
   if(fitCov.Psi){
     if(rCov.idx){
@@ -203,7 +216,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax])) + epsilon.mO[t]
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t]*Reindeer[t] + epsilon.mO[t])
     }
     
     ## Pregnancy rate
@@ -364,16 +377,27 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   ## Add initial values for covariate effects
-  if(fitCov.mH){InitVals$betaHE.mH <- betaHE.mH}
+  if(fitCov.mH){
+    InitVals$betaHE.mH <- betaHE.mH
+  }
+  
+  if(fitCov.mO){
+    InitVals$betaRd.mO <- betaRd.mO
+    InitVals$betaR.mO <- betaR.mO
+    InitVals$betaRxRd.mO <- betaRxRd.mO
+  }
+  
   if(fitCov.Psi){
     InitVals$betaR.Psi <- betaR.Psi
   }
-  if(fitCov.rho){InitVals$betaR.rho <- betaR.rho}
-  if(fitCov.immR){InitVals$betaR.immR <- betaR.immR}
   
-  InitVals$betaRd.mO <- 0
-  InitVals$betaR.mO <- 0
-  InitVals$betaRxRd.mO <- 0
+  if(fitCov.rho){
+    InitVals$betaR.rho <- betaR.rho
+  }
+  
+  if(fitCov.immR){
+    InitVals$betaR.immR <- betaR.immR
+  }
   
   ## Add initial values specific to immigration model versions
   if(imm.asRate){
