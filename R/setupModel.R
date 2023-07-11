@@ -13,6 +13,8 @@
 #' use in initial value simulation. 
 #' @param fitCov.mH logical. If TRUE, sets up model including covariate
 #' effects on harvest mortality.
+#' @param fitCov.mO logical. If TRUE, sets up model including covariate
+#' effects on natural mortality.
 #' @param fitCov.Psi logical. If TRUE, sets up model including covariate
 #' effects on pregnancy rates. 
 #' @param fitCov.rho logical. If TRUE, sets up model including covariate
@@ -46,7 +48,7 @@
 setupModel <- function(modelCode,
                        nim.data, nim.constants,
                        minN1, maxN1, minImm, maxImm,
-                       fitCov.mH, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
+                       fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
                        mO.varT, HoeningPrior,
                        niter = 30000, nthin = 4, nburn = 5000, nchains = 3,
                        testRun = FALSE, initVals.seed){
@@ -69,6 +71,10 @@ setupModel <- function(modelCode,
   
   if(fitCov.mH){
     params <- c(params, "betaHE.mH", "HarvestEffort")
+  }
+  
+  if(fitCov.mO){
+    params <- c(params, "betaRd.mO", "betaR.mO", "betaRxRd.mO")
   }
   
   if(fitCov.Psi){
@@ -100,6 +106,7 @@ setupModel <- function(modelCode,
                                       minN1 = minN1, maxN1 = maxN1, 
                                       minImm = minImm, maxImm = maxImm, 
                                       fitCov.mH = fitCov.mH, 
+                                      fitCov.mO = fitCov.mO,
                                       fitCov.Psi = fitCov.Psi, 
                                       fitCov.rho = fitCov.rho, 
                                       fitCov.immR = fitCov.immR,

@@ -57,6 +57,7 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
+fitCov.mO <- FALSE # Fit covariates on mO (rodent abundance x reindeer carcasses)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
 fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
@@ -66,7 +67,7 @@ nLevels.rCov <- 2 # 2-level discrete rodent covariate
 standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
 
 # Random year effect toggles
-mO.varT <- FALSE
+mO.varT <- TRUE
 
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
@@ -165,6 +166,10 @@ rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key,
 rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
                                           minYear = minYear)
 
+## Reformat reindeer data
+reindeer.data <- reformatData_reindeer(minYear = minYear,
+                                       Tmax = Tmax)
+
 
 # 1g) Conceptual year information #
 #---------------------------------#
@@ -224,6 +229,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  rep.data = rep.data, 
                                  gen.data = gen.data,
                                  rodent.data = rodent.data, 
+                                 reindeer.data = reindeer.data,
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,
                                  survPriorType = survPriorType)
@@ -240,6 +246,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           minImm = 50, 
                           maxImm = 600,
                           fitCov.mH = fitCov.mH, 
+                          fitCov.mO = fitCov.mO,
                           fitCov.Psi = fitCov.Psi, 
                           fitCov.rho = fitCov.rho,
                           fitCov.immR = fitCov.immR,
@@ -268,7 +275,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-#saveRDS(IPM.out, file = "immR_rodentsEff&mO_varT.rds")
+saveRDS(IPM.out, file = "RDcarcassRodent_effects_mO.rds")
 MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -279,7 +286,7 @@ MCMCvis::MCMCtrace(IPM.out)
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("ImmNum_naive.rds", "ImmRate_naive.rds", "ImmRate_genData.rds"), 
-              model.names = c("Number, naive", "Rate, naive", "Rate, pooled gen data"), 
-              plotFolder = "Plots/Comp_ImmModels")
+              post.filepaths = c("immR_rodentsEff&mO_varT.rds", "RDcarcassRodent_effects_mO.rds", "RDcarcass2Rodent_effects_mO.rds"), 
+              model.names = c("No covariate effects", "Varanger reindeer x rodent", "EFinnmark reindeer x rodent"), 
+              plotFolder = "Plots/Comp_ReindeerRodentModels_mO")
 

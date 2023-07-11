@@ -79,7 +79,8 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
     VReffects = c("sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho", "sigma.immR",
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
-                  "betaR.rho", paste0("betaR.rho[", 2:3, "]")),
+                  "betaR.rho", paste0("betaR.rho[", 2:3, "]"),
+                  "betaRd.mO", "betaR.mO", "betaRxRd.mO"),
     
     Imm = paste0("Imm[", 1:Tmax, "]"),
     
