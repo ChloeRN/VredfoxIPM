@@ -57,7 +57,7 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
-fitCov.mO <- FALSE # Fit covariates on mO (rodent abundance x reindeer carcasses)
+fitCov.mO <- TRUE # Fit covariates on mO (rodent abundance x reindeer carcasses)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
 fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
@@ -76,12 +76,17 @@ sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (light
 #sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
-# Genetic immigration data toggles (details in documentation of wrangleData_gen function
-#GeneClass.approach <- 1 # Using first approach for GeneClass analysis 
-GeneClass.approach <- 2 # Using second approach for GeneClass analysis
-poolYrs.genData <- TRUE # Pool data across all years
+# Immigration parameters toggle
 imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
+
+# Genetic immigration data toggles (details in documentation of wrangleData_gen function
+poolYrs.genData <- TRUE # Pool data across all years
 useData.gen <- TRUE # Use genetic data for estimation of immigration rate
+indLikelihood.genData <- FALSE # Apply an individual-level likelihood for genetic data
+threshold <- 0.2
+#pImm.type <- "original"
+pImm.type <- "rescaled"
+#pImm.type <- "LL-based"
 
 
 #*********************#
@@ -136,13 +141,14 @@ rep.data <- wrangleData_rep(P1.datafile = P1.datafile,
 
 ## Set data paths
 genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
+#genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities_LvarLother.txt"
 
 ## Prepare genetic data
 gen.data <- wrangleData_gen(datapath = genetics.datapath,
                             minYear, 
                             onlyFemales = FALSE, 
-                            GeneClass.approach = GeneClass.approach, 
-                            poolYrs.genData = poolYrs.genData)
+                            poolYrs.genData = poolYrs.genData, 
+                            threshold = threshold)
 
 
 # 1e) Harvest effort data #
@@ -210,7 +216,7 @@ survPriorType <- definePriorType_AnnSurv(HoeningPrior = HoeningPrior,
 # 3a) Write model code #
 #----------------------#
 
-redfox.code <- writeCode_redfoxIPM()
+redfox.code <- writeCode_redfoxIPM(indLikelihood.genData = indLikelihood.genData)
 
 
 # 3b) Assemble IPM input data #
@@ -225,6 +231,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
                                  poolYrs.genData = poolYrs.genData,
+                                 pImm.type = pImm.type,
                                  wAaH.data = wAaH.data, 
                                  rep.data = rep.data, 
                                  gen.data = gen.data,
@@ -253,7 +260,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          testRun = TRUE,
+                          testRun = FALSE,
                           initVals.seed = mySeed)
 
 
@@ -275,8 +282,9 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RDcarcassRodent_effects_mO.rds")
-MCMCvis::MCMCtrace(IPM.out)
+
+saveRDS(IPM.out, file = "immRTests_Cov_sumL02_poolData.rds")
+#MCMCvis::MCMCtrace(IPM.out)
 
 
 #######################
@@ -286,7 +294,80 @@ MCMCvis::MCMCtrace(IPM.out)
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("immR_rodentsEff&mO_varT.rds", "RDcarcassRodent_effects_mO.rds", "RDcarcass2Rodent_effects_mO.rds"), 
-              model.names = c("No covariate effects", "Varanger reindeer x rodent", "EFinnmark reindeer x rodent"), 
-              plotFolder = "Plots/Comp_ReindeerRodentModels_mO")
+              post.filepaths = c("immTests_immR_naive.rds", 
+                                 "immTests_immR_poolData_indL.rds", 
+                                 "immTests_immR_poolData_sumL02.rds", 
+                                 "immTests_immR_poolData_sumL01.rds"), 
+              model.names = c("No genetic data", "Ind. likelihood", "Summed likelihood (0.2)", "Summed likelihood (0.1)"), 
+              plotFolder = "Plots/Comp_ImmTestsPool")
+
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("immTests_immR_naive.rds", 
+                                 "immTests_immR_yearData_indL.rds", 
+                                 "immTests_immR_yearData_sumL02.rds", 
+                                 "immTests_immR_yearData_sumL01.rds"), 
+              model.names = c("No genetic data", "Ind. likelihood", "Summed likelihood (0.2)", "Summed likelihood (0.1)"), 
+              plotFolder = "Plots/Comp_ImmTestsYear")
+
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("immTests_immR_naive.rds", 
+                                 "immTests_immR_poolData_indL.rds",
+                                 "immTests_immR_yearData_indL.rds", 
+                                 "immTests_immR_poolData_indL_alternative.rds",
+                                 "immTests_immR_yearData_indL_alternative.rds"), 
+              model.names = c("No genetic data", 
+                              "Ind. likelihood (pooled)", 
+                              "Ind. likelihood (yearly)",
+                              "Ind. likelihood (pooled), alt.", 
+                              "Ind. likelihood (yearly), alt."), 
+              plotFolder = "Plots/Comp_ImmTestsIL")
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("immTests_immR_naive.rds", 
+                                 "immTests_immR_poolData_sumL02.rds",
+                                 "immTests_immR_yearData_sumL02.rds",
+                                 "immTests_immR_poolData_sumL01.rds",
+                                 "immTests_immR_yearData_sumL01.rds"), 
+              model.names = c("No genetic data", 
+                              "Sum likelihood 0.2 (pooled)", 
+                              "Sum likelihood 0.2 (yearly)",
+                              "Sum likelihood 0.1 (pooled)", 
+                              "Sum likelihood 0.1 (yearly)"), 
+              plotFolder = "Plots/Comp_ImmTestsSumL")
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("immTests_immR_naive.rds", 
+                                 "immTests_immR_yearData_indL.rds", 
+                                 "immTests_immR_yearData_sumL02.rds",
+                                 "immTests_immR_yearData_indL_rescaled.rds"), 
+              model.names = c("No genetic data", 
+                              "Ind. likelihood (yearly)", 
+                              "Sum likelihood (yearly)",
+                              "Ind. likelihood (yearly), resc."), 
+              plotFolder = "Plots/Comp_ImmTestsIL_rescaled")
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("immTests_immR_naive.rds", 
+                                 "immTests_immR_poolData_sumL02.rds",
+                                 "immTests_immR_yearData_sumL02.rds",
+                                 "immTests_immR_poolData_indL_rescaled.rds",
+                                 "immTests_immR_yearData_indL_rescaled.rds"), 
+              model.names = c("No genetic data", 
+                              "Sum likelihood (0.2, pooled)",
+                              "Sum likelihood (0.2, yearly)",
+                              "Ind. likelihood (pooled), resc.",
+                              "Ind. likelihood (yearly), resc."), 
+              plotFolder = "Plots/Comp_ImmTests_selected")
 

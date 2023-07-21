@@ -9,6 +9,10 @@
 #' @param standSpec.rCov logical. If TRUE, standardises rodent numbers per species before summing 
 #' to offset catchability, If FALSE simple sums alls rodent numbers. 
 #' @param poolYrs.genData integer. Whether or not genetic immigration data is pooled across years.
+#' @param pImm.type character. Which type of individual-level data to use for immigration. 
+#' "original" = p values as output by Geneclass 2. "rescaled" = p values as output
+#' by Geneclass 2 and standardized so that the minimum immigrant probability = 0.
+#' "LL-based" = log likelihood other / log likelihood other + log likelihood Varanger. 
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
 #' @param wAaH.data a list containing an Age-at-Harvest matrix (winterC) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
@@ -37,7 +41,7 @@
 assemble_inputData <- function(Amax, Tmax, minYear,
                                maxPups, uLim.N, uLim.Imm, 
                                nLevels.rCov = NA, standSpec.rCov,
-                               poolYrs.genData,
+                               poolYrs.genData, pImm.type,
                                wAaH.data, rep.data, gen.data,
                                rodent.data, reindeer.data, hunter.data, 
                                surv.priors, survPriorType,
@@ -126,17 +130,36 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   
   ## Append relevant data from genetic immigration assignments
   if(poolYrs.genData){
-    nim.data$pImm <- gen.data$pImm
+    
+    nim.data$pImm <- dplyr::case_when(pImm.type == "original" ~ gen.data$pImm,
+                                      pImm.type == "rescaled" ~ gen.data$pImm_rescaled,
+                                      pImm.type == "LL-based" ~ gen.data$pImm_LL)
     nim.constants$Xgen <- gen.data$Xgen
+    
+    nim.data$genObs_Imm <- gen.data$genObs_Imm
+    nim.data$genObs_Res <- gen.data$genObs_Res
+    
   }else{
-    nim.data$pImm <- gen.data$pImm_in
-    nim.data$pImm_pre <- gen.data$pImm_pre
+    nim.data$pImm <- dplyr::case_when(pImm.type == "original" ~ gen.data$pImm_in,
+                                      pImm.type == "rescaled" ~ gen.data$pImm_rescaled_in,
+                                      pImm.type == "LL-based" ~ gen.data$pImm_LL_in)
+    nim.data$pImm_pre <- dplyr::case_when(pImm.type == "original" ~ gen.data$pImm_pre,
+                                          pImm.type == "rescaled" ~ gen.data$pImm_rescaled_pre,
+                                          pImm.type == "LL-based" ~ gen.data$pImm_LL_pre)
     nim.constants$Xgen <- gen.data$Xgen_in
     nim.constants$Xgen_pre <- gen.data$Xgen_pre
     nim.constants$pImm_yrs <- gen.data$pImm_yrsB_in
     nim.constants$pImm_yrs_pre <- gen.data$pImm_yrsB_pre
+    
     nim.constants$Tmax_Gen <- max(nim.constants$pImm_yrs)
     nim.constants$Tmax_Gen_pre <- max(nim.constants$pImm_yrs_pre)
+    
+    nim.data$genObs_Imm <- gen.data$genObs_Imm_in
+    nim.data$genObs_Imm_pre <- gen.data$genObs_Imm_pre
+    nim.data$genObs_Res <- gen.data$genObs_Res_in
+    nim.data$genObs_Res_pre <- gen.data$genObs_Res_pre
+    
+    
   }
   
   ## Add relevant prior information

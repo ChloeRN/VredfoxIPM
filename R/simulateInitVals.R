@@ -405,6 +405,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(useData.gen){
       ImmData <- rbinom(n = nim.constants$Xgen, size = 1, p = mean(nim.data$pImm))
       ImmData[which(nim.data$pImm == 0)] <- 0
+      ImmData[which(nim.data$pImm == 1)] <- 1
       
       InitVals$ImmData <- ImmData
       InitVals$Mu.immR <- sum(InitVals$ImmData)/(nim.constants$Xgen-sum(InitVals$ImmData))
@@ -414,6 +415,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
         ImmData_pre[which(nim.data$pImm_pre == 0)] <- 0
         
         InitVals$ImmData_pre <- ImmData_pre
+        InitVals$immR_pre <- rep(InitVals$Mu.immR, nim.constants$Tmax_Gen_pre)
       }
       
     }else{
@@ -459,7 +461,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     }
   }
   
-  if(fitCov.immR){
+  if(fitCov.immR | fitCov.Psi | fitCov.rho){
     if(rCov.idx & (NA %in% nim.data$RodentIndex2)){
       Inits_RodentIndex2 <- rep(NA, length(RodentIndex2))
       Inits_RodentIndex2[which(is.na(nim.data$RodentIndex2))] <- RodentIndex2[which(is.na(nim.data$RodentIndex2))]
@@ -470,6 +472,16 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       Inits_RodentAbundance2[which(is.na(nim.data$RodentAbundance2))] <- RodentAbundance2[which(is.na(nim.data$RodentAbundance2))]
       InitVals$RodentAbundance2 <- Inits_RodentAbundance2
     }
+    
+    if(indLikelihood.genData & rCov.idx & !poolYrs.genData){
+      InitVals$RodentIndex2_pre <- sample(0:nim.constants$nLevels.rCov, size = nim.constants$Tmax_Gen_pre, replace = TRUE)
+    }
+    
+    if(indLikelihood.genData & !rCov.idx & !poolYrs.genData){
+      InitVals$RodentAbundance2_pre <- rnorm(nim.constants$Tmax_Gen_pre, mean = 0, sd = 1)
+    }
+    
+    
   }
 
   if(NA %in% nim.data$Reindeer){
