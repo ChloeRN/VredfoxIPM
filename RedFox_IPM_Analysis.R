@@ -80,9 +80,9 @@ sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (light
 imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
-poolYrs.genData <- FALSE # Pool data across all years
+poolYrs.genData <- TRUE # Pool data across all years
 useData.gen <- TRUE # Use genetic data for estimation of immigration rate
-indLikelihood.genData <- TRUE # Apply an individual-level likelihood for genetic data
+indLikelihood.genData <- FALSE # Apply an individual-level likelihood for genetic data
 threshold <- 0.2
 #pImm.type <- "original"
 pImm.type <- "rescaled"
