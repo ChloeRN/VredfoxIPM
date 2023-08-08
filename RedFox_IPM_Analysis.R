@@ -80,9 +80,9 @@ sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (light
 imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
-poolYrs.genData <- TRUE # Pool data across all years
+poolYrs.genData <- FALSE # Pool data across all years
 useData.gen <- TRUE # Use genetic data for estimation of immigration rate
-indLikelihood.genData <- FALSE # Apply an individual-level likelihood for genetic data
+indLikelihood.genData <- TRUE # Apply an individual-level likelihood for genetic data
 threshold <- 0.2
 #pImm.type <- "original"
 pImm.type <- "rescaled"
@@ -260,7 +260,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          testRun = FALSE,
+                          testRun = TRUE,
                           initVals.seed = mySeed)
 
 
@@ -283,7 +283,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "immRTests_Cov_sumL02_poolData.rds")
+saveRDS(IPM.out, file = "immRTests_Cov_indLresc_poolData.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -371,3 +371,16 @@ compareModels(Amax = Amax,
                               "Ind. likelihood (yearly), resc."), 
               plotFolder = "Plots/Comp_ImmTests_selected")
 
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("immRTests_Cov_naive.rds", 
+                                 "immRTests_Cov_sumL02_poolData.rds",
+                                 "immRTests_Cov_sumL02_yearData.rds",
+                                 "immRTests_Cov_indLresc_poolData.rds"), 
+              model.names = c("No genetic data", 
+                              "Sum likelihood (0.2, pooled)",
+                              "Sum likelihood (0.2, yearly)",
+                              "Ind. likelihood (pooled), resc."), 
+              plotFolder = "Plots/Comp_ImmTests_selectedCov")

@@ -477,7 +477,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       InitVals$RodentIndex2_pre <- sample(0:nim.constants$nLevels.rCov, size = nim.constants$Tmax_Gen_pre, replace = TRUE)
     }
     
-    if(indLikelihood.genData & !rCov.idx & !poolYrs.genData){
+    if(!rCov.idx & !poolYrs.genData){
       InitVals$RodentAbundance2_pre <- rnorm(nim.constants$Tmax_Gen_pre, mean = 0, sd = 1)
     }
     
