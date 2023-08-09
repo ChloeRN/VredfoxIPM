@@ -13,7 +13,7 @@ library(metafor)
 #**********#
 
 ## Set seed
-mySeed <- 0
+mySeed <- 10
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -260,6 +260,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
+                          niter = 60000, nthin = 8, nburn = 10000, nchains = 3,
                           testRun = FALSE,
                           initVals.seed = mySeed
                           )
@@ -284,7 +285,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_final_poolGenData_HoeningPrior_extraIterations.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
