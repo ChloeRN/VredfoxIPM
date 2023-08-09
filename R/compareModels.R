@@ -101,6 +101,9 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
                     "Harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
   )
 
+  ## Set plotting colors
+  plot.cols <- paletteer::paletteer_c("grDevices::Temps", length(model.names))
+
   ## Plot posterior overlaps
   pdf(paste0(plotFolder, "/PosteriorDensities.pdf"), width = 9, height = 6)
   for(x in 1:length(plot.params)){
@@ -109,7 +112,8 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
       ggplot(subset(post.data, Parameter %in% plot.params[[x]]), aes(x = Value, color = Model, fill = Model)) + 
         geom_density(alpha = 1/nModels) + 
         facet_wrap(~Parameter, scales = "free") + 
-        scale_fill_viridis_d() + scale_color_viridis_d() + 
+        #scale_fill_viridis_d() + scale_color_viridis_d() + 
+        scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
         theme_bw() + theme(panel.grid = element_blank())
     )
   }
@@ -125,7 +129,8 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
       ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x]), aes(group = Model)) + 
         geom_line(aes(x = Year, y = median, color = Model)) + 
         geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
-        scale_fill_viridis_d() + scale_color_viridis_d() + 
+        #scale_fill_viridis_d() + scale_color_viridis_d() + 
+        scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
         facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
         ggtitle(plotTS.params$ParamLabels[x]) +  
         theme_bw() + theme(panel.grid = element_blank())
@@ -138,7 +143,8 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
         ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x] & Year %in% subset.years), aes(group = Model)) + 
           geom_line(aes(x = Year, y = median, color = Model)) + 
           geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
-          scale_fill_viridis_d() + scale_color_viridis_d() + 
+          #scale_fill_viridis_d() + scale_color_viridis_d() + 
+          scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
           facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
           ggtitle(paste0(plotTS.params$ParamLabels[x], " (without first/last year)")) +  
           theme_bw() + theme(panel.grid = element_blank())
