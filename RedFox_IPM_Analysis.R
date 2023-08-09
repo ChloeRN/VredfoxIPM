@@ -260,8 +260,9 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          testRun = TRUE,
-                          initVals.seed = mySeed)
+                          testRun = FALSE,
+                          initVals.seed = mySeed
+                          )
 
 
 ####################
@@ -283,104 +284,67 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "immRTests_Cov_indLresc_poolData.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
-#######################
-# 5) MODEL COMPARISON #
-#######################
+########################
+# 5) MODEL COMPARISONS #
+########################
 
+## Survival priors
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("immTests_immR_naive.rds", 
-                                 "immTests_immR_poolData_indL.rds", 
-                                 "immTests_immR_poolData_sumL02.rds", 
-                                 "immTests_immR_poolData_sumL01.rds"), 
-              model.names = c("No genetic data", "Ind. likelihood", "Summed likelihood (0.2)", "Summed likelihood (0.1)"), 
-              plotFolder = "Plots/Comp_ImmTestsPool")
+              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds", 
+                                 "RedFoxIPM_final_poolGenData_BristolPrior.rds",
+                                 "RedFoxIPM_final_poolGenData_MetaAllPrior.rds",
+                                 "RedFoxIPM_final_poolGenData_HoeningPrior.rds"), 
+              model.names = c("North Sweden", 
+                              "Bristol",
+                              "Literature meta-analysis",
+                              "Hoening Model"), 
+              plotFolder = "Plots/CompFinal_SurvPriors")
 
 
+## Rodent covariate type
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("immTests_immR_naive.rds", 
-                                 "immTests_immR_yearData_indL.rds", 
-                                 "immTests_immR_yearData_sumL02.rds", 
-                                 "immTests_immR_yearData_sumL01.rds"), 
-              model.names = c("No genetic data", "Ind. likelihood", "Summed likelihood (0.2)", "Summed likelihood (0.1)"), 
-              plotFolder = "Plots/Comp_ImmTestsYear")
+              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds", 
+                                 "RedFoxIPM_final_poolGenData_NSwedenPrior_noWeightRodentCov.rds"), 
+              model.names = c("species weights", 
+                              "no weights"), 
+              plotFolder = "Plots/CompFinal_RodentCovType")
 
 
+## Immigration models
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("immTests_immR_naive.rds", 
-                                 "immTests_immR_poolData_indL.rds",
-                                 "immTests_immR_yearData_indL.rds", 
-                                 "immTests_immR_poolData_indL_alternative.rds",
-                                 "immTests_immR_yearData_indL_alternative.rds"), 
-              model.names = c("No genetic data", 
-                              "Ind. likelihood (pooled)", 
-                              "Ind. likelihood (yearly)",
-                              "Ind. likelihood (pooled), alt.", 
-                              "Ind. likelihood (yearly), alt."), 
-              plotFolder = "Plots/Comp_ImmTestsIL")
+              post.filepaths = c("RedFoxIPM_ImmNum_NSwedenPrior.rds", # Re-run
+                                 "RedFoxIPM_final_noGenData_NSwedenPrior.rds",
+                                 "RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
+                                 "RedFoxIPM_final_yearGenData_NSwedenPrior.rds"), 
+              model.names = c("Imm. numbers", 
+                              "Imm. rate, naive",
+                              "Imm. rate, pooled gen. data",
+                              "Imm. rate, yearly gen. data"), 
+              plotFolder = "Plots/CompFinal_ImmModels")
 
+
+## Genetic data likelihoods (no additional covariates)
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("immTests_immR_naive.rds", 
-                                 "immTests_immR_poolData_sumL02.rds",
-                                 "immTests_immR_yearData_sumL02.rds",
-                                 "immTests_immR_poolData_sumL01.rds",
-                                 "immTests_immR_yearData_sumL01.rds"), 
-              model.names = c("No genetic data", 
-                              "Sum likelihood 0.2 (pooled)", 
-                              "Sum likelihood 0.2 (yearly)",
-                              "Sum likelihood 0.1 (pooled)", 
-                              "Sum likelihood 0.1 (yearly)"), 
-              plotFolder = "Plots/Comp_ImmTestsSumL")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("immTests_immR_naive.rds", 
-                                 "immTests_immR_yearData_indL.rds", 
-                                 "immTests_immR_yearData_sumL02.rds",
-                                 "immTests_immR_yearData_indL_rescaled.rds"), 
-              model.names = c("No genetic data", 
-                              "Ind. likelihood (yearly)", 
-                              "Sum likelihood (yearly)",
-                              "Ind. likelihood (yearly), resc."), 
-              plotFolder = "Plots/Comp_ImmTestsIL_rescaled")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("immTests_immR_naive.rds", 
-                                 "immTests_immR_poolData_sumL02.rds",
+              post.filepaths = c("immTests_immR_poolData_sumL02.rds",
                                  "immTests_immR_yearData_sumL02.rds",
                                  "immTests_immR_poolData_indL_rescaled.rds",
                                  "immTests_immR_yearData_indL_rescaled.rds"), 
-              model.names = c("No genetic data", 
-                              "Sum likelihood (0.2, pooled)",
-                              "Sum likelihood (0.2, yearly)",
-                              "Ind. likelihood (pooled), resc.",
-                              "Ind. likelihood (yearly), resc."), 
-              plotFolder = "Plots/Comp_ImmTests_selected")
+              model.names = c("sum. likelihood (0.2), pooled data", 
+                              "sum. likelihood (0.2), yearly data",
+                              "ind. likelihood (rescaled), pooled data",
+                              "ind. likelihood (rescaled), yearly data"), 
+              plotFolder = "Plots/CompFinal_GenDataLik_noExtraCovs")
 
 
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("immRTests_Cov_naive.rds", 
-                                 "immRTests_Cov_sumL02_poolData.rds",
-                                 "immRTests_Cov_sumL02_yearData.rds",
-                                 "immRTests_Cov_indLresc_poolData.rds"), 
-              model.names = c("No genetic data", 
-                              "Sum likelihood (0.2, pooled)",
-                              "Sum likelihood (0.2, yearly)",
-                              "Ind. likelihood (pooled), resc."), 
-              plotFolder = "Plots/Comp_ImmTests_selectedCov")
