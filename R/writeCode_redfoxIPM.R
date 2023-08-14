@@ -257,9 +257,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(HoeningPrior){
         # Using prior distributions calculated with Hoening model
-        Mu.mO.ad ~ dlnorm(mnat.logmean, sdlog = mnat.logsd)
-        Mu.mO[2:5] <- Mu.mO.ad
-        Mu.mO[1] <- Mu.mO.ad*JuvAdRatio #* NOTE: Can be provided as constant or distribution
+        #Mu.mO.ad ~ dlnorm(mnat.logmean, sdlog = mnat.logsd)
+        #Mu.mO[2:5] <- Mu.mO.ad
+        #Mu.mO[1] <- Mu.mO.ad*JuvAdRatio #* NOTE: Can be provided as constant or distribution
+        
+        for(a in 1:Amax){
+          Mu.mO[a] ~ dlnorm(mnat.logmean, sdlog = mnat.logsd)
+        }
         
         #JuvAdRatio <- exp(JAratio.logmean)
         JuvAdRatio ~ dlnorm(ratioJA.logmean, sdlog = ratioJA.logsd)
@@ -741,9 +745,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(HoeningPrior){
         # Using prior distributions calculated with Hoening model
-        Mu.mO.ad ~ dlnorm(mnat.logmean, sdlog = mnat.logsd)
-        Mu.mO[2:5] <- Mu.mO.ad
-        Mu.mO[1] <- Mu.mO.ad*JuvAdRatio #* NOTE: Can be provided as constant or distribution
+        #Mu.mO.ad ~ dlnorm(mnat.logmean, sdlog = mnat.logsd)
+        #Mu.mO[2:5] <- Mu.mO.ad
+        #Mu.mO[1] <- Mu.mO.ad*JuvAdRatio #* NOTE: Can be provided as constant or distribution
+        
+        for(a in 1:Amax){
+          Mu.mO[a] ~ dlnorm(mnat.logmean, sdlog = mnat.logsd)
+        }
         
         #JuvAdRatio <- exp(JAratio.logmean)
         JuvAdRatio ~ dlnorm(ratioJA.logmean, sdlog = ratioJA.logsd)

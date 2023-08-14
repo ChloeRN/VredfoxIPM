@@ -64,7 +64,7 @@ setupModel <- function(modelCode,
   
   ## Add additional parameters to monitor depending on model version
   if(HoeningPrior){
-    params <- c(params, "JuvAdRatio", "Mu.mO.ad")
+    params <- c(params, "JuvAdRatio")#, "Mu.mO.ad")
   }else{
    params <- c(params, "Mu.Snat")
   }

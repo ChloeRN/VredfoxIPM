@@ -13,7 +13,7 @@ library(metafor)
 #**********#
 
 ## Set seed
-mySeed <- 10
+mySeed <- 88
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -70,7 +70,7 @@ standSpec.rCov <- TRUE # standardize different rodent species before summing (of
 mO.varT <- TRUE
 
 # Annual survival prior type toggles
-HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
+HoeningPrior <- TRUE # Use prior on natural mortality derived from Hoening model
 #sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
 sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
 #sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
@@ -260,7 +260,6 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          niter = 60000, nthin = 8, nburn = 10000, nchains = 3,
                           testRun = FALSE,
                           initVals.seed = mySeed
                           )
@@ -285,7 +284,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_final_poolGenData_HoeningPrior_extraIterations.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_final_poolGenData_HoeningPrior_flexible.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
