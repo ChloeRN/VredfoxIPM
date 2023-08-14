@@ -348,3 +348,21 @@ compareModels(Amax = Amax,
               plotFolder = "Plots/CompFinal_GenDataLik_noExtraCovs")
 
 
+########################
+# 6) POST-HOC ANALYSES #
+########################
+
+## Extract parameter samples
+MCMC.samples <- readRDS("RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+paramSamples <- extractParamSamples(MCMC.samples = MCMC.samples,
+                                    Amax = Amax, Tmax = Tmax)
+
+## Calculate sensitivities and elasticities
+sensitivities <- calculateSensitivities(paramSamples = paramSamples,
+                                        Amax = Amax)
+
+## Run random design LTRE
+
+
+
+## Run fixed design LTRE
