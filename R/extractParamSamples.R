@@ -36,7 +36,7 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
   S0 <- m0 <- immR <- matrix(NA, nrow = nosamples, ncol = Tmax)
   
   # Time-varying population sizes and growth rates
-  N <- array(NA, dim = c(nosamples, Amax, Tmax))
+  N <- n <- array(NA, dim = c(nosamples, Amax, Tmax))
   N_tot <- matrix(NA, nrow = nosamples, ncol = Tmax)
   lambda <- matrix(NA, nrow = nosamples, ncol = Tmax-1)
   
@@ -73,6 +73,7 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
       # Time-varying population sizes
       for(a in 1:Amax){
         N[i, a, t] <- out.mat[i, paste0("N[", a, ", ", t, "]")]
+        n[i, a, t] <- out.mat[i, paste0("N[", a, ", ", t, "]")]/out.mat[i, paste0("N.tot[", t, "]")]
         
         B[i, a, t] <- out.mat[i, paste0("B[", a, ", ", t, "]")]
         L[i, a, t] <- out.mat[i, paste0("L[", a, ", ", t, "]")]
@@ -109,6 +110,7 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
   R_mean <- apply(R[, , 2:Tmax], c(1, 2), mean)
   R_tot_mean <- rowMeans(R_tot[, 2:Tmax])
   
+  
   ## Calculate average immigrant numbers
   Imm_mean <- rowMeans(Imm[, 2:Tmax])
   
@@ -143,7 +145,7 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
              immR = immR,
              n = n,
              N = N, 
-             Ntot = N,
+             N_tot = N,
              lambda = lambda,
              B = B,
              B_tot = B,
@@ -162,7 +164,7 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
                   immR = immR_mean,
                   n = n_mean,
                   N = N_mean, 
-                  Ntot = N_tot_mean,
+                  N_tot = N_tot_mean,
                   lambda = lambda_mean,
                   B = B_mean,
                   B_tot = B_tot_mean,

@@ -190,10 +190,13 @@ calculateSensitivities <- function(paramSamples, Amax){
   
   #-----------------------------------------------------------------------------
   
-  ## Return results
-  return(list(sensitivity = list(samples = sensList, 
-                                 summaries = postSum_sens),
-              elasticity = list(samples = elasList,
-                                summaries = postSum_elas)))
+  ## Save and return results
+  sensResults <- list(sensitivity = list(samples = sensList, 
+                                         summaries = postSum_sens),
+                      elasticity = list(samples = elasList,
+                                        summaries = postSum_elas))
+  saveRDS(sensResults, file = "RedFoxIPM_Sensitivities")
+  
+  return(sensResults)
   
 }

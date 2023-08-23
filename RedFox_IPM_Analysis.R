@@ -353,8 +353,8 @@ compareModels(Amax = Amax,
 ########################
 
 ## Extract parameter samples
-MCMC.samples <- readRDS("RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
-paramSamples <- extractParamSamples(MCMC.samples = MCMC.samples,
+IPM.out <- readRDS("RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+paramSamples <- extractParamSamples(MCMC.samples = IPM.out,
                                     Amax = Amax, Tmax = Tmax)
 
 ## Calculate sensitivities and elasticities
@@ -362,7 +362,11 @@ sensitivities <- calculateSensitivities(paramSamples = paramSamples,
                                         Amax = Amax)
 
 ## Run random design LTRE
-
+randomLTRE <- runLTRE_randomDesign(paramSamples = paramSamples, 
+                                   sensitivities = sensitivities, 
+                                   Amax = Amax, Tmax = Tmax, 
+                                   HazardRates = FALSE, 
+                                   PopStructure = TRUE)
 
 
 ## Run fixed design LTRE
