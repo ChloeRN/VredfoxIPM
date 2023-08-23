@@ -3,7 +3,8 @@
 #' @param paramSamples a list of lists containing posterior samples for all vital rates and
 #' population-level quantities.
 #' @param Amax integer. Number of age classes. 
-#'
+#' @param t_period integer vector. Optional argument for specifying the years
+#' to use for calculating sensitivities. 
 #' @return a list of lists containing posterior samples for transient 
 #' sensitivities and elasticities for all vital rate parameters as well as
 #' population structure (n) and population sizes per age class (N). 
@@ -12,7 +13,7 @@
 #'
 #' @examples
 
-calculateSensitivities <- function(paramSamples, Amax){
+calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
   
   
   #----------------------------------------#
@@ -20,9 +21,28 @@ calculateSensitivities <- function(paramSamples, Amax){
   #----------------------------------------#
   
   ## Unpack objects from parameter list
-  for(i in 1:length(paramSamples$t_mean)){
-    assign(names(paramSamples$t_mean)[i], paramSamples$t_mean[[i]])
-  } 
+  if(is.null(t_period)){
+    for(i in 1:length(paramSamples$t_mean)){
+      assign(names(paramSamples$t_mean)[i], 
+             paramSamples$t_mean[[i]])
+    } 
+  }else{
+    for(i in 1:length(paramSamples$t_mean)){
+      
+      paramName <- names(paramSamples$t)[i]
+      t_offset <- ifelse(paramName %in% c("Psi", "rho", "S0", "m0", "immR"), 1, 0)
+      
+      focalParam <- paramSamples$t[[i]]
+      
+      if(length(dim(focalParam)) > 2){
+        focalParam_mean <- apply(focalParam[, , t_period + t_offset], c(1, 2), mean)
+      }else{
+        focalParam_mean <- rowMeans(focalParam[, t_period + t_offset])
+      }
+      assign(paramName, focalParam_mean)
+    } 
+  }
+
   
   ## Set sample number
   nosamples <- length(lambda)
@@ -195,7 +215,10 @@ calculateSensitivities <- function(paramSamples, Amax){
                                          summaries = postSum_sens),
                       elasticity = list(samples = elasList,
                                         summaries = postSum_elas))
-  saveRDS(sensResults, file = "RedFoxIPM_Sensitivities")
+  
+  if(is.null(t_period)){
+    saveRDS(sensResults, file = "RedFoxIPM_Sensitivities")
+  }
   
   return(sensResults)
   
