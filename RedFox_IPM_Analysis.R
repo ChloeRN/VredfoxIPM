@@ -370,3 +370,8 @@ randomLTRE <- runLTRE_randomDesign(paramSamples = paramSamples,
 
 
 ## Run fixed design LTRE
+fixedLTRE <- runLTRE_fixedDesign_allYears(paramSamples = paramSamples, 
+                                          Amax = Amax, Tmax = Tmax, 
+                                          HazardRates = FALSE, 
+                                          PopStructure = TRUE)
+
