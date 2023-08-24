@@ -7,6 +7,7 @@ library(ckanr)
 library(purrr)
 library(dplyr)
 library(metafor)
+library(patchwork)
 
 #**********#
 # 0) SETUP #
@@ -361,12 +362,17 @@ paramSamples <- extractParamSamples(MCMC.samples = IPM.out,
 sensitivities <- calculateSensitivities(paramSamples = paramSamples,
                                         Amax = Amax)
 
+## Plot sensitivities
+
+
 ## Run random design LTRE
 randomLTRE <- runLTRE_randomDesign(paramSamples = paramSamples, 
                                    sensitivities = sensitivities, 
                                    Amax = Amax, Tmax = Tmax, 
                                    HazardRates = FALSE, 
                                    PopStructure = TRUE)
+
+## Plot results from random design LTRE
 
 
 ## Run fixed design LTRE
