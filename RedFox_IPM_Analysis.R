@@ -363,21 +363,34 @@ sensitivities <- calculateSensitivities(paramSamples = paramSamples,
                                         Amax = Amax)
 
 ## Plot sensitivities
+plotSensitivities(sensitivities = sensitivities,
+                  Amax = Amax)
 
+
+## Set LTRE options
+HazardRates <- FALSE
+PopStructure <- TRUE
 
 ## Run random design LTRE
 randomLTRE <- runLTRE_randomDesign(paramSamples = paramSamples, 
                                    sensitivities = sensitivities, 
                                    Amax = Amax, Tmax = Tmax, 
-                                   HazardRates = FALSE, 
-                                   PopStructure = TRUE)
+                                   HazardRates = HazardRates, 
+                                   PopStructure = PopStructure)
 
 ## Plot results from random design LTRE
-
+plotLTRE_randomDesign(LTRE_results = randomLTRE,
+                      Amax = Amax,
+                      HazardRates = HazardRates,
+                      PopStructure = PopStructure)
 
 ## Run fixed design LTRE
 fixedLTRE <- runLTRE_fixedDesign_allYears(paramSamples = paramSamples, 
                                           Amax = Amax, Tmax = Tmax, 
-                                          HazardRates = FALSE, 
-                                          PopStructure = TRUE)
+                                          HazardRates = HazardRates, 
+                                          PopStructure = PopStructure)
+
+## Plot results from fixed design LTRE
+
+
 
