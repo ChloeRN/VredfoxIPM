@@ -171,8 +171,12 @@ runLTRE_randomDesign <- function(paramSamples, sensitivities, Amax, Tmax, Hazard
   
   
   ## Arrange results as dataframe
-  contData <- melt(dplyr::bind_rows(contList$cont, .id = "column_label"))
-  contData <- cbind(contData, stringr::str_split_fixed(contData$variable, "_", 2))
+  contData <- melt(dplyr::bind_rows(contList$cont, .id = "column_label")) 
+  contData <- contList$cont %>%
+    dplyr::bind_rows() %>%
+    tidyr::pivot_longer(cols = everything())
+  
+  contData <- cbind(contData, stringr::str_split_fixed(contData$name, "_", 2))
   colnames(contData) <- c("Variable", "Contribution", "Parameter", "AgeClass")
   
   contData$AgeClass[which(contData$AgeClass == "")] <- NA
@@ -194,13 +198,5 @@ runLTRE_randomDesign <- function(paramSamples, sensitivities, Amax, Tmax, Hazard
   saveRDS(results, file = "RedFoxIPM_LTREresults_randomDesign.rds")
   
   return(results)
-  
-  
-  #-----------------------------------#
-  # OPTIONAL: PLOT LTRE CONTRIBUTIONS #
-  #-----------------------------------#
-  
-  # TBA
-  
   
 }
