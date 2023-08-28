@@ -1,3 +1,16 @@
+#' Plots transient sensitivites and elasticities
+#'
+#' @param sensitivities a list of lists containing posterior samples for transient 
+#' sensitivities and elasticities for all vital rate parameters as well as
+#' population structure (n) and population sizes per age class (N). 
+#' @param Amax integer. Number of age classes. 
+#'
+#' @return a character vector of plot names. The plots themselves are saved
+#' as pdf's in the subfolder "Plots".
+#' @export
+#'
+#' @examples
+
 plotSensitivities <- function(sensitivities, Amax){
   
   

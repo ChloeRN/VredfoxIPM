@@ -1,5 +1,24 @@
-plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates, PopStructure){
+#' Plots results from a random design transient LTRE
+#'
+#' @param LTRE_results a list of lists containing results of a random design
+#' transient LTRE.
+#' @param Amax integer. Number of age classes. 
+#' @param HazardRates logical. If TRUE (default), plots results of an LTRE with 
+#' mortality hazard rates, else (FALSE) of an LTRE with survival probabilities. 
+#' @param PopStructure logical. If TRUE (default), plots results of an LTRE with 
+#' population proportions (n), else (FALSE) of an LTRE with age-specific population numbers (N).
+#'
+#' @return a character vector of plot names. The plots themselves are saved
+#' as pdf's in the subfolder "Plots".
+#' @export
+#'
+#' @examples
+
+plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStructure = TRUE){
   
+  #-------------#
+  # Format data #
+  #-------------#
   
   ## Select relevant part of data
   contData <- LTRE_results$contData

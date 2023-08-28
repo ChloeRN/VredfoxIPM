@@ -1,6 +1,30 @@
-runLTRE_randomDesign <- function(paramSamples, sensitivities, Amax, Tmax, HazardRates = FALSE, PopStructure = TRUE){
+#' Run random design transient life table response experiment (LTRE)
+#'
+#' @param paramSamples a list of lists containing posterior samples for all vital rates and
+#' population-level quantities. The sublist "t" contains time-specific parameters
+#' while the sublist "t_mean" contains time-average parameters. 
+#' @param sensitivities a list of lists containing posterior samples for transient 
+#' sensitivities and elasticities for all vital rate parameters as well as
+#' population structure (n) and population sizes per age class (N).
+#' @param Amax integer. Number of age classes. 
+#' @param Tmax integer. Number of years in analysis. 
+#' @param HazardRates logical. If TRUE (default), runs LTRE with respect to mortality 
+#' hazard rates. If FALSE, runs LTRE with respect to survival probabilities. 
+#' @param PopStructure logical. If TRUE (default), runs LTRE with respect to population 
+#' proportions (n). If FALSE, runs LTRE with respect to age-specific population numbers (N).
+#'
+#' @return a list of lists containing results of the LTRE analysis. Object 'contList' 
+#' collects posterior distributions for all parameters' LTRE contributions (sublist 'cont'),
+#' as well as some auxiliary quantities (variances, co-variances, sublist 'other') as lists.
+#' Object 'contData' is a dataframe consisting of posterior distributions for all parameters'
+#' LTRE contributions. Object 'contData_summary' contains posterior summaries (medians and 
+#' 95\% credible intervals) for the same information. 
+#' @export
+#'
+#' @examples
 
-  
+runLTRE_randomDesign <- function(paramSamples, sensitivities, Amax, Tmax, HazardRates = TRUE, PopStructure = TRUE){
+
   #-------#
   # SETUP #
   #-------#
