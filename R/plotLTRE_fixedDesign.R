@@ -85,7 +85,15 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
   #---------------------------------------------#
   
   ## Plot colors
-  plot.colors <- paletteer::paletteer_c("grDevices::Temps", length(unique(contData_sum$type)))
+  temp.colors <- paletteer::paletteer_c("grDevices::Temps", 6)
+  
+  if(HazardRates){
+    plot.colors <- c("#005F94FF", temp.colors)
+  }else{
+    plot.colors <- c("#047993FF", temp.colors[2:6])
+  }
+  
+  col.offset <- ifelse(HazardRates, 1, 0)
   
   
   ## Barplots for summed contributions
@@ -138,8 +146,6 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
   
   
   ## Stacked lineplots for age-specific parameters
-  
-  col.offset <- ifelse(HazardRates, 1, 0)
   
   if(!HazardRates){
 

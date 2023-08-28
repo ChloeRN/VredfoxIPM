@@ -391,6 +391,9 @@ fixedLTRE <- runLTRE_fixedDesign_allYears(paramSamples = paramSamples,
                                           PopStructure = PopStructure)
 
 ## Plot results from fixed design LTRE
-
-
+plotLTRE_fixedDesign(LTRE_results = fixedLTRE, 
+                     Amax = Amax, Tmax = Tmax, minYear = minYear, 
+                     HazardRates = HazardRates, 
+                     PopStructure = PopStructure)
+  
 

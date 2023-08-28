@@ -64,13 +64,21 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
   contData_sum$type <- factor(contData_sum$type, levels = typeList)
   
   
-  #---------------------------------#
-  # Plot sensitivities/elasticities #
-  #---------------------------------#
+  #-----------------------------------#
+  # Plot contributions - Violin plots #
+  #-----------------------------------#
   
   ## Plot colors
-  plot.colors <- paletteer::paletteer_c("grDevices::Temps", length(unique(contData_sum$type)))
-
+  temp.colors <- paletteer::paletteer_c("grDevices::Temps", 6)
+  
+  if(HazardRates){
+    plot.colors <- c("#005F94FF", temp.colors)
+  }else{
+    plot.colors <- c("#047993FF", temp.colors[2:6])
+  }
+  
+  col.offset <- ifelse(HazardRates, 1, 0)
+  
   ## Summed estimates for all parameters
   addline_format <- function(x,...){
     gsub('\\s','\n',x)
@@ -114,7 +122,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
     
     ## Natural mortality panel
     p.mO <- ggplot(subset(contData, Variable %in% paste0("mO_", 1:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
-      geom_violin(fill = plot.colors[1], color = plot.colors[1], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+      geom_violin(fill = plot.colors[2], color = plot.colors[2], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
       ylab("Contribution") + 
       xlab('') + 
@@ -127,7 +135,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
   
   ## Pregnancy rate panel
   p.Psi <- ggplot(subset(contData, Variable %in% paste0("Psi_", 2:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
-    geom_violin(fill = plot.colors[2], color = plot.colors[2], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+    geom_violin(fill = plot.colors[2+col.offset], color = plot.colors[2+col.offset], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
     geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
     ylab("Contribution") + 
     xlab('') + 
@@ -138,7 +146,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
   
   ## Fetus number panel
   p.rho <- ggplot(subset(contData, Variable %in% paste0("rho_", 2:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
-    geom_violin(fill = plot.colors[3], color = plot.colors[3], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+    geom_violin(fill = plot.colors[3+col.offset], color = plot.colors[3+col.offset], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
     geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
     ylab("Contribution") + 
     xlab('') + 
@@ -150,7 +158,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
   ## Population structure panel
   if(PopStructure){
     p.n <- ggplot(subset(contData, Variable %in% paste0("n_", 1:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
-      geom_violin(fill = plot.colors[6], color = plot.colors[6], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+      geom_violin(fill = plot.colors[length(plot.colors)], color = plot.colors[length(plot.colors)], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
       ylab("Contribution") + 
       xlab('') + 
@@ -160,7 +168,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
     p.n
   }else{
     p.n <- ggplot(subset(contData, Variable %in% paste0("N_", 1:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
-      geom_violin(fill = plot.colors[6], color = plot.colors[6], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+      geom_violin(fill = plot.colors[length(plot.colors)], color = plot.colors[length(plot.colors)], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
       ylab("Contribution") + 
       xlab('') + 
@@ -172,7 +180,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
 
   
   ## Combine panels and save to pdf
-  pdf(paste0("Plots/RedFoxIPM_", ifelse(HazardRates, "MHR", "SP"), "_sum.pdf"), width = 10, height = 6)
+  pdf(paste0("Plots/RedFoxIPM_randomLTRE_", ifelse(HazardRates, "MHR", "SP"), "_sum.pdf"), width = 10, height = 6)
   print(
     p.sum
   )

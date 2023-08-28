@@ -78,9 +78,9 @@ plotSensitivities <- function(sensitivities, Amax){
     #---------------------------------#
     
     ## Plot colors
-    plot.colors <- paletteer::paletteer_c("grDevices::Temps", length(unique(sum.data$type)) - 3)
-    plot.colors2 <- c(rep(plot.colors[1], 3), plot.colors[2:3], rep(plot.colors[4], 2), plot.colors[5:length(plot.colors)])
-    
+    temp.colors <- paletteer::paletteer_c("grDevices::Temps", length(unique(sum.data$type))-3)
+    plot.colors <- c("#047993FF", "#005F94FF", temp.colors[1:3], rep(temp.colors[4], 2), temp.colors[5:6])
+
     ## Summed estimates for all parameters
     addline_format <- function(x,...){
       gsub('\\s','\n',x)
@@ -91,16 +91,15 @@ plotSensitivities <- function(sensitivities, Amax){
       geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
       ylab(ifelse(i == 1, "Sensitivity", "Elasticity")) + 
       xlab('') + 
-      scale_fill_manual(values = plot.colors2) + 
-      scale_color_manual(values = plot.colors2) + 
+      scale_fill_manual(values = plot.colors) + 
+      scale_color_manual(values = plot.colors) + 
       scale_x_discrete(labels = addline_format(c("Annual survival", "Harvest mortality", "Natural mortality",
                                                  "Pregnancy rate", "Fetus number",
                                                  "Denning survival", "Denning mortality",
                                                  "Immigration rate", "Population structure"))) + 
       theme_bw() + 
       theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
-    
-    p.sum
+
     
     ## Survival panel
     p.S <- ggplot(subset(age.data, Parameter %in% paste0("S_", 1:Amax)), aes(x = Parameter, y = Estimate, group = Parameter)) + 
@@ -114,47 +113,44 @@ plotSensitivities <- function(sensitivities, Amax){
     
     ## Harvest mortality panel
     p.mH <- ggplot(subset(age.data, Parameter %in% paste0("mH_", 1:Amax)), aes(x = Parameter, y = Estimate, group = Parameter)) + 
-      geom_violin(fill = plot.colors[1], color = plot.colors[1], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+      geom_violin(fill = plot.colors[2], color = plot.colors[2], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       ylab(ifelse(i == 1, "Sensitivity", "Elasticity")) + 
       xlab('') + 
       scale_x_discrete(labels = expression(m[1]^H, m[2]^H, m[3]^H, m[4]^H, m[5]^H)) + 
       theme_bw() + 
       theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
-    p.mH
     
     ## Natural mortality panel
     p.mO <- ggplot(subset(age.data, Parameter %in% paste0("mO_", 1:Amax)), aes(x = Parameter, y = Estimate, group = Parameter)) + 
-      geom_violin(fill = plot.colors[1], color = plot.colors[1], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+      geom_violin(fill = plot.colors[3], color = plot.colors[3], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       ylab(ifelse(i == 1, "Sensitivity", "Elasticity")) + 
       xlab('') + 
       scale_x_discrete(labels = expression(m[1]^O, m[2]^O, m[3]^O, m[4]^O, m[5]^O)) + 
       theme_bw() + 
       theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
-    p.mO
     
     ## Pregnancy rate panel
     p.Psi <- ggplot(subset(age.data, Parameter %in% paste0("Psi_", 1:Amax)), aes(x = Parameter, y = Estimate, group = Parameter)) + 
-      geom_violin(fill = plot.colors[2], color = plot.colors[2], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+      geom_violin(fill = plot.colors[4], color = plot.colors[4], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       ylab(ifelse(i == 1, "Sensitivity", "Elasticity")) + 
       xlab('') + 
       scale_x_discrete(labels = expression(Psi[2], Psi[3], Psi[4], Psi[5])) + 
       theme_bw() + 
       theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
-    p.Psi
     
     ## Fetus number panel
     p.rho <- ggplot(subset(age.data, Parameter %in% paste0("rho_", 1:Amax)), aes(x = Parameter, y = Estimate, group = Parameter)) + 
-      geom_violin(fill = plot.colors[3], color = plot.colors[3], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+      geom_violin(fill = plot.colors[5], color = plot.colors[5], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       ylab(ifelse(i == 1, "Sensitivity", "Elasticity")) + 
       xlab('') + 
       scale_x_discrete(labels = expression(rho[2], rho[3], rho[4], rho[5])) + 
       theme_bw() + 
       theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
-    p.rho
+    
     
     ## Population structure panel
     p.n <- ggplot(subset(age.data, Parameter %in% paste0("n_", 1:Amax)), aes(x = Parameter, y = Estimate, group = Parameter)) + 
-      geom_violin(fill = plot.colors[6], color = plot.colors[6], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+      geom_violin(fill = plot.colors[length(plot.colors)], color = plot.colors[length(plot.colors)], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       ylab(ifelse(i == 1, "Sensitivity", "Elasticity")) + 
       xlab('') + 
       scale_x_discrete(labels = expression(n[1], n[2], n[3], n[4], n[5])) + 
