@@ -349,12 +349,23 @@ compareModels(Amax = Amax,
               plotFolder = "Plots/CompFinal_GenDataLik_noExtraCovs")
 
 
+###########################################
+# 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
+###########################################
+
+IPM.out <- readRDS("RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+
+
+## Plot basic IPM outputs (vital rate & population size estimates)
+plotIPM_basicOutputs(MCMC.samples = IPM.out,
+                     nim.data = input.data$nim.data,
+                     Amax = Amax, Tmax = Tmax, minYear = minYear)
+
 ########################
-# 6) POST-HOC ANALYSES #
+# 7) POST-HOC ANALYSES #
 ########################
 
 ## Extract parameter samples
-IPM.out <- readRDS("RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
 paramSamples <- extractParamSamples(MCMC.samples = IPM.out,
                                     Amax = Amax, Tmax = Tmax)
 
