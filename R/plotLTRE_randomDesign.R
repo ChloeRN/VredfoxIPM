@@ -180,19 +180,24 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
   
   if(HazardRates){
     
-    pdf(paste0("Plots/RedFoxIPM_", ifelse(HazardRates, "MHR", "SP"), "_age.pdf"), width = 7, height = 8)
+    pdf(paste0("Plots/RedFoxIPM_randomLTRE_", ifelse(HazardRates, "MHR", "SP"), "_age.pdf"), width = 7, height = 8)
     print(
       (p.mH + labs(tag = 'a)') | p.mO + labs(tag = 'b)')) / (p.Psi + labs(tag = 'c)')| p.rho + labs(tag = 'd)')) / (p.n  + labs(tag = 'e)') | plot_spacer())
     )
     dev.off()
   
   }else{
-    pdf(paste0("Plots/RedFoxIPM_", ifelse(HazardRates, "MHR", "SP"), "_age.pdf"), width = 7, height = 6)
+    pdf(paste0("Plots/RedFoxIPM_randomLTRE_", ifelse(HazardRates, "MHR", "SP"), "_age.pdf"), width = 7, height = 6)
     print(
       (p.S + labs(tag = 'a)')| p.Psi + labs(tag = 'b)')) / (p.rho  + labs(tag = 'c)')| p.n + labs(tag = 'd)'))
     )
     dev.off()
   }
   
+  ## Return list of plots
+  plotList <- c(paste0("Plots/RedFoxIPM_randomLTRE_", ifelse(HazardRates, "MHR", "SP"), "_sum.pdf"),
+                paste0("Plots/RedFoxIPM_randomLTRE_", ifelse(HazardRates, "MHR", "SP"), "_age.pdf"))
+  
+  return(plotList)
 
 }

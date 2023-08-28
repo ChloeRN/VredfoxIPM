@@ -391,6 +391,14 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     dev.off()
   }
   
+  ## Return list of plots
+  plotList <- c(paste0("Plots/RedFoxIPM_fixedLTRE_", ifelse(HazardRates, "MHR", "SP"), "_Bars.pdf"),
+                paste0("Plots/RedFoxIPM_fixedLTRE_", ifelse(HazardRates, "MHR", "SP"), "_ScaledBars.pdf"),
+                paste0("Plots/RedFoxIPM_fixedLTRE_", ifelse(HazardRates, "MHR", "SP"), "_StackedLines.pdf"),
+                paste0("Plots/RedFoxIPM_fixedLTRE_", ifelse(HazardRates, "MHR", "SP"), "_StackedLines_Groups.pdf"),
+                paste0("Plots/RedFoxIPM_fixedLTRE_", ifelse(HazardRates, "MHR", "SP"), "_Ribbon.pdf"),
+                paste0("Plots/RedFoxIPM_fixedLTRE_", ifelse(HazardRates, "MHR", "SP"), "_Ribbon_Groups.pdf"))
   
+  return(plotList)
   
 }
