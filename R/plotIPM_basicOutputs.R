@@ -86,7 +86,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
     dplyr::ungroup()
   
   ## Define plot colors
-  plot.colors.param <- c("#047993FF", "#005F94FF", paletteer::paletteer_c("grDevices::Temps", length(unique(sum.data$type))-3))
+  plot.colors.param <- c("#047993FF", "#005F94FF", paletteer::paletteer_c("grDevices::Temps", 6))
   plot.colors.age <- paletteer::paletteer_dynamic("cartography::harmo.pal", Amax)
   
   
@@ -235,7 +235,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
   
   VR.labs <- c("Annual survival", "Harvest mortality", "Natural mortality", "Pregnancy rate (1 year old)", "Fetus number (1 year old)", "Immigration rate")
   names(VR.labs) <- c("S", "mH", "mO", "Psi", "rho", "immR")
-  VR.cols <- plot.colors[-6]
+  VR.cols <- plot.colors.param[c(1:5, 7)]
   
   p.VRs_time <- results.sum.VR %>%
     ggplot(aes(x = Year, group = ParamName)) + 
