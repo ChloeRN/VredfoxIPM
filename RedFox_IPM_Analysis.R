@@ -361,6 +361,13 @@ plotIPM_basicOutputs(MCMC.samples = IPM.out,
                      nim.data = input.data$nim.data,
                      Amax = Amax, Tmax = Tmax, minYear = minYear)
 
+## Plot covariate relationships
+plotIPM_covariateEffect(MCMC.samples = IPM.out,
+                        rCov.idx = rCov.idx,
+                        rodentMIN = -1.75, rodentMAX = 4,
+                        reindeerMIN = -1.5, reindeerMAX = 1.5,
+                        repAgeClass = 1) 
+
 ########################
 # 7) POST-HOC ANALYSES #
 ########################
