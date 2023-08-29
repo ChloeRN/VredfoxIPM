@@ -1,3 +1,25 @@
+#' Plot vital rates as functions of fitted covariates
+#'
+#' @param MCMC.samples an mcmc.list containing the output of the fitted IPM. 
+#' @param rCov.idx logical. If TRUE, stops function execution as this function 
+#' has been written for the case of continuous covariates (rCov.idx = FALSE).
+#' @param rodentMIN numeric. Minimum value of z-standardized rodent covariate to 
+#' use for predictions. 
+#' @param rodentMAX numeric. Maximum value of z-standardized rodent covariate to 
+#' use for predictions. 
+#' @param reindeerMIN numeric. Minimum value of z-standardized reindeer covariate to 
+#' use for predictions. 
+#' @param reindeerMAX numeric. Maximum value of z-standardized reindeer covariate to 
+#' use for predictions. 
+#' @param AgeClass integer. Age class for which to make predictions. Implemented
+#' as "years of age" (range 0-4), not as model age index (range 1-5). 
+#'
+#' @return character vector of plot names. The plots themselves are saved
+#' as pdf's in the subfolder "Plots".
+#' @export
+#'
+#' @examples
+
 plotIPM_covariateEffects <- function(MCMC.samples, rCov.idx, rodentMIN, rodentMAX, reindeerMIN, reindeerMAX, AgeClass){
   
   ## Check if continuous rodent covariates have been used (categorical not supported yet)
@@ -160,4 +182,10 @@ plotIPM_covariateEffects <- function(MCMC.samples, rCov.idx, rodentMIN, rodentMA
   print(p.mO.R / p.mO.Rd)
   dev.off()
   
+  
+  ## Return list of plots
+  plotList <- c("Plots/RedfoxIPM_rodentEff_Psi&rho&immR.pdf",
+                "Plots/RedfoxIPM_covEff_mO.pdf")
+  
+  return(plotList)
 } 
