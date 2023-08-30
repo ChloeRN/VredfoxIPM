@@ -16,6 +16,9 @@
 
 plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStructure = TRUE){
   
+  ## Create plot folder if not present
+  if(!dir.exists("Plots")){dir.create("Plots")}
+  
   #-------------#
   # Format data #
   #-------------#

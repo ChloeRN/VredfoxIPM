@@ -18,6 +18,9 @@
 
 plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates, PopStructure){
   
+  ## Create plot folder if not present
+  if(!dir.exists("Plots")){dir.create("Plots")}
+  
   #-------------#
   # Format data #
   #-------------#
