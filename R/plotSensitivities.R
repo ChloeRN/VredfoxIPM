@@ -13,6 +13,8 @@
 
 plotSensitivities <- function(sensitivities, Amax){
   
+  ## Create plot folder if not present
+  if(!dir.exists("Plots")){dir.create("Plots")}
   
   for(i in 1:2){
     

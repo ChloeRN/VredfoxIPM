@@ -27,6 +27,8 @@ plotIPM_covariateEffects <- function(MCMC.samples, rCov.idx, rodentMIN, rodentMA
     stop("Plotting of covariate effect relationships not (yet) supported for models fit with categorical covariates.")
   }
   
+  ## Create plot folder if not present
+  if(!dir.exists("Plots")){dir.create("Plots")}
   
   #-----------------------------------#
   # Make rodent covariate predictions #
