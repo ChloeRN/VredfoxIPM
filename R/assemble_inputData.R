@@ -92,12 +92,16 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
   Reindeer <- reindeer.data$RDcarcass
 
   ## Add simulation years to covariates
-  RodentAbundance <- c(RodentAbundance, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance))))
-  RodentAbundance2 <- c(RodentAbundance2, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance2))))
-  RodentIndex <- c(RodentIndex, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex))))
-  RodentIndex2 <- c(RodentIndex2, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex2))))
-  Reindeer <- c(Reindeer, rep(NA, (Tmax+Tmax_sim+1-length(Reindeer))))
-  HarvestEffort <- c(hunter.data$NHunters_std, rep(NA, (Tmax+Tmax_sim-length(hunter.data$NHunters_std))))
+  if(Tmax_sim > 0){
+    RodentAbundance <- c(RodentAbundance, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance))))
+    RodentAbundance2 <- c(RodentAbundance2, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance2))))
+    RodentIndex <- c(RodentIndex, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex))))
+    RodentIndex2 <- c(RodentIndex2, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex2))))
+    Reindeer <- c(Reindeer, rep(NA, (Tmax+Tmax_sim+1-length(Reindeer))))
+    HarvestEffort <- c(hunter.data$NHunters_std, rep(NA, (Tmax+Tmax_sim-length(hunter.data$NHunters_std))))
+  }else{
+    HarvestEffort <- hunter.data$NHunters_std
+  }
   
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
