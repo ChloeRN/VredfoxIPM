@@ -285,7 +285,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_mHhigh_poolGenData_NSwedenPrior.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -347,6 +347,18 @@ compareModels(Amax = Amax,
                               "ind. likelihood (rescaled), pooled data",
                               "ind. likelihood (rescaled), yearly data"), 
               plotFolder = "Plots/CompFinal_GenDataLik_noExtraCovs")
+
+
+## Ripple effects of increasing mH
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
+                                 "RedFoxIPM_mHhigh_poolGenData_NSwedenPrior.rds"), 
+              model.names = c("'Free' Mu.mH", 
+                              "Increased Mu.mH"), 
+              plotFolder = "Plots/Comp_forceIncrease_mH")
+
 
 
 ###########################################

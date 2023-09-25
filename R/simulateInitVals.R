@@ -85,7 +85,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   #---------------------------------------------------#
   
   ## Harvest and natural mortality
-  Mu.mH <- runif(Amax, 0.05, 0.2)
+  Mu.mH <- runif(Amax, 0.3, 0.34)
   
   if(HoeningPrior){
     

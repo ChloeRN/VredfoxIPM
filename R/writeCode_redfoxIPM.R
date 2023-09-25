@@ -245,7 +245,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       # Age-dependent
       for(a in 1:Amax){
-        Mu.mH[a] ~ dunif(0, 5) 
+        Mu.mH[a] ~ dunif(0.3, 5) 
       }
       
       # Age-independent   
@@ -729,7 +729,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       # Age-dependent
       for(a in 1:Amax){
-        Mu.mH[a] ~ dunif(0, 5) 
+        Mu.mH[a] ~ dunif(0.3, 5) 
       }
       
       # Age-independent   
