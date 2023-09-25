@@ -2,6 +2,8 @@
 #'
 #' @param Amax integer. Number of age classes to consider in analyses.
 #' @param Tmax integer. The number of years to consider in analyses.
+#' @param Tmax_sim integer. The number of years to consider for simulations 
+#' beyond the data collection period. 
 #' @param minYear integer. First year to consider in analyses.
 #' @param maxPups integer. Upper prior bound for average litter size.
 #' @param uLim.N integer. Upper prior bound for initial number of individuals per age class.
@@ -38,7 +40,7 @@
 #'
 #' @examples
 
-assemble_inputData <- function(Amax, Tmax, minYear,
+assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
                                maxPups, uLim.N, uLim.Imm, 
                                nLevels.rCov = NA, standSpec.rCov,
                                poolYrs.genData, pImm.type,
@@ -89,6 +91,14 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   ## Select relevant reindeer covariates
   Reindeer <- reindeer.data$RDcarcass
 
+  ## Add simulation years to covariates
+  RodentAbundance <- c(RodentAbundance, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance))))
+  RodentAbundance2 <- c(RodentAbundance2, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance2))))
+  RodentIndex <- c(RodentIndex, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex))))
+  RodentIndex2 <- c(RodentIndex2, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex2))))
+  Reindeer <- c(Reindeer, rep(NA, (Tmax+Tmax_sim+1-length(Reindeer))))
+  HarvestEffort <- c(hunter.data$NHunters_std, rep(NA, (Tmax+Tmax_sim-length(hunter.data$NHunters_std))))
+  
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
   nim.data <- list(
@@ -99,7 +109,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     P2 = P2$P2,
     
-    HarvestEffort = hunter.data$NHunters_std,
+    HarvestEffort = HarvestEffort,
     RodentAbundance = RodentAbundance,
     RodentAbundance2 = RodentAbundance2,
     RodentIndex = RodentIndex,
@@ -111,6 +121,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   nim.constants <- list(
     Amax = Amax,
     Tmax = Tmax,
+    Tmax_sim = Tmax_sim,
     minYear = minYear,
     
     maxPups = maxPups,

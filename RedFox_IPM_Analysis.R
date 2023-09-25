@@ -19,6 +19,7 @@ mySeed <- 0
 ## Set general parameters
 Amax <- 5 # Number of age classes
 Tmax <- 18  # Number of years
+Tmax_sim <- 0
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9) #removal of summer months: numerical months to be removed from age at harvest data
@@ -225,6 +226,7 @@ redfox.code <- writeCode_redfoxIPM(indLikelihood.genData = indLikelihood.genData
 
 input.data <- assemble_inputData(Amax = Amax, 
                                  Tmax = Tmax, 
+                                 Tmax_sim = Tmax_sim,
                                  minYear = minYear,
                                  maxPups = 14,
                                  uLim.N = 800,
@@ -261,7 +263,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          testRun = FALSE,
+                          testRun = TRUE,
                           initVals.seed = mySeed
                           )
 

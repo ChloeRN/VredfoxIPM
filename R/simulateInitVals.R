@@ -40,7 +40,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
                              mO.varT, HoeningPrior, imm.asRate){
   
   Amax <- nim.constants$Amax
-  Tmax <- nim.constants$Tmax
+  Tmax <- nim.constants$Tmax + nim.constants$Tmax_sim
   
   #-------------------------------------------------#
   # Set initial values for missing covariate values #
@@ -66,12 +66,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   ## Rodent abundance (categorical)
   RodentIndex <- nim.data$RodentIndex
   if(NA %in% RodentIndex){
-    RodentIndex[which(is.na(RodentIndex))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex))))
+    RodentIndex[which(is.na(RodentIndex))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex))), replace = TRUE)
   }
   
   RodentIndex2 <- nim.data$RodentIndex2
   if(NA %in% RodentIndex2){
-    RodentIndex2[which(is.na(RodentIndex2))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex2))))
+    RodentIndex2[which(is.na(RodentIndex2))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex2))), replace = TRUE)
   }
   
   ## Reindeer carcass abundance
@@ -310,7 +310,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # d) Check for years with more harvests than alive individuals
   #-------------------------------------------------------------
   
-  if(any(nim.data$C > N[, 1:Tmax])){
+  if(any(nim.data$C > N[, 1:nim.constants$Tmax])){
     stop('Simulation resulted in less alive than harvested. Retry.')
   }
   
