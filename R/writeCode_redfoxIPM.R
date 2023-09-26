@@ -516,14 +516,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }else{
         
         for(t in 1:(Tmax+Tmax_sim+1)){
-          RodentAbundance[t] ~ dnorm(0, sd = 1)
-          RodentAbundance2[t] ~ dnorm(0, sd = 1)
+          RodentAbundance[t] ~ dnorm(0 + (1-pertFac.rodent[t]), sd = 1)
+          RodentAbundance2[t] ~ dnorm(0 + (1-pertFac.rodent[t]), sd = 1)
         }
       }
       
       ## Missing covariate values in reindeer information
       for(t in 1:(Tmax+Tmax_sim+1)){
-        Reindeer[t] ~ dnorm(0, sd = 1)
+        Reindeer[t] ~ dnorm(0 + (1-pertFac.reindeer[t]), sd = 1)
       }
       
     })
@@ -1010,8 +1010,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }else{
         
         for(t in 1:(Tmax+Tmax_sim+1)){
-          RodentAbundance[t] ~ dnorm(0, sd = 1)
-          RodentAbundance2[t] ~ dnorm(0, sd = 1)
+          RodentAbundance[t] ~ dnorm(0 + (1-pertFac.rodent[t]), sd = 1)
+          RodentAbundance2[t] ~ dnorm(0 + (1-pertFac.rodent[t]), sd = 1)
         }
         
         if(imm.asRate & fitCov.immR & !poolYrs.genData){
@@ -1024,7 +1024,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ## Missing covariate values in reindeer information
       if(fitCov.mO){
         for(t in 1:(Tmax+Tmax_sim+1)){
-          Reindeer[t] ~ dnorm(0, sd = 1)
+          Reindeer[t] ~ dnorm(0 + (1-pertFac.reindeer[t]), sd = 1)
         }
       }
 

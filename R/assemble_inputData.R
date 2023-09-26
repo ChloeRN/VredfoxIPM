@@ -128,7 +128,9 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
     pertFac.mH = perturbVecs$pertFac.mH,
     pertFac.mO = perturbVecs$pertFac.mO,
     pertFac.S0 = perturbVecs$pertFac.S0,
-    pertFac.immR = perturbVecs$pertFac.immR
+    pertFac.immR = perturbVecs$pertFac.immR,
+    pertFac.rodent = perturbVecs$pertFac.rodent,
+    pertFac.reindeer = perturbVecs$pertFac.reindeer
   )
   
   # Constants

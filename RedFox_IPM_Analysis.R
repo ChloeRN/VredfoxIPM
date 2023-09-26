@@ -96,17 +96,23 @@ pert.mH <- TRUE
 pert.mO <- FALSE
 pert.S0 <- FALSE
 pert.immR <- FALSE
+pert.rodent <- FALSE
+pert.reindeer <- TRUE
 
 factor.mH <- 1.2
 factor.mO <- 1
 factor.S0 <- 1
 factor.immR <- 1
+factor.rodent <- 1
+factor.reindeer <- 0.8
 
 perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.mH = pert.mH, factor.mH = factor.mH,
                                     pert.mO = pert.mO, factor.mO = factor.mO,
                                     pert.S0 = pert.S0, factor.S0 = factor.S0,
-                                    pert.immR = pert.immR, factor.immR = factor.immR)
+                                    pert.immR = pert.immR, factor.immR = factor.immR,
+                                    pert.rodent = pert.rodent, factor.rodent = factor.rodent,
+                                    pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
 
 
 #*********************#
