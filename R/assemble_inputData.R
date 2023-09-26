@@ -32,6 +32,10 @@
 #' for early survival, age-specific annual survival, and juvenile/adult natural
 #' mortality hazard rate.
 #' @param survPriorType a list containing information on prior for annual survival.
+#' @param perturbVecs. a list of perturbation vectors for vital rates, each 
+#' with a length of Tmax+Tmax_sim or Tmax+Tmax_sim+1 and made up of positive 
+#' numerics. The perturbation vectors have to be named pertFac.[X], where [X] =
+#' mH, mO, S0, and immR. Output of function setupPerturbVecs. 
 #' @param save logical. If TRUE, saves assembled data as an .rds file in the 
 #' working directory. Default = FALSE. 
 #'
@@ -47,6 +51,7 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
                                wAaH.data, rep.data, gen.data,
                                rodent.data, reindeer.data, hunter.data, 
                                surv.priors, survPriorType,
+                               perturbVecs,
                                save = FALSE){
   
   ## Select relevant years from observational data
@@ -118,7 +123,12 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
     RodentAbundance2 = RodentAbundance2,
     RodentIndex = RodentIndex,
     RodentIndex2 = RodentIndex2,
-    Reindeer = Reindeer
+    Reindeer = Reindeer,
+    
+    pertFac.mH = perturbVecs$pertFac.mH,
+    pertFac.mO = perturbVecs$pertFac.mO,
+    pertFac.S0 = perturbVecs$pertFac.S0,
+    pertFac.immR = perturbVecs$pertFac.immR
   )
   
   # Constants

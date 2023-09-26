@@ -218,16 +218,16 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Harvest mortality hazard rate
         if(fitCov.mH){
-          log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
+          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t])*pertFac.mH[t]
         }else{
-          log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + epsilon.mH[t]
+          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + epsilon.mH[t])*pertFac.mH[t]
         }
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t] + epsilon.mO[t]
+          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t] + epsilon.mO[t])*pertFac.mO[t]
         }else{
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
+          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + epsilon.mO[t])*pertFac.mO[t]
         }
         
         # Survival probability
@@ -364,7 +364,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE
       
       for(t in 1:(Tmax+Tmax_sim+1)){ 
-        S0[t] <- Mu.S0
+        S0[t] <- Mu.S0*pertFac.S0
         #S0[t] <- exp(-m0[t])
         #log(m0[t]) <- log(-log(Mu.S0)) + epsilon.m0[t]
       }
@@ -386,7 +386,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           
           ## Projection of immigration rates beyond genetic data coverage
           for(t in (Tmax_Gen+1):(Tmax+Tmax_sim+1)){
-            immR[t] ~ dlnorm(meanlog = log(Mu.immR), sdlog = sigma.immR)
+            immR[t] <- exp(log(Mu.immR) + epsilon.immR[t])*pertFac.immR[t]
           }
           
         }else{
@@ -394,13 +394,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           if(fitCov.immR){
             if(rCov.idx){
               for(t in 1:(Tmax+Tmax_sim+1)){
-                log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
+                immR[t] <- lexp(og(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t])*pertFac.immR[t]
               }
             }else{
-              log(immR[1:(Tmax+Tmax_sim+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)]
+              immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
             }
           }else{
-            log(immR[1:(Tmax+Tmax_sim+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)]
+            immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
           }
         }
         
@@ -482,7 +482,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         sigma.mO <- 0
       }
       
-      if(imm.asRate & poolYrs.genData){
+      if(imm.asRate){
         for(t in 1:(Tmax+Tmax_sim+1)){
           epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
         }
@@ -702,16 +702,16 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Harvest mortality hazard rate
         if(fitCov.mH){
-          log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
+          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t])*pertFac.mH[t]
         }else{
-          log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + epsilon.mH[t]
+          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + epsilon.mH[t])*pertFac.mH[t]
         }
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t] + epsilon.mO[t]
+          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t] + epsilon.mO[t])*pertFac.mO[t]
         }else{
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
+          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + epsilon.mO[t])*pertFac.mO[t]
         }
         
         # Survival probability
@@ -848,7 +848,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE
       
       for(t in 1:(Tmax+Tmax_sim+1)){ 
-        S0[t] <- Mu.S0
+        S0[t] <- Mu.S0*pertFac.S0[t]
         #S0[t] <- exp(-m0[t])
         #log(m0[t]) <- log(-log(Mu.S0)) + epsilon.m0[t]
       }
@@ -864,13 +864,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         if(fitCov.immR){
           if(rCov.idx){
             for(t in 1:(Tmax+Tmax_sim+1)){
-              log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
+              immR[t] <- exp(log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t])*pertFac.immR[t]
             }
           }else{
-            log(immR[1:(Tmax+Tmax_sim+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)]
+            immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
           }
         }else{
-          log(immR[1:(Tmax+Tmax_sim+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)]
+          immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
         }
         
   

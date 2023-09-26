@@ -19,7 +19,7 @@ mySeed <- 0
 ## Set general parameters
 Amax <- 5 # Number of age classes
 Tmax <- 18  # Number of years
-Tmax_sim <- 0
+Tmax_sim <- 10
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9) #removal of summer months: numerical months to be removed from age at harvest data
@@ -89,6 +89,24 @@ threshold <- 0.2
 #pImm.type <- "original"
 pImm.type <- "rescaled"
 #pImm.type <- "LL-based"
+
+
+## Set up perturbation parameters for running scenarios
+pert.mH <- TRUE
+pert.mO <- FALSE
+pert.S0 <- FALSE
+pert.immR <- FALSE
+
+factor.mH <- 1.2
+factor.mO <- 1
+factor.S0 <- 1
+factor.immR <- 1
+
+perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
+                                    pert.mH = pert.mH, factor.mH = factor.mH,
+                                    pert.mO = pert.mO, factor.mO = factor.mO,
+                                    pert.S0 = pert.S0, factor.S0 = factor.S0,
+                                    pert.immR = pert.immR, factor.immR = factor.immR)
 
 
 #*********************#
@@ -242,7 +260,8 @@ input.data <- assemble_inputData(Amax = Amax,
                                  reindeer.data = reindeer.data,
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,
-                                 survPriorType = survPriorType)
+                                 survPriorType = survPriorType,
+                                 perturbVecs = perturbVecs)
 
 
 # 3c) Set up for model run (incl. simulating initial values) #
