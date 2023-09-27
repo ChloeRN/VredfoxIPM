@@ -97,14 +97,14 @@ pert.mO <- FALSE
 pert.S0 <- FALSE
 pert.immR <- FALSE
 pert.rodent <- FALSE
-pert.reindeer <- TRUE
+pert.reindeer <- FALSE
 
-factor.mH <- 1.2
+factor.mH <- 0
 factor.mO <- 1
 factor.S0 <- 1
 factor.immR <- 1
 factor.rodent <- 1
-factor.reindeer <- 0.8
+factor.reindeer <- 1
 
 perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.mH = pert.mH, factor.mH = factor.mH,
@@ -288,7 +288,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          testRun = TRUE,
+                          testRun = FALSE,
                           initVals.seed = mySeed
                           )
 
@@ -312,7 +312,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -320,73 +320,30 @@ saveRDS(IPM.out, file = "RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
 # 5) MODEL COMPARISONS #
 ########################
 
-## Survival priors
 compareModels(Amax = Amax, 
-              Tmax = Tmax, 
+              Tmax = Tmax+Tmax_sim, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds", 
-                                 "RedFoxIPM_final_poolGenData_BristolPrior.rds",
-                                 "RedFoxIPM_final_poolGenData_MetaAllPrior.rds",
-                                 "RedFoxIPM_final_poolGenData_HoeningPrior.rds"), 
-              model.names = c("North Sweden", 
-                              "Bristol",
-                              "Literature meta-analysis",
-                              "Hoening Model"), 
-              plotFolder = "Plots/CompFinal_SurvPriors")
+              logN = TRUE,
+              post.filepaths = c("RedFoxIPM_final_simTest.rds", 
+                                 "RedFoxIPM_sim_noHarvest.rds"), 
+              model.names = c("Baseline projection", 
+                              "No harvest scenario"), 
+              plotFolder = "Plots/CompTest_PVA")
 
-
-## Rodent covariate type
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds", 
-                                 "RedFoxIPM_final_poolGenData_NSwedenPrior_noWeightRodentCov.rds"), 
-              model.names = c("species weights", 
-                              "no weights"), 
-              plotFolder = "Plots/CompFinal_RodentCovType")
-
-
-## Immigration models
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_ImmNum_NSwedenPrior.rds", # Re-run
-                                 "RedFoxIPM_final_noGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_final_yearGenData_NSwedenPrior.rds"), 
-              model.names = c("Imm. numbers", 
-                              "Imm. rate, naive",
-                              "Imm. rate, pooled gen. data",
-                              "Imm. rate, yearly gen. data"), 
-              plotFolder = "Plots/CompFinal_ImmModels")
-
-
-## Genetic data likelihoods (no additional covariates)
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("immTests_immR_poolData_sumL02.rds",
-                                 "immTests_immR_yearData_sumL02.rds",
-                                 "immTests_immR_poolData_indL_rescaled.rds",
-                                 "immTests_immR_yearData_indL_rescaled.rds"), 
-              model.names = c("sum. likelihood (0.2), pooled data", 
-                              "sum. likelihood (0.2), yearly data",
-                              "ind. likelihood (rescaled), pooled data",
-                              "ind. likelihood (rescaled), yearly data"), 
-              plotFolder = "Plots/CompFinal_GenDataLik_noExtraCovs")
 
 
 ###########################################
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
 ###########################################
 
-IPM.out <- readRDS("RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+IPM.out <- readRDS("RedFoxIPM_sim_noHarvest.rds")
 
 
 ## Plot basic IPM outputs (vital rate & population size estimates)
 plotIPM_basicOutputs(MCMC.samples = IPM.out,
                      nim.data = input.data$nim.data,
-                     Amax = Amax, Tmax = Tmax, minYear = minYear)
+                     Amax = Amax, Tmax = Tmax+Tmax_sim, minYear = minYear,
+                     logN = TRUE)
 
 ## Plot covariate relationships
 plotIPM_covariateEffects(MCMC.samples = IPM.out,
