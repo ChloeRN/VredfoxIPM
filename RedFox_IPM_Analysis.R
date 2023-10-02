@@ -89,6 +89,9 @@ threshold <- 0.2
 pImm.type <- "rescaled"
 #pImm.type <- "LL-based"
 
+## Changes to denning survival prior
+S0.mean.offset <- 0
+S0.sd.factor <- 2
 
 #*********************#
 # 1) DATA PREPARATION #
@@ -204,7 +207,9 @@ surv.priors <- collate_priorInfo(meta.datafile = meta.datafile,
                                  hoening.datafile = hoening.datafile, 
                                  nsim = nsim, 
                                  mu.t.max = mu.t.max, 
-                                 maxAge = maxAge_yrs)
+                                 maxAge = maxAge_yrs,
+                                 S0.mean.offset = S0.mean.offset,
+                                 S0.sd.factor = S0.sd.factor)
 
 ## Define type of prior to use for annual survival
 survPriorType <- definePriorType_AnnSurv(HoeningPrior = HoeningPrior, 
@@ -285,7 +290,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_S0priorSens_doubleSD.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 

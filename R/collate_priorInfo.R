@@ -9,7 +9,11 @@
 #' @param mu.t.max  numeric. Offset parameter for maximum age in the Hoening 
 #' model (= 22.61062). Provided by Tom Porteus. 
 #' @param maxAge integer. Maximum recorded age of harvested foxes. 
-#' @param nsim integer. Number of simulation replicates for each posterior sample. 
+#' @param nsim integer. Number of simulation replicates for each posterior sample.
+#' @param S0.mean.offset numeric. Absolute change in average denning survival 
+#' relative to estimate from arctic fox model. 
+#' @param S0.sd.factor numeric.  Relative change in standard deviation of 
+#' denning survival relative to estimate from arctic fox model. 
 #'
 #' @return a list of lists containing parameters to define informative priors
 #' for early survival, age-specific annual survival, and juvenile/adult natural
@@ -18,7 +22,7 @@
 #'
 #' @examples
 
-collate_priorInfo <- function(meta.datafile, simulateSD = TRUE, hoening.datafile, mu.t.max, maxAge, nsim){
+collate_priorInfo <- function(meta.datafile, simulateSD = TRUE, hoening.datafile, mu.t.max, maxAge, nsim, S0.mean.offset, S0.sd.factor){
   
   
   ## Simulate / load prior distribution parameters from Hoening model
@@ -37,8 +41,8 @@ collate_priorInfo <- function(meta.datafile, simulateSD = TRUE, hoening.datafile
     
     # Early survival (denning period) - from arctic fox IPM
     earlySurv = list(
-      S0.mean = 0.74, # From arctic fox IPM: 0.7428115
-      S0.sd = 0.06 #  IPM: 0.05983706
+      S0.mean = 0.74 + S0.mean.offset, # From arctic fox IPM: 0.7428115
+      S0.sd = 0.06 * S0.sd.factor #  IPM: 0.05983706
     ),
 
     
