@@ -89,6 +89,9 @@ threshold <- 0.2
 pImm.type <- "rescaled"
 #pImm.type <- "LL-based"
 
+# Den survey data toggles
+useData.pup <- FALSE
+
 ## Changes to denning survival prior
 S0.mean.offset <- 0
 S0.sd.factor <- 2
@@ -155,7 +158,18 @@ gen.data <- wrangleData_gen(datapath = genetics.datapath,
                             threshold = threshold)
 
 
-# 1e) Harvest effort data #
+# 1e) Opportunistic pup observation data #
+#----------------------------------------#
+
+## Set data path
+pups.datapath <- "Data/Rfox_early_litter_sizes.csv"
+
+## Prepare pup observation data
+pup.data <- wrangleData_pup(datapath = pups.datapath,
+                            minYear = minYear)
+
+
+# 1f) Harvest effort data #
 #-------------------------#
 
 ## Prepare harvest effort data
@@ -164,7 +178,7 @@ hunter.data <- reformatData_hunters(area_selection = area_selection,
                                     shapefile.dir = shapefile.dir)
 
 
-# 1f) Environmental data #
+# 1g) Environmental data #
 #------------------------#
 
 ## Download rodent data
@@ -181,7 +195,7 @@ reindeer.data <- reformatData_reindeer(minYear = minYear,
                                        Tmax = Tmax)
 
 
-# 1g) Conceptual year information #
+# 1h) Conceptual year information #
 #---------------------------------#
 
 YearInfo <- collate_yearInfo(minYear = minYear,
@@ -241,6 +255,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  wAaH.data = wAaH.data, 
                                  rep.data = rep.data, 
                                  gen.data = gen.data,
+                                 pup.data = pup.data,
                                  rodent.data = rodent.data, 
                                  reindeer.data = reindeer.data,
                                  hunter.data = hunter.data, 
@@ -352,6 +367,36 @@ compareModels(Amax = Amax,
                               "ind. likelihood (rescaled), pooled data",
                               "ind. likelihood (rescaled), yearly data"), 
               plotFolder = "Plots/CompFinal_GenDataLik_noExtraCovs")
+
+
+## Prior sensitivity analysis for denning survival
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
+                                 "RedFoxIPM_S0priorSens_naivePrior.rds",
+                                 "RedFoxIPM_S0priorSens_higherMean.rds",
+                                 "RedFoxIPM_S0priorSens_lowerMean.rds",
+                                 "RedFoxIPM_S0priorSens_doubleSD.rds"), 
+              model.names = c("Original inf. prior", 
+                              "Flat prior",
+                              "inf. prior mean + 0.1",
+                              "inf. prior mean - 0.1",
+                              "inf. prior sd * 2"), 
+              plotFolder = "Plots/PriorSensAnalysis_S0")
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
+                                 "RedFoxIPM_S0priorSens_naivePrior.rds",
+                                 "RedFoxIPM_S0priorSens_pupObsData_infoPrior.rds",
+                                 "RedFoxIPM_S0priorSens_pupObsData_naivePrior.rds"), 
+              model.names = c("Original inf. prior", 
+                              "Flat prior",
+                              "Original inf. prior + data",
+                              "Flat prior + data"), 
+              plotFolder = "Plots/CompFinal_S0_data")
 
 
 ###########################################

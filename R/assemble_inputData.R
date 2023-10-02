@@ -20,6 +20,7 @@
 #' frames: 'P1' (counts) and 'P2' (presences/absences).
 #' @param gen.data a list containing relevant data on genetically determined 
 #' probabilities of individuals being immigrants.
+#' @param pup.data a list containing data on numbers of pups observed on dens. 
 #' @param rodent.data a list containing rodent abundance data as a continuous variable (cont),
 #' and categorical variable with two (cat2) and three (cat3) levels.
 #' @param reindeer.data a list containing reindeer carcass abundance and proportion
@@ -42,7 +43,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
                                maxPups, uLim.N, uLim.Imm, 
                                nLevels.rCov = NA, standSpec.rCov,
                                poolYrs.genData, pImm.type,
-                               wAaH.data, rep.data, gen.data,
+                               wAaH.data, rep.data, gen.data, pup.data,
                                rodent.data, reindeer.data, hunter.data, 
                                surv.priors, survPriorType,
                                save = FALSE){
@@ -99,6 +100,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     P2 = P2$P2,
     
+    NoPups = pup.data$NoPups,
+    
     HarvestEffort = hunter.data$NHunters_std,
     RodentAbundance = RodentAbundance,
     RodentAbundance2 = RodentAbundance2,
@@ -124,6 +127,9 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     P2_age = P2$age_adj,
     P2_year = P2$RepYearIndex,
     X2 = length(P2$P2),
+    
+    NoPups_year = pup.data$NoPups_year,
+    X3 = pup.data$X3,
     
     nLevels.rCov = nLevels.rCov
   )
