@@ -120,7 +120,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       #===============================================================================================
       
       
-      
       ###############################
       #### PLACENTAL SCAR MODULE ####
       ###############################
@@ -206,6 +205,27 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           
         }
       }
+      
+      #===============================================================================================
+      
+      
+      ################################
+      #### PUP OBSERVATION MODULE ####
+      ################################
+      
+      ## Likelihood (Number of pups)
+      if(useData.pup){
+        for(x in 1:X3){
+          NoPups[x] ~ dpois(meanLS[NoPups_year[x]])
+        }
+        
+        meanLS[1] <- 0
+        for(t in 2:Tmax){
+          meanLS[t] <- (sum(R[2:Amax, t])*2)/sum(B[2:Amax, t])
+        }
+      }
+      
+      #===============================================================================================
       
       
       ################################
@@ -369,7 +389,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #log(m0[t]) <- log(-log(Mu.S0)) + epsilon.m0[t]
       }
       
-      Mu.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)  
+      Mu.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)
+      #Mu.S0 ~ dunif(0, 1)
+      
       #---------------------------------------------------------------------------------------------
       
       
@@ -691,6 +713,28 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
       }
       
+      #===============================================================================================
+      
+      
+      ################################
+      #### PUP OBSERVATION MODULE ####
+      ################################
+      
+      ## Likelihood (Number of pups)
+      if(useData.pup){
+        for(x in 1:X3){
+          NoPups[x] ~ dpois(meanLS[NoPups_year[x]])
+        }
+        
+        meanLS[1] <- 0
+        for(t in 2:Tmax){
+          meanLS[t] <- (sum(R[2:Amax, t])*2)/sum(B[2:Amax, t])
+        }
+      }
+
+      
+      #===============================================================================================
+      
       
       ################################
       #### PRIORS AND CONSTRAINTS ####
@@ -853,7 +897,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #log(m0[t]) <- log(-log(Mu.S0)) + epsilon.m0[t]
       }
       
-      Mu.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)  
+      Mu.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)
+      #Mu.S0 ~ dunif(0, 1)
+      
       #---------------------------------------------------------------------------------------------
       
       
