@@ -89,12 +89,13 @@ threshold <- 0.2
 pImm.type <- "rescaled"
 #pImm.type <- "LL-based"
 
-# Den survey data toggles
-useData.pup <- FALSE
+# Den survey prior and data toggles
+useData.pup <- TRUE
+useInfPrior.S0 <- FALSE
 
 ## Changes to denning survival prior
 S0.mean.offset <- 0
-S0.sd.factor <- 2
+S0.sd.factor <- 1
 
 #*********************#
 # 1) DATA PREPARATION #

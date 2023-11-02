@@ -381,16 +381,18 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Denning survival
-      #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE
-      
+
       for(t in 1:(Tmax+1)){ 
         S0[t] <- Mu.S0
         #S0[t] <- exp(-m0[t])
         #log(m0[t]) <- log(-log(Mu.S0)) + epsilon.m0[t]
       }
       
-      Mu.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)
-      #Mu.S0 ~ dunif(0, 1)
+      if(useInfPrior.S0){
+        Mu.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)
+      }else{
+        Mu.S0 ~ dunif(0, 1)
+      }
       
       #---------------------------------------------------------------------------------------------
       
@@ -889,16 +891,18 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Denning survival
-      #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE
-      
+
       for(t in 1:(Tmax+1)){ 
         S0[t] <- Mu.S0
         #S0[t] <- exp(-m0[t])
         #log(m0[t]) <- log(-log(Mu.S0)) + epsilon.m0[t]
       }
       
-      Mu.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)
-      #Mu.S0 ~ dunif(0, 1)
+      if(useInfPrior.S0){
+        Mu.S0 ~ T(dnorm(S0.mean, sd = S0.sd), 0, 1)
+      }else{
+        Mu.S0 ~ dunif(0, 1)
+      }
       
       #---------------------------------------------------------------------------------------------
       
