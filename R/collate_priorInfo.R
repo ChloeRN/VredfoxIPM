@@ -11,9 +11,10 @@
 #' @param maxAge integer. Maximum recorded age of harvested foxes. 
 #' @param nsim integer. Number of simulation replicates for each posterior sample.
 #' @param S0.mean.offset numeric. Absolute change in average denning survival 
-#' relative to estimate from arctic fox model. 
+#' relative to estimate from arctic fox model. Default = 1 (no change). 
 #' @param S0.sd.factor numeric.  Relative change in standard deviation of 
-#' denning survival relative to estimate from arctic fox model. 
+#' denning survival relative to estimate from arctic fox model. Default = 0 (no
+#' change).
 #'
 #' @return a list of lists containing parameters to define informative priors
 #' for early survival, age-specific annual survival, and juvenile/adult natural
@@ -22,7 +23,7 @@
 #'
 #' @examples
 
-collate_priorInfo <- function(meta.datafile, simulateSD = TRUE, hoening.datafile, mu.t.max, maxAge, nsim, S0.mean.offset, S0.sd.factor){
+collate_priorInfo <- function(meta.datafile, simulateSD = TRUE, hoening.datafile, mu.t.max, maxAge, nsim, S0.mean.offset = 0, S0.sd.factor = 1){
   
   
   ## Simulate / load prior distribution parameters from Hoening model
