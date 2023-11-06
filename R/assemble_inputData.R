@@ -14,7 +14,7 @@
 #' by Geneclass 2 and standardized so that the minimum immigrant probability = 0.
 #' "LL-based" = log likelihood other / log likelihood other + log likelihood Varanger. 
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
-#' @param wAaH.data a list containing an Age-at-Harvest matrix (winterC) and a vector of
+#' @param wAaH.data a list containing an Age-at-Harvest matrix (C) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @param rep.data a list containing formatted reproduction data in two data 
 #' frames: 'P1' (counts) and 'P2' (presences/absences).
@@ -50,8 +50,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   ## Select relevant years from observational data
   
   # Winter Age-at-Harvest data
-  C <- wAaH.data$winterC[,which(colnames(wAaH.data$winterC) == minYear) + 1:Tmax - 1]
-  pData <- wAaH.data$pData[which(colnames(wAaH.data$winterC) == minYear) + 1:Tmax - 1]
+  C <- wAaH.data$C[,which(colnames(wAaH.data$C) == minYear) + 1:Tmax - 1]
+  pData <- wAaH.data$pData[which(colnames(wAaH.data$C) == minYear) + 1:Tmax - 1]
   
   # Reproduction data
   P1 <- subset(rep.data$P1, repryear %in% c(minYear + 0:Tmax))

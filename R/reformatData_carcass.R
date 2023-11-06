@@ -1,7 +1,8 @@
 #' Reformat the carcass data to make Age at harvest matrix & P1var (nr of embryos/scars) & P2var (breeding or not breeding)
 #'
 #' @param Amax  integer. Number of age classes to consider in analyses.
-#' @param summer_removal a vector of numerical months to be removed from age at harvest data: c(6,7,8,9)
+#' @param summer_removal a vector of numerical months to be removed from winter age at harvest data: c(6,7,8,9)
+#' @param winter_removal a vector of numerical months to be removed from summer age at harvest data: c(1:5, 10:12)
 #' @param area_selection a vector of study-area sub-area names to consider in the analyses: c("Inner", "BB",  "Tana")
 #' @param plac_start integer. Julian day (including) from which we use placental scars presence to calculate breeding or not breeding for P2
 #' @param plac_end integer. Julian day (not including)until  we use placental scars presence to calculate breeding or not breeding for P2
@@ -9,6 +10,8 @@
 #' @param embr_end integer. Julian day (not including) until we use embryos presence to calculate breeding or not breeding for P2
 #' @param carcass.dataset dataframe containing the dataset downloaded from the COAT dataportal.
 #' @param shapefile.dir string. Directory of shapefiles delineating study areas and sub-areas.
+#' @param add.sumr.unaged logical. Add summer harvested individuals as unaged individuals to the total harvested individuals and their proportion aged.
+#' @param saAH.years a vector of years for which the summer age at harvest matrix should be constructed
 #'
 #' @return a list containing the age-at-harvest matrix and dataframes with embryo count (P1var) and placental scar presence-absence (P2var) data.
 #' @export
@@ -16,10 +19,11 @@
 #' @examples
 
 
-reformatData_carcass <- function (Amax, summer_removal, area_selection,
+reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_selection,
                               plac_start, plac_end , embr_start, embr_end,
                               carcass.dataset, 
-                              shapefile.dir) {
+                              shapefile.dir,
+                              add.sumr.unaged, saAH.years ) {
   
   # === 1 thing that I use later down ====
   '%notin%' <- Negate('%in%')
@@ -85,7 +89,7 @@ reformatData_carcass <- function (Amax, summer_removal, area_selection,
   fvar1$alder4 <- fvar1$v_age
   fvar1$alder4[fvar1$alder4 > (Amax-1)] <- (Amax-1)
   
-  #=============== AGE AT HARVEST MATRIX BUILDING ==============================
+  #===============    WINTER AGE AT HARVEST MATRIX BUILDING ==============================
   #here we exclude foxes shot in summer months and foxes with no age info
   
   var.F.C <- as.matrix(table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal], 
@@ -98,10 +102,34 @@ reformatData_carcass <- function (Amax, summer_removal, area_selection,
   names(varFC2) <- head(column_names, (Amax+1))
   
   #proportion that was aged
-  agedf.ann <- table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal]) #where unaged removed
-  allf.ann  <- table(fvar1$start_hunting_year[                        fvar1$mnd %notin% summer_removal]) #where unaged not removed
+  agedf.ann <- table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal]) #where unaged removed, summer also removed
+  
+  if(add.sumr.unaged ==TRUE) {  
+  allf.ann  <- table(fvar1$start_hunting_year)                                                           #where unaged not removed, summer not removed  
+  } else {
+  allf.ann  <- table(fvar1$start_hunting_year[                        fvar1$mnd %notin% summer_removal]) #where unaged not removed, summer also removed
+  }
+  
   prop <- agedf.ann/allf.ann
   varFC2$pData <- prop
+  
+  #===============    SUMMER AGE AT HARVEST MATRIX BUILDING ==============================
+  #here we exclude foxes shot in winter months and foxes with no age info
+  
+  svar.F.C <- as.matrix(table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years], 
+                             fvar1$alder4[is.na(fvar1$v_age)==F & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]))
+  
+  svarFC <- as.data.frame (svar.F.C)
+  svarFC2 <- reshape2::dcast(svarFC, Var1~Var2)
+  
+  column_names <- c("year","age0", "age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15", "age16", "age17", "age18")
+  names(svarFC2) <- head(column_names, (Amax+1))
+  
+  #proportion that was aged
+  sagedf.ann <- table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]) #where unaged removed
+  sallf.ann  <- table(fvar1$start_hunting_year[                        fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]) #where unaged not removed
+  sprop <- sagedf.ann/sallf.ann
+  svarFC2$pData <- sprop
   
   # ========= REPRODUCTION: NR OF EMBRYO'S / PLACENTAL SCARS =========
   #here we exclude foxes with no age info and foxes with no breeding info recorded (no NA, and nr > 0)
@@ -142,7 +170,8 @@ reformatData_carcass <- function (Amax, summer_removal, area_selection,
   P2var <- rbind(P2var.pl, P2var.preg)
   
   ## Combine age at harvest, nr of embryos, and prop breeding files in a list
-  carcassData<- list(AaH.matrix = varFC2, 
+  carcassData<- list(WAaH.matrix = varFC2,
+                     SAaH.matrix = svarFC2,
                      P1var = P1var,
                      P2var = P2var)
   
