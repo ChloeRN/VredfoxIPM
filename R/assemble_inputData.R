@@ -106,8 +106,6 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     C_s = C_s,
     pData_s = pData_s,
-    XsH = XsH,
-    sH_year = sH_year,
     
     P1 = P1$P1,
     
@@ -132,6 +130,9 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     maxPups = maxPups,
     uLim.N = uLim.N,
     uLim.Imm = uLim.Imm,
+    
+    XsH = XsH,
+    sH_year = sH_year,
     
     P1_age = P1$age_adj,
     P1_year = P1$RepYearIndex,
