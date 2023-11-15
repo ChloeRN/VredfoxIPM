@@ -71,8 +71,8 @@ standSpec.rCov <- TRUE # standardize different rodent species before summing (of
 # Random year effect toggles
 mO.varT <- TRUE
 
-#age at harvest matrix toggles
-add.sumr.unaged <-TRUE #Add summer harvested individuals as unaged individuals to the total harvested individuals and their proportion aged.
+# Age-at-harvest data toggles
+add.sumr.unaged <- TRUE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
@@ -129,15 +129,15 @@ carcass.data <- reformatData_carcass(Amax = Amax,
                                      saAH.years = saAH.years)
 
 
-# 1) Age-at-Harvest data #
+# 1b) Age-at-Harvest data #
 #--------------------------------#
 
 ## Winter AaH data
 wAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$WAaH.matrix, 
-                                   Amax = Amax)
+                             Amax = Amax)
 ## Summer AaH data
 sAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$SAaH.matrix, 
-                                   Amax = Amax)
+                             Amax = Amax)
 
 
 # 1c) Reproduction data #
@@ -316,7 +316,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_S0priorSens_doubleSD.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sHcount_poolGenData_NSwedenPrior.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -408,6 +408,16 @@ compareModels(Amax = Amax,
                               "Original inf. prior + data",
                               "Flat prior + data"), 
               plotFolder = "Plots/CompFinal_S0_data")
+
+## Inclusion of summer harvest
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
+                                 "RedFoxIPM_sHcount_poolGenData_NSwedenPrior.rds"), 
+              model.names = c("No summer harvest", 
+                              "Summer harvest counts"), 
+              plotFolder = "Plots/Comp_summerHarvest")
 
 
 ###########################################

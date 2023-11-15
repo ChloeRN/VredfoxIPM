@@ -25,7 +25,7 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
                               shapefile.dir,
                               add.sumr.unaged, saAH.years ) {
   
-  # === 1 thing that I use later down ====
+  #========= HELPER FUNCTIONS ==============
   '%notin%' <- Negate('%in%')
   
   #========= LOAD DATA ==============
@@ -49,7 +49,7 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   allf$t_hunting_date <- as.Date(allf$t_hunting_date)
   
   #we need hunting year as an actual number sometimes so we can add and substract
-  allf$start_hunting_year<-substr(allf$t_hunting_year, start = 1, stop = 4)
+  allf$start_hunting_year <- substr(allf$t_hunting_year, start = 1, stop = 4)
   allf$start_hunting_year<- as.numeric(allf$start_hunting_year)
   
   #Add julian day
@@ -68,11 +68,11 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   fvar1 <- fvar1[fvar1$v_hunter_id != "road_kill" & fvar1$v_hunter_id != "found_dead", ]
   
   #Assigning study area - sub area names with shapefile
-  fvar1   <- fvar1[is.na(fvar1$e_dd)==FALSE & is.na(fvar1$n_dd)==FALSE,] #only foxes with valid location
-  sf_fvar1<- sf::st_as_sf(fvar1, coords = c("e_dd", "n_dd"), crs="+proj=longlat +datum=WGS84") # change dataset in to sf object with geometry (instead of lat/long)
-  sf_fvar1<- sf::st_join(sf_fvar1, shapefile["name"], join = sf::st_within) #overlap of dataset positions with shapefile of study area - sub areas, taking the name of the subarea
+  fvar1 <- fvar1[is.na(fvar1$e_dd)==FALSE & is.na(fvar1$n_dd)==FALSE,] #only foxes with valid location
+  sf_fvar1 <- sf::st_as_sf(fvar1, coords = c("e_dd", "n_dd"), crs="+proj=longlat +datum=WGS84") # change dataset in to sf object with geometry (instead of lat/long)
+  sf_fvar1 <- sf::st_join(sf_fvar1, shapefile["name"], join = sf::st_within) #overlap of dataset positions with shapefile of study area - sub areas, taking the name of the subarea
   colnames(sf_fvar1)[colnames(sf_fvar1) == 'name'] <- 'sub_area'
-  coords  <- data.frame(sf::st_coordinates(sf_fvar1)) #get back coordinates column from geometry
+  coords <- data.frame(sf::st_coordinates(sf_fvar1)) #get back coordinates column from geometry
   sf_fvar1$e_dd <- coords$X # getting back lat long columns
   sf_fvar1$n_dd <- coords$Y
   fvar1 <- sf::st_drop_geometry(sf_fvar1) #remove the geometry again and get back to fvar1, #fvar1 now has shape file area names
@@ -92,22 +92,20 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   #===============    WINTER AGE AT HARVEST MATRIX BUILDING ==============================
   #here we exclude foxes shot in summer months and foxes with no age info
   
-  var.F.C <- as.matrix(table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal], 
-                             fvar1$alder4[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal]))
+  var.F.C <- as.matrix(table(fvar1$start_hunting_year[!is.na(fvar1$v_age) & fvar1$mnd %notin% summer_removal], 
+                             fvar1$alder4[!is.na(fvar1$v_age) & fvar1$mnd %notin% summer_removal]))
   
-  varFC <- as.data.frame (var.F.C)
-  varFC2 <- reshape2::dcast(varFC, Var1~Var2)
+  varFC2 <- data.frame(cbind(as.numeric(rownames(var.F.C)), unname(var.F.C)))
+  colnames(varFC2) <- c("year", paste0("age", (1:Amax)-1))
   
-  column_names <- c("year","age0", "age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15", "age16", "age17", "age18")
-  names(varFC2) <- head(column_names, (Amax+1))
   
   #proportion that was aged
-  agedf.ann <- table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% summer_removal]) #where unaged removed, summer also removed
+  agedf.ann <- table(fvar1$start_hunting_year[!is.na(fvar1$v_age) & fvar1$mnd %notin% summer_removal]) #where unaged removed, summer also removed
   
-  if(add.sumr.unaged ==TRUE) {  
-  allf.ann  <- table(fvar1$start_hunting_year)                                                           #where unaged not removed, summer not removed  
-  } else {
-  allf.ann  <- table(fvar1$start_hunting_year[                        fvar1$mnd %notin% summer_removal]) #where unaged not removed, summer also removed
+  if(add.sumr.unaged){  
+    allf.ann <- table(fvar1$start_hunting_year)                                                           #where unaged not removed, summer not removed  
+  }else{
+    allf.ann <- table(fvar1$start_hunting_year[fvar1$mnd %notin% summer_removal]) #where unaged not removed, summer also removed
   }
   
   prop <- agedf.ann/allf.ann
@@ -116,18 +114,15 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   #===============    SUMMER AGE AT HARVEST MATRIX BUILDING ==============================
   #here we exclude foxes shot in winter months and foxes with no age info
   
-  svar.F.C <- as.matrix(table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years], 
-                             fvar1$alder4[is.na(fvar1$v_age)==F & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]))
+  svar.F.C <- as.matrix(table(fvar1$start_hunting_year[!is.na(fvar1$v_age) & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years], 
+                             fvar1$alder4[!is.na(fvar1$v_age) & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]))
   
-  svarFC <- as.data.frame (svar.F.C)
-  svarFC2 <- reshape2::dcast(svarFC, Var1~Var2)
-  
-  column_names <- c("year","age0", "age1", "age2", "age3", "age4", "age5", "age6", "age7", "age8", "age9", "age10", "age11", "age12", "age13", "age14", "age15", "age16", "age17", "age18")
-  names(svarFC2) <- head(column_names, (Amax+1))
+  svarFC2 <- data.frame(cbind(as.numeric(rownames(svar.F.C)), unname(svar.F.C)))
+  colnames(svarFC2) <- c("year", paste0("age", (1:Amax)-1))
   
   #proportion that was aged
-  sagedf.ann <- table(fvar1$start_hunting_year[is.na(fvar1$v_age)==F & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]) #where unaged removed
-  sallf.ann  <- table(fvar1$start_hunting_year[                        fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]) #where unaged not removed
+  sagedf.ann <- table(fvar1$start_hunting_year[!is.na(fvar1$v_age) & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]) #where unaged removed
+  sallf.ann  <- table(fvar1$start_hunting_year[fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]) #where unaged not removed
   sprop <- sagedf.ann/sallf.ann
   svarFC2$pData <- sprop
   
@@ -170,10 +165,10 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   P2var <- rbind(P2var.pl, P2var.preg)
   
   ## Combine age at harvest, nr of embryos, and prop breeding files in a list
-  carcassData<- list(WAaH.matrix = varFC2,
-                     SAaH.matrix = svarFC2,
-                     P1var = P1var,
-                     P2var = P2var)
+  carcassData <- list(WAaH.matrix = varFC2,
+                      SAaH.matrix = svarFC2,
+                      P1var = P1var,
+                      P2var = P2var)
   
   #=== return ===
   return(carcassData)
