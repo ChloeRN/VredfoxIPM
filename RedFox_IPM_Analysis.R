@@ -72,7 +72,7 @@ standSpec.rCov <- TRUE # standardize different rodent species before summing (of
 mO.varT <- TRUE
 
 # Age-at-harvest data toggles
-add.sumr.unaged <- TRUE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
+add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
@@ -264,6 +264,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  poolYrs.genData = poolYrs.genData,
                                  pImm.type = pImm.type,
                                  wAaH.data = wAaH.data, 
+                                 sAaH.data = sAaH.data,
                                  rep.data = rep.data, 
                                  gen.data = gen.data,
                                  pup.data = pup.data,
@@ -317,7 +318,7 @@ Sys.time() - t1
 
 
 saveRDS(IPM.out, file = "RedFoxIPM_sHcount_poolGenData_NSwedenPrior.rds")
-#MCMCvis::MCMCtrace(IPM.out)
+#MCMCvis::MCMCtrace(IPM.out, params = "mHs")
 
 
 ########################
