@@ -66,7 +66,6 @@ rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
 standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
-reinCov.VarTana <- TRUE # Calculate the reindeer carcass data count covariate using Varanger (+Tana) municipalities as geographical area. FALSE is for whole of Eastern Finnmark
 
 # Random year effect toggles
 mO.varT <- TRUE
@@ -194,8 +193,7 @@ rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
 
 ## Reformat reindeer data
 reindeer.data <- reformatData_reindeer(minYear = minYear,
-                                       Tmax = Tmax,
-                                       reinCov.VarTana = reinCov.VarTana)
+                                       Tmax = Tmax)
 
 
 # 1h) Conceptual year information #
