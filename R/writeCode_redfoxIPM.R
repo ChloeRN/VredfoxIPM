@@ -65,7 +65,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #--------------------#
         
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
-        octN[1, t] <- survN1[t] + Imm[t+1]     
+        octN[1, t] <- survN1[t] + Imm[t]     
         survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
         
         # Age classes 1 to 4+ (indices = 2:5)
@@ -475,8 +475,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
         }
         
-        for(t in 1:(Tmax+1)){ 
-          Imm[t] ~ dpois(sum(R[2:Amax, t])*immR[t])
+        for(t in 1:Tmax){ 
+          Imm[t] ~ dpois(survN1[t]*immR[t])
         }
         
         
@@ -486,7 +486,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         Imm[1] <- 0 # (Immigration in the first year cannot be disentangled from reproduction)
         #ImmT[1] <- 0 
         
-        for(t in 2:(Tmax+1)){
+        for(t in 2:Tmax){
           Imm[t] ~ dcat(DU.prior.Imm[1:uLim.Imm]) 
           #Imm[t] ~ dpois(ImmT[t])
           #ImmT[t] ~ T(dnorm(Mu.Imm, sd = sigma.Imm), 0, uLim.Imm)
@@ -496,8 +496,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         ## Derivation of immigration rates
         immR[1] <- 0
-        for(t in 2:(Tmax+1)){
-          immR[t] <- Imm[t] / sum(R[2:Amax, t])
+        for(t in 2:Tmax){
+          immR[t] <- Imm[t] / survN1[t]
         }
         
       }
@@ -640,7 +640,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #--------------------#
         
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
-        octN[1, t] <- survN1[t] + Imm[t+1]     
+        octN[1, t] <- survN1[t] + Imm[t]     
         survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
         
         # Age classes 1 to 4+ (indices = 2:5)
@@ -707,7 +707,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       for(t in 1:Tmax){
         for(a in 1:Amax){
-          C[a, t] ~ dbin(h[a, t]*pData[t], N[a, t])
+          C_w[a, t] ~ dbin(h[a, t]*pData_w[t], octN[a, t])
         }
       }
       
@@ -1018,8 +1018,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
         
   
-        for(t in 1:(Tmax+1)){ 
-          Imm[t] ~ dpois(sum(R[2:Amax, t])*immR[t])
+        for(t in 1:Tmax){ 
+          Imm[t] ~ dpois(survN1[t]*immR[t])
         }
         
         Mu.immR ~ dunif(0, 10)
@@ -1030,7 +1030,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         ## Discrete uniform prior for immigrant numbers
         Imm[1] <- 0 # (Immigration in the first year cannot be disentangled from reproduction)
         
-        for(t in 2:(Tmax+1)){
+        for(t in 2:Tmax){
           Imm[t] ~ dcat(DU.prior.Imm[1:uLim.Imm]) 
         }
         
@@ -1038,8 +1038,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         ## Derivation of immigration rates
         immR[1] <- 0
-        for(t in 2:(Tmax+1)){
-          immR[t] <- Imm[t] / sum(R[2:Amax, t])
+        for(t in 2:Tmax){
+          immR[t] <- Imm[t] / survN1[t]
         }
         
       }
