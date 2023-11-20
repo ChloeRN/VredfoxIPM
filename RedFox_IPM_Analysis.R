@@ -14,7 +14,7 @@ library(patchwork)
 #**********#
 
 ## Set seed
-mySeed <- 0
+mySeed <- 10
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -257,7 +257,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  Tmax = Tmax, 
                                  minYear = minYear,
                                  maxPups = 14,
-                                 uLim.N = 800,
+                                 uLim.N = 3000,
                                  uLim.Imm = 3000,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
@@ -294,7 +294,10 @@ model.setup <- setupModel(modelCode = redfox.code,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
                           testRun = FALSE,
-                          initVals.seed = mySeed
+                          initVals.seed = mySeed,
+                          niter = 60000,
+                          nburn = 10000,
+                          nthin = 8
                           )
 
 
@@ -317,8 +320,8 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_sHcount_poolGenData_NSwedenPrior.rds")
-#MCMCvis::MCMCtrace(IPM.out, params = "mHs")
+saveRDS(IPM.out, file = "RedFoxIPM_sAaH_poolGenData_NSwedenPrior.rds")
+#MCMCvis::MCMCtrace(IPM.out)
 
 
 ########################
@@ -415,9 +418,11 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_sHcount_poolGenData_NSwedenPrior.rds"), 
+                                 "RedFoxIPM_sHcount_poolGenData_NSwedenPrior.rds",
+                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior.rds"), 
               model.names = c("No summer harvest", 
-                              "Summer harvest counts"), 
+                              "Summer harvest counts",
+                              "Summer age-at-harvest"), 
               plotFolder = "Plots/Comp_summerHarvest")
 
 

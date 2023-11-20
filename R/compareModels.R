@@ -70,13 +70,14 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
     
   ## Set parameter groups for plotting posterior density overlaps
   plot.params <- list(
-    VRmeans = c(paste0("Mu.mH[", 1:Amax, "]"), 
+    VRmeans = c(paste0("Mu.mH[", 1:Amax, "]"),
+                paste0("Mu.mHs[", 1:Amax, "]"),
                 paste0("Mu.mO[", 1:Amax, "]"), 
                 paste0("Mu.Psi[", 2:Amax, "]"), 
                 paste0("Mu.rho[", 2:Amax, "]"),  
                 "Mu.S0", "Mu.immR"),
     
-    VReffects = c("sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho", "sigma.immR",
+    VReffects = c("sigma.mH", "sigma.mHs", "sigma.mO", "sigma.Psi", "sigma.rho", "sigma.immR",
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]"),
@@ -95,10 +96,10 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   plotTS.params <- list(
     ParamNames = c("N.tot", "B.tot", "R.tot", "Imm",
                    "mO", "S", #"S0",
-                   "mH", "Psi", "rho", "immR"),
+                   "mH", "mHs", "Psi", "rho", "immR"),
     ParamLabels = c("Female population size", "# breeding females", "# female recruits", "# female immigrants",
                     "Natural mortality", "Survival", #"Early survival",
-                    "Harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
+                    "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
   )
 
   ## Set plotting colors
