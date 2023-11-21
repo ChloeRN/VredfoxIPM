@@ -1,5 +1,5 @@
 
-compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.names, plotFolder){
+compareModels <- function(Amax, Tmax, minYear, logN, post.filepaths, post.list, model.names, plotFolder){
   
   ## Check models are specified correctly
   if((missing(post.filepaths) & missing(post.list)) |
@@ -21,11 +21,11 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   for(i in 1:nModels){
     
     # Extract samples for relevant model
-    if(!missing(post.list)){
-      samples <- post.list[[i]]
-    }else{
+    #if(!missing(post.list)){
+    #  samples <- post.list[[i]]
+    #}else{
       samples <- readRDS(post.filepaths[i])
-    }
+    #}
     
     # Change format and add to list
     model.data <- reshape2::melt(as.matrix(samples))
@@ -101,6 +101,25 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
                     "Harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
   )
 
+  ## Optional: convert population size estimates to log scale
+  if(logN){
+  
+    ## Entire posterior samples
+    popN.params <- c(plot.params$Imm, plot.params$Ntot, plot.params$Btot, plot.params$Rtot)
+    
+    for(i in 1:length(popN.params)){
+      post.data$Value[which(post.data$Parameter == popN.params[i])] <- log(post.data$Value[which(post.data$Parameter == popN.params[i])])
+    }
+    post.data$Value[which(post.data$Value == -Inf)] <- 0
+    
+    ## Summaries
+    popN.rows <- which(sum.data$ParamName %in% c("Imm", "N", "N.tot", "B", "B.tot", "R", "R.tot"))
+    sum.data$median[popN.rows] <- ifelse(sum.data$median[popN.rows] == 0, 0, log(sum.data$median[popN.rows]))
+    sum.data$lCI[popN.rows] <- ifelse(sum.data$lCI[popN.rows] == 0, 0, log(sum.data$lCI[popN.rows]))
+    sum.data$uCI[popN.rows] <- ifelse(sum.data$uCI[popN.rows] == 0, 0, log(sum.data$uCI[popN.rows]))
+  }
+  
+  
   ## Set plotting colors
   plot.cols <- paletteer::paletteer_c("grDevices::Temps", length(model.names))
 

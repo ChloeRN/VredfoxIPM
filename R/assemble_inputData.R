@@ -2,6 +2,8 @@
 #'
 #' @param Amax integer. Number of age classes to consider in analyses.
 #' @param Tmax integer. The number of years to consider in analyses.
+#' @param Tmax_sim integer. The number of years to consider for simulations 
+#' beyond the data collection period. 
 #' @param minYear integer. First year to consider in analyses.
 #' @param maxPups integer. Upper prior bound for average litter size.
 #' @param uLim.N integer. Upper prior bound for initial number of individuals per age class.
@@ -31,6 +33,10 @@
 #' for early survival, age-specific annual survival, and juvenile/adult natural
 #' mortality hazard rate.
 #' @param survPriorType a list containing information on prior for annual survival.
+#' @param perturbVecs. a list of perturbation vectors for vital rates, each 
+#' with a length of Tmax+Tmax_sim or Tmax+Tmax_sim+1 and made up of positive 
+#' numerics. The perturbation vectors have to be named pertFac.[X], where [X] =
+#' mH, mO, S0, and immR. Output of function setupPerturbVecs. 
 #' @param save logical. If TRUE, saves assembled data as an .rds file in the 
 #' working directory. Default = FALSE. 
 #'
@@ -39,13 +45,14 @@
 #'
 #' @examples
 
-assemble_inputData <- function(Amax, Tmax, minYear,
+assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
                                maxPups, uLim.N, uLim.Imm, 
                                nLevels.rCov = NA, standSpec.rCov,
                                poolYrs.genData, pImm.type,
                                wAaH.data, rep.data, gen.data, pup.data,
                                rodent.data, reindeer.data, hunter.data, 
                                surv.priors, survPriorType,
+                               perturbVecs,
                                save = FALSE){
   
   ## Select relevant years from observational data
@@ -90,6 +97,18 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   ## Select relevant reindeer covariates
   Reindeer <- reindeer.data$RDcarcass
 
+  ## Add simulation years to covariates
+  if(Tmax_sim > 0){
+    RodentAbundance <- c(RodentAbundance, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance))))
+    RodentAbundance2 <- c(RodentAbundance2, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance2))))
+    RodentIndex <- c(RodentIndex, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex))))
+    RodentIndex2 <- c(RodentIndex2, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex2))))
+    Reindeer <- c(Reindeer, rep(NA, (Tmax+Tmax_sim+1-length(Reindeer))))
+    HarvestEffort <- c(hunter.data$NHunters_std, rep(NA, (Tmax+Tmax_sim-length(hunter.data$NHunters_std))))
+  }else{
+    HarvestEffort <- hunter.data$NHunters_std
+  }
+  
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
   nim.data <- list(
@@ -99,7 +118,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     P1 = P1$P1,
     
     P2 = P2$P2,
-    
+   
     NoPups = pup.data$NoPups,
     
     HarvestEffort = hunter.data$NHunters_std,
@@ -107,13 +126,21 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     RodentAbundance2 = RodentAbundance2,
     RodentIndex = RodentIndex,
     RodentIndex2 = RodentIndex2,
-    Reindeer = Reindeer
+    Reindeer = Reindeer,
+    
+    pertFac.mH = perturbVecs$pertFac.mH,
+    pertFac.mO = perturbVecs$pertFac.mO,
+    pertFac.S0 = perturbVecs$pertFac.S0,
+    pertFac.immR = perturbVecs$pertFac.immR,
+    pertFac.rodent = perturbVecs$pertFac.rodent,
+    pertFac.reindeer = perturbVecs$pertFac.reindeer
   )
   
   # Constants
   nim.constants <- list(
     Amax = Amax,
     Tmax = Tmax,
+    Tmax_sim = Tmax_sim,
     minYear = minYear,
     
     maxPups = maxPups,

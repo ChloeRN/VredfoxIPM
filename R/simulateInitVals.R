@@ -40,7 +40,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
                              mO.varT, HoeningPrior, imm.asRate){
   
   Amax <- nim.constants$Amax
-  Tmax <- nim.constants$Tmax
+  Tmax <- nim.constants$Tmax + nim.constants$Tmax_sim
+  
+  pertFac.mH <- nim.data$pertFac.mH
+  pertFac.mO <- nim.data$pertFac.mO
+  pertFac.S0 <- nim.data$pertFac.S0
+  pertFac.immR <- nim.data$pertFac.immR
   
   #-------------------------------------------------#
   # Set initial values for missing covariate values #
@@ -66,12 +71,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   ## Rodent abundance (categorical)
   RodentIndex <- nim.data$RodentIndex
   if(NA %in% RodentIndex){
-    RodentIndex[which(is.na(RodentIndex))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex))))
+    RodentIndex[which(is.na(RodentIndex))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex))), replace = TRUE)
   }
   
   RodentIndex2 <- nim.data$RodentIndex2
   if(NA %in% RodentIndex2){
-    RodentIndex2[which(is.na(RodentIndex2))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex2))))
+    RodentIndex2[which(is.na(RodentIndex2))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex2))), replace = TRUE)
   }
   
   ## Reindeer carcass abundance
@@ -213,10 +218,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     
     if(t <= Tmax){
       ## Harvest and natural mortality
-      mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
+      mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t]*Reindeer[t] + epsilon.mO[t])
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t]*Reindeer[t] + epsilon.mO[t])*pertFac.mO[t]
     }
     
     ## Pregnancy rate
@@ -237,7 +242,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     }
     
     ## Early survival
-    S0[t] <- Mu.S0
+    S0[t] <- Mu.S0*pertFac.S0[t]
   }
 
   ## Survival probability
@@ -250,7 +255,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   h <- (1 - S)*alpha
 
   ## Immigrant numbers
-  Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))
+  Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))*pertFac.immR[t]
   Imm[1] <- 0
   
 
@@ -310,7 +315,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # d) Check for years with more harvests than alive individuals
   #-------------------------------------------------------------
   
-  if(any(nim.data$C > N[, 1:Tmax])){
+  if(any(nim.data$C > N[, 1:nim.constants$Tmax])){
     stop('Simulation resulted in less alive than harvested. Retry.')
   }
   
