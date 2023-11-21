@@ -48,6 +48,8 @@ rodent.dataset.version <- 5
 
 genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
 
+pups.datapath <- "Data/Rfox_early_litter_sizes.csv"
+
 meta.datafile <- "Data/RedFox_LiteratureData.csv"
 
 hoening.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
@@ -99,6 +101,9 @@ threshold <- 0.2
 pImm.type <- "rescaled"
 #pImm.type <- "LL-based"
 
+# Den survey prior and data toggles
+useData.pup <- TRUE
+useInfPrior.S0 <- FALSE
 
 ## Toggles for LTRE analyses
 HazardRates <- TRUE
@@ -164,6 +169,13 @@ list(
                     onlyFemales = FALSE, 
                     poolYrs.genData = poolYrs.genData, 
                     threshold = threshold)
+  ),
+  
+  # Load and format opportunistic pup observation data
+  tar_target(
+    pup.data,
+    wrangleData_pup(datapath = pups.datapath,
+                    minYear = minYear)
   ),
   
   # Download and reformat data on hunting effort
@@ -243,6 +255,7 @@ list(
                        wAaH.data = wAaH.data, 
                        rep.data = rep.data, 
                        gen.data = gen.data,
+                       pup.data = pup.data,
                        rodent.data = rodent.data, 
                        reindeer.data = reindeer.data,
                        hunter.data = hunter.data, 

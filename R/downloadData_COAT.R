@@ -49,7 +49,7 @@ package_list()
 name <- COATdataset.name  # write here the name including the version of the dataset you want to download
 version <- COATdataset.version    # write here the version of the dataset
 
-pkg<-package_search(q = list(paste("name:", name, sep = "")), fq = list(paste("version:", version, sep = "")), include_private = TRUE)$results[[1]] # search for the dataset and save the results
+pkg <- package_search(q = list(paste("name:", name, sep = "")), fq = list(paste("version:", version, sep = "")), include_private = TRUE)$results[[1]] # search for the dataset and save the results
 urls <- pkg$resources %>% sapply('[[','url')  # get the urls to the files included in the dataset
 filenames <-  pkg$resources %>% sapply('[[','name')  # get the filenames
 
