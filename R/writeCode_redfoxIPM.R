@@ -43,12 +43,11 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Survival
       
-      for(t in 1:Tmax){ 
-        
-        #---------------------------#
-        # OCT - JUN (AUTUMN-SPRING) #
-        #---------------------------#
-        
+      #---------------------------#
+      # OCT - JUN (AUTUMN-SPRING) #
+      #---------------------------#
+      
+      for(t in 1:Tmax){
         # Age class 0 (index = 1): local reproduction
         N[1, t+1] <- sum(R[2:Amax, t+1])
         
@@ -59,11 +58,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Age class 4+ (index = Amax = 5): age class 4 and 5+ survivors
         N[Amax, t+1] ~ dbin(S[Amax, t], octN[Amax-1, t] + octN[Amax, t])
+      }
+      
         
-        #--------------------#
-        # JUN - OCT (SUMMER) #
-        #--------------------#
-        
+      #--------------------#
+      # JUN - OCT (SUMMER) #
+      #--------------------#
+      
+      for(t in 2:Tmax){
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
         octN[1, t] <- survN1[t] + Imm[t]     
         survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
@@ -72,8 +74,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         for(a in 2:Amax){
           octN[a, t] ~ dbin(exp(-mHs[a, t]), N[a, t])
         }
-        
-      }
+      }  
+      
       
       ## Reproduction
       
@@ -82,8 +84,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       L[1, 1:(Tmax+1)] <- 0
       R[1, 1:(Tmax+1)] <- 0
       
+      # First year (reproduction not modelled separately)
+      B[2:Amax, 1] <- 0
+      L[2:Amax, 1] <- 0
+      R[2:Amax, 1] <- 0
+      
       # Age classes 1 to 3+    	    
-      for(t in 1:(Tmax+1)){        				
+      for(t in 2:(Tmax+1)){        				
         for(a in 2:Amax){
           
           # Breeding Population Size: Number of females that reproduce
@@ -518,8 +525,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Initial population size (discrete uniform prior) 
-      
-      N[1:Amax, 1] <- initN[1:Amax]
+      N[1:Amax, 1] <- 0
+      survN1[1] <- 0
+      octN[1:Amax, 1] <- initN[1:Amax]
       
       for(a in 1:Amax){
         initN[a] ~ dcat(DU.prior.N[1:uLim.N]) 
@@ -618,12 +626,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ### Likelihood (age classes: 1, 2, 3+)
       
-      for(t in 1:Tmax){ 
-        
-        #---------------------------#
-        # OCT - JUN (AUTUMN-SPRING) #
-        #---------------------------#
-        
+      ## Survival
+      
+      #---------------------------#
+      # OCT - JUN (AUTUMN-SPRING) #
+      #---------------------------#
+      
+      for(t in 1:Tmax){
         # Age class 0 (index = 1): local reproduction
         N[1, t+1] <- sum(R[2:Amax, t+1])
         
@@ -634,11 +643,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Age class 4+ (index = Amax = 5): age class 4 and 5+ survivors
         N[Amax, t+1] ~ dbin(S[Amax, t], octN[Amax-1, t] + octN[Amax, t])
-        
-        #--------------------#
-        # JUN - OCT (SUMMER) #
-        #--------------------#
-        
+      }
+      
+      
+      #--------------------#
+      # JUN - OCT (SUMMER) #
+      #--------------------#
+      
+      for(t in 2:Tmax){
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
         octN[1, t] <- survN1[t] + Imm[t]     
         survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
@@ -647,8 +659,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         for(a in 2:Amax){
           octN[a, t] ~ dbin(exp(-mHs[a, t]), N[a, t])
         }
-        
-      }
+      }  
       
       
       ## Reproduction
@@ -658,8 +669,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       L[1, 1:(Tmax+1)] <- 0
       R[1, 1:(Tmax+1)] <- 0
       
+      # First year (reproduction not modelled separately)
+      B[2:Amax, 1] <- 0
+      L[2:Amax, 1] <- 0
+      R[2:Amax, 1] <- 0
+      
       # Age classes 1 to 3+    	    
-      for(t in 1:(Tmax+1)){        				
+      for(t in 2:(Tmax+1)){        				
         for(a in 2:Amax){
           
           # Breeding Population Size: Number of females that reproduce
@@ -1078,8 +1094,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Initial population size (discrete uniform prior) 
-      
-      N[1:Amax, 1] <- initN[1:Amax]
+      N[1:Amax, 1] <- 0
+      survN1[1] <- 0
+      octN[1:Amax, 1] <- initN[1:Amax]
       
       for(a in 1:Amax){
         initN[a] ~ dcat(DU.prior.N[1:uLim.N]) 

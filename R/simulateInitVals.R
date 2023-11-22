@@ -272,11 +272,14 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   ## Set initial population sizes
   for(a in 1:Amax){
-    N[a, 1] <- round(runif(1, minN1[a], maxN1[a]))
+    octN[a, 1] <- round(runif(1, minN1[a], maxN1[a]))
   }
   
   ## Set age class 0 reproductive contributions to 0
   B[1, 1:(Tmax+1)] <- L[1, 1:(Tmax+1)] <- R[1, 1:(Tmax+1)] <- 0
+  
+  ## Set first year reproductive contributions to 0
+  B[2:Amax, 1] <- L[2:Amax, 1] <- R[2:Amax, 1] <- 0
   
   
   for (t in 1:Tmax){
@@ -284,13 +287,15 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     # a) Project local survivors to the next year
     #---------------------------------------------
     
-    ## Summer: Age class 0 (index = 1): local pups surviving summer harvest & immigrants
-    survN1[t] <- rbinom(1, size = N[1, t], prob = exp(-mHs[1, t]))
-    octN[1, t] <- survN1[t] + Imm[t+1]     
-    
-    ## Summer: Age classes 1 to 4+ (indices = 2:5)
-    for(a in 2:Amax){
-      octN[a, t] <- rbinom(1, size = N[a, t], prob = exp(-mHs[a, t]))
+    if(t > 1){
+      ## Summer: Age class 0 (index = 1): local pups surviving summer harvest & immigrants
+      survN1[t] <- rbinom(1, size = N[1, t], prob = exp(-mHs[1, t]))
+      octN[1, t] <- survN1[t] + Imm[t+1]     
+      
+      ## Summer: Age classes 1 to 4+ (indices = 2:5)
+      for(a in 2:Amax){
+        octN[a, t] <- rbinom(1, size = N[a, t], prob = exp(-mHs[a, t]))
+      }
     }
     
     ## Autumn-Spring: Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
@@ -340,15 +345,18 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # e) Assemble and return list of initial values
   #----------------------------------------------  
   
-  ## Fill out NA values in B, L, and R
+  ## Fill out NA values in N, survN1, B, L, and R
   for (a in 2:Amax){
+    N[a, 1] <- 0
     #B[a,1] <- rbinom(1, size = N[a, 1], prob = Psi[a, 1])
     #L[a,1] <- rpois(1, lambda = B[a, 1] * rho[a, 1] * 0.5)
     #R[a,1] <- rbinom(1, size = L[a, 1], prob = S0[t])
-    B[a,1] <- 0
-    L[a,1] <- 0
-    R[a,1] <- 0
+    B[a, 1] <- 0
+    L[a, 1] <- 0
+    R[a, 1] <- 0
   }
+  survN1[1] <- 0
+  
   # NOTE: These nodes do not appear in the model and it therefore does not 
   #       matter what numbers they contain. Filling them in prevents a warning
   #       about NA nodes when building the model. 
@@ -356,7 +364,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   ## List all initial values
   InitVals <- list(
     N = N,
-    initN = N[, 1],
+    initN = octN[, 1],
     octN = octN,
     survN1 = survN1,
     B = B, 
