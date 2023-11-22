@@ -122,7 +122,7 @@ perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
 
 ## Set up perturbation parameters for running rodent-dependent harvest scenarios
-factor.mH.rodent <- 1
+factor.mH.rodent <- 1.5
 threshold.rodent.mH <- 1
 
 ## Nimble function for determining perturbation factor based on covariate value
@@ -357,7 +357,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sim_rodentHarvest_th1_fac1.5.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -369,42 +369,13 @@ compareModels(Amax = Amax,
               Tmax = Tmax+Tmax_sim, 
               minYear = minYear, 
               logN = TRUE,
-              post.filepaths = c("RedFoxIPM_final_simTest.rds", 
-                                 "RedFoxIPM_sim_noHarvest.rds"), 
+              post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                 "RedFoxIPM_sim_noHarvest.rds",
+                                 "RedFoxIPM_sim_rodentHarvest_th1_fac1.5.rds"), 
               model.names = c("Baseline projection", 
-                              "No harvest scenario"), 
+                              "No harvest scenario",
+                              "Rodent-dep. harvest scenario"), 
               plotFolder = "Plots/CompTest_PVA")
-
-
-
-## Prior sensitivity analysis for denning survival
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_S0priorSens_naivePrior.rds",
-                                 "RedFoxIPM_S0priorSens_higherMean.rds",
-                                 "RedFoxIPM_S0priorSens_lowerMean.rds",
-                                 "RedFoxIPM_S0priorSens_doubleSD.rds"), 
-              model.names = c("Original inf. prior", 
-                              "Flat prior",
-                              "inf. prior mean + 0.1",
-                              "inf. prior mean - 0.1",
-                              "inf. prior sd * 2"), 
-              plotFolder = "Plots/PriorSensAnalysis_S0")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_S0priorSens_naivePrior.rds",
-                                 "RedFoxIPM_S0priorSens_pupObsData_infoPrior.rds",
-                                 "RedFoxIPM_S0priorSens_pupObsData_naivePrior.rds"), 
-              model.names = c("Original inf. prior", 
-                              "Flat prior",
-                              "Original inf. prior + data",
-                              "Flat prior + data"), 
-              plotFolder = "Plots/CompFinal_S0_data")
 
 
 ###########################################

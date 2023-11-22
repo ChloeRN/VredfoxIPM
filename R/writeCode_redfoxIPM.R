@@ -559,8 +559,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ## Rodent-dependent harvest perturbation factor
       pertFac.mH.flex[1:Tmax] <- 1
       
-      if(Tmax_sim > Tmax){
-        for(t in (Tmax+1):Tmax_sim){
+      if(Tmax_sim > 0){
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){
           pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
                                                   covThreshold = threshold.rodent.mH,
                                                   covValue = RodentAbundance[t])
@@ -1106,8 +1106,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ## Rodent-dependent harvest perturbation factor
       pertFac.mH.flex[1:Tmax] <- 1
       
-      if(Tmax_sim > Tmax){
-        for(t in (Tmax+1):Tmax_sim){
+      if(Tmax_sim > 0){
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){
           pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
                                                   covThreshold = threshold.rodent.mH,
                                                   covValue = RodentAbundance[t])
