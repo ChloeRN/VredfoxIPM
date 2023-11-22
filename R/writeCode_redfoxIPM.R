@@ -238,9 +238,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Harvest mortality hazard rate
         if(fitCov.mH){
-          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t])*pertFac.mH[t]
+          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
         }else{
-          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + epsilon.mH[t])*pertFac.mH[t]
+          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
         }
         
         # Other (natural) mortality hazard rate
@@ -552,6 +552,22 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         Reindeer[t] ~ dnorm(0 + (1-pertFac.reindeer[t]), sd = 1)
       }
       
+      #########################################
+      #### PERTURBATION FACTOR CALCULATION ####
+      #########################################
+      
+      ## Rodent-dependent harvest perturbation factor
+      pertFac.mH.flex[1:Tmax] <- 1
+      
+      if(Tmax_sim > Tmax){
+        for(t in (Tmax+1):Tmax_sim){
+          pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
+                                                  covThreshold = threshold.rodent.mH,
+                                                  covValue = RodentAbundance[t])
+        }
+      }
+      
+      
     })
   }
   
@@ -750,9 +766,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Harvest mortality hazard rate
         if(fitCov.mH){
-          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t])*pertFac.mH[t]
+          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
         }else{
-          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + epsilon.mH[t])*pertFac.mH[t]
+          mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
         }
         
         # Other (natural) mortality hazard rate
@@ -1082,9 +1098,25 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
       }
 
+      
+      #########################################
+      #### PERTURBATION FACTOR CALCULATION ####
+      #########################################
+      
+      ## Rodent-dependent harvest perturbation factor
+      pertFac.mH.flex[1:Tmax] <- 1
+      
+      if(Tmax_sim > Tmax){
+        for(t in (Tmax+1):Tmax_sim){
+          pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
+                                                  covThreshold = threshold.rodent.mH,
+                                                  covValue = RodentAbundance[t])
+        }
+      }
+      
+      
     })
   }
-
   
   return(redfox.code)
 }

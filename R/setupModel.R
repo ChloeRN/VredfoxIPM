@@ -60,7 +60,8 @@ setupModel <- function(modelCode,
               "Psi", "rho", "mH", "mO", "S",
               "initN",
               "N.tot", "B.tot", "R.tot", 
-              "N", "B", "L", "R", "Imm", "immR")
+              "N", "B", "L", "R", "Imm", "immR",
+              "RodentAbundance", "pertFac.mH.flex")
   
   ## Add additional parameters to monitor depending on model version
   if(HoeningPrior){
