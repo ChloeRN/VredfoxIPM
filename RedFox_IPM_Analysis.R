@@ -42,7 +42,8 @@ shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\
 COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
 # Chloe
-shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+#shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+shapefile.dir <- "Data/shapefiles"
 COAT_key <- Sys.getenv("COAT_API")
 
 ## Source all functions in "R" folder
@@ -257,7 +258,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  Tmax = Tmax, 
                                  minYear = minYear,
                                  maxPups = 14,
-                                 uLim.N = 3000,
+                                 uLim.N = 800,
                                  uLim.Imm = 3000,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
@@ -295,8 +296,8 @@ model.setup <- setupModel(modelCode = redfox.code,
                           HoeningPrior = HoeningPrior,
                           testRun = TRUE,
                           initVals.seed = mySeed,
-                          niter = 60000,
-                          nburn = 10000,
+                          niter = 100000,
+                          nburn = 37500,
                           nthin = 8
                           )
 
@@ -417,12 +418,14 @@ compareModels(Amax = Amax,
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
+              post.filepaths = c("RedFoxIPM_S0priorSens_pupObsData_naivePrior.rds",
                                  "RedFoxIPM_sHcount_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior.rds"), 
+                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior_seed0.rds",
+                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior_Seed0_priorInfS0.rds"), 
               model.names = c("No summer harvest", 
                               "Summer harvest counts",
-                              "Summer age-at-harvest"), 
+                              "Summer age-at-harvest",
+                              "Summer age-at-harvest & inf. S0 prior"), 
               plotFolder = "Plots/Comp_summerHarvest")
 
 
