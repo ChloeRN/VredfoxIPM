@@ -121,7 +121,7 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
    
     NoPups = pup.data$NoPups,
     
-    HarvestEffort = hunter.data$NHunters_std,
+    HarvestEffort = HarvestEffort,
     RodentAbundance = RodentAbundance,
     RodentAbundance2 = RodentAbundance2,
     RodentIndex = RodentIndex,
