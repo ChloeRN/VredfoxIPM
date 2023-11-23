@@ -439,6 +439,15 @@ compareModels(Amax = Amax,
               censusCollapse = c(FALSE, TRUE, TRUE),
               plotFolder = "Plots/Comp_summerHarvest2")
 
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_poolGenData_metaAllPrior.rds",
+                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds"), 
+              model.names = c("No sAaH, Meta analysis prior", 
+                              "sAaH, Meta analysis prior"), 
+              censusCollapse = c(FALSE, TRUE),
+              plotFolder = "Plots/Comp_summerHarvest3")
 
 ###########################################
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
