@@ -420,13 +420,24 @@ compareModels(Amax = Amax,
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_S0priorSens_pupObsData_naivePrior.rds",
                                  "RedFoxIPM_sHcount_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior_seed0.rds",
-                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior_Seed0_priorInfS0.rds"), 
+                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior.rds"), 
               model.names = c("No summer harvest", 
                               "Summer harvest counts",
-                              "Summer age-at-harvest",
-                              "Summer age-at-harvest & inf. S0 prior"), 
+                              "Summer age-at-harvest"), 
+              censusCollapse = c(FALSE, FALSE, TRUE),
               plotFolder = "Plots/Comp_summerHarvest")
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_S0priorSens_pupObsData_naivePrior.rds",
+                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior.rds",
+                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds"), 
+              model.names = c("1) No sAaH, N Sweden prior", 
+                              "2) sAaH, N Sweden prior",
+                              "3) sAaH, Meta analysis prior"), 
+              censusCollapse = c(FALSE, TRUE, TRUE),
+              plotFolder = "Plots/Comp_summerHarvest2")
 
 
 ###########################################

@@ -1,5 +1,5 @@
 
-compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.names, plotFolder){
+compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.names, censusCollapse, plotFolder){
   
   ## Check models are specified correctly
   if((missing(post.filepaths) & missing(post.list)) |
@@ -16,19 +16,43 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   ## Count number of models
   nModels <- length(model.names)
   
+  ## Make censusCollapse object if not provided
+  if(missing(censusCollapse)){
+    censusCollapse <- rep(FALSE, nModels)
+  }
+  
   ## Reformat posterior samples
   post.data <- data.frame()
   for(i in 1:nModels){
     
     # Extract samples for relevant model
     if(!missing(post.list)){
-      samples <- post.list[[i]]
+      samples <- as.matrix(post.list[[i]])
     }else{
-      samples <- readRDS(post.filepaths[i])
+      samples <- as.matrix(readRDS(post.filepaths[i]))
+    }
+    
+    # Collapse censuses if necessary
+    # if(censusCollapse[i]){
+    #   
+    #   samples[, "N.tot[1]"] <- rowSums(samples[, paste0("octN[", 1:Amax, ", 1]")])
+    #   
+    #   for(t in 2:(Tmax+1)){
+    #     samples[, paste0("N.tot[", t, "]")] <- samples[, paste0("N.tot[", t, "]")] + samples[, paste0("Imm[", t, "]")]
+    #   }
+    # }
+    
+    if(!censusCollapse[i]){
+      
+      samples[, "N.tot[1]"] <- 0
+      
+      for(t in 2:(Tmax+1)){
+        samples[, paste0("N.tot[", t, "]")] <- samples[, paste0("N.tot[", t, "]")] - samples[, paste0("Imm[", t, "]")]
+      }
     }
     
     # Change format and add to list
-    model.data <- reshape2::melt(as.matrix(samples))
+    model.data <- reshape2::melt(samples)
     colnames(model.data) <- c("Sample", "Parameter", "Value")
     model.data$Model <- model.names[i]
     post.data <- rbind(post.data, model.data)
