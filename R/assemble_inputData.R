@@ -39,8 +39,11 @@
 #' mH, mO, S0, and immR. Output of function setupPerturbVecs. 
 #' @param factor.mH.rodent numeric. Multiplicative perturbation factor for 
 #' harvest mortality to be apply if rodent covariate is above a defined threshold.
-#' @param threshold.rodent.mH numberic. Threshold for rodent covariate value
+#' @param threshold.rodent.mH numeric. Threshold for rodent covariate value
 #' (z-standardized) above which to apply harvest perturbation.
+#' @param thresholdAbove logical. If TRUE (default), applies harvest perturbation 
+#' if rodent covariate value > threshold. If FALSE, applies harvest perturbation if rodent
+#' covariate value < threshold.
 #' @param save logical. If TRUE, saves assembled data as an .rds file in the 
 #' working directory. Default = FALSE. 
 #'
@@ -58,6 +61,7 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
                                surv.priors, survPriorType,
                                perturbVecs, 
                                factor.mH.rodent, threshold.rodent.mH,
+                               thresholdAbove = TRUE,
                                save = FALSE){
   
   ## Select relevant years from observational data
@@ -141,7 +145,8 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
     pertFac.reindeer = perturbVecs$pertFac.reindeer,
     
     factor.mH.rodent = factor.mH.rodent,
-    threshold.rodent.mH = threshold.rodent.mH
+    threshold.rodent.mH = threshold.rodent.mH,
+    thresholdAbove = thresholdAbove
   )
   
   # Constants

@@ -90,7 +90,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   #--------------------------------------------------------#
   
   ## Harvest perturbation based on rodent abundance
-  pertFac.mH.flex <- ifelse(RodentAbundance > nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
+  if(nim.data$thresholdAbove){
+    pertFac.mH.flex <- ifelse(RodentAbundance > nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
+  }else{
+    pertFac.mH.flex <- ifelse(RodentAbundance < nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
+  }
+  
   pertFac.mH.flex[1:nim.constants$Tmax] <- 1
   
   #---------------------------------------------------#

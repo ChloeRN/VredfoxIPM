@@ -124,16 +124,19 @@ perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
 ## Set up perturbation parameters for running rodent-dependent harvest scenarios
 factor.mH.rodent <- 1.5
 threshold.rodent.mH <- 1
+thresholdAbove <- FALSE
+
 
 ## Nimble function for determining perturbation factor based on covariate value
 calculate_pertFac <- nimbleFunction(
   
   run = function(pertFactor = double(0),
                  covThreshold = double(0),
+                 thresholdAbove = logical(0),
                  covValue = double(0)) {
     
     # Set conditional perturbation factor
-    if(covValue > covThreshold){
+    if((thresholdAbove & covValue > covThreshold) | (!thresholdAbove & covValue < covThreshold)){
       pertFac <- pertFactor
     }else{
       pertFac <- 1
@@ -144,6 +147,7 @@ calculate_pertFac <- nimbleFunction(
     returnType(double(0))
   }
 )
+
 
 #*********************#
 # 1) DATA PREPARATION #
@@ -313,7 +317,8 @@ input.data <- assemble_inputData(Amax = Amax,
                                  survPriorType = survPriorType,
                                  perturbVecs = perturbVecs,
                                  factor.mH.rodent = factor.mH.rodent,
-                                 threshold.rodent.mH = threshold.rodent.mH)
+                                 threshold.rodent.mH = threshold.rodent.mH,
+                                 thresholdAbove = thresholdAbove)
 
 
 # 3c) Set up for model run (incl. simulating initial values) #
@@ -357,7 +362,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_rodentHarvest_th1_fac1.5.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sim_rodentHarvest_thBelow1_fac1.5.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
