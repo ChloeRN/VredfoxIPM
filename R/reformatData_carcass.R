@@ -13,7 +13,8 @@
 #' @param add.sumr.unaged logical. Add summer harvested individuals as unaged individuals to the total harvested individuals and their proportion aged.
 #' @param saAH.years a vector of years for which the summer age at harvest matrix should be constructed
 #'
-#' @return a list containing the age-at-harvest matrix and dataframes with embryo count (P1var) and placental scar presence-absence (P2var) data.
+#' @return a list containing the age-at-harvest matrix and dataframes with embryo count (P1var) and placental scar presence-absence (P2var) data, 
+#' and a count of observed harvested individuals in summer for each year.
 #' @export
 #'
 #' @examples
@@ -126,6 +127,9 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   sprop <- sagedf.ann/sallf.ann
   svarFC2$pData <- sprop
   
+  #================= total summer counts all years ==============
+   obsH_s  <- table(fvar1$start_hunting_year[fvar1$mnd %notin% winter_removal]) #observed harvest summer (all years)
+  
   # ========= REPRODUCTION: NR OF EMBRYO'S / PLACENTAL SCARS =========
   #here we exclude foxes with no age info and foxes with no breeding info recorded (no NA, and nr > 0)
   
@@ -168,7 +172,8 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   carcassData <- list(WAaH.matrix = varFC2,
                       SAaH.matrix = svarFC2,
                       P1var = P1var,
-                      P2var = P2var)
+                      P2var = P2var,
+                      obsH_s = obsH_s)
   
   #=== return ===
   return(carcassData)
