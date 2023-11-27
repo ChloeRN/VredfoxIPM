@@ -155,8 +155,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       # mHs = age- and time-dependent summer hunting mortality harvest rate
       
       ### Data:
-      # C = age-at-harvest matrix
-      # pData = annual proportion of harvests with (complete) carcass data
+      # C_s = summer age-at-harvest matrix
+      # pData_s = annual proportion of summer harvests with (complete) carcass data
       
       ### Likelihood
       
@@ -164,6 +164,26 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         for(a in 1:Amax){
           C_s[a, x] ~ dbin((1-exp(-mHs[a, sH_year[x]]))*pData_s[x], N[a, sH_year[x]])
         }
+      }
+      
+      #===============================================================================================
+
+      
+      #####################################
+      #### SUMMER HARVEST COUNT MODULE ####
+      #####################################
+      
+      ### Parameters:
+      # N = number of individuals in a given age class at a given time (start of June)
+      # mHs = age- and time-dependent summer hunting mortality harvest rate
+      
+      ### Data:
+      # obsH_s = summer harvest counts
+
+      ### Likelihood
+      
+      for(t in Tmin_obsH:Tmax){
+        obsH_s[t] ~ dpois(sum((1-exp(-mHs[1:Amax, t))*N[1:Amax, t]))
       }
       
       #===============================================================================================
@@ -749,6 +769,27 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         for(a in 1:Amax){
           C_s[a, x] ~ dbin((1-exp(-mHs[a, sH_year[x]]))*pData_s[x], N[a, sH_year[x]])
         }
+      }
+      
+      #===============================================================================================
+      
+      
+      
+      #####################################
+      #### SUMMER HARVEST COUNT MODULE ####
+      #####################################
+      
+      ### Parameters:
+      # N = number of individuals in a given age class at a given time (start of June)
+      # mHs = age- and time-dependent summer hunting mortality harvest rate
+      
+      ### Data:
+      # obsH_s = summer harvest counts
+      
+      ### Likelihood
+      
+      for(t in Tmin_obsH:Tmax){
+        obsH_s[t] ~ dpois(sum((1-exp(-mHs[1:Amax, t))*N[1:Amax, t]))
       }
       
       #===============================================================================================
