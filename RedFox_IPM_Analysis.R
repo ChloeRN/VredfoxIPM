@@ -443,10 +443,12 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_poolGenData_metaAllPrior.rds",
-                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds"), 
+                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds",
+                                 "RedFoxIPM_sHcount_poolGenData_metaAllPrior.rds"), 
               model.names = c("No sAaH, Meta analysis prior", 
-                              "sAaH, Meta analysis prior"), 
-              censusCollapse = c(FALSE, TRUE),
+                              "sAaH, Meta analysis prior",
+                              "sH counts, Meta analysis prior"), 
+              censusCollapse = c(FALSE, TRUE, FALSE),
               plotFolder = "Plots/Comp_summerHarvest3")
 
 ###########################################
