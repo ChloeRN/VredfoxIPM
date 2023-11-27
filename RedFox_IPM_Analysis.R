@@ -127,7 +127,9 @@ carcass.data <- reformatData_carcass(Amax = Amax,
                                      carcass.dataset = carcass.data.raw,
                                      shapefile.dir = shapefile.dir,
                                      add.sumr.unaged = add.sumr.unaged, 
-                                     saAH.years = saAH.years)
+                                     saAH.years = saAH.years,
+                                     minYear = minYear,
+                                     Tmax = Tmax)
 
 
 # 1b) Age-at-Harvest data #
