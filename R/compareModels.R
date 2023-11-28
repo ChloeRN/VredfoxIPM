@@ -1,5 +1,5 @@
 
-compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.names, plotFolder){
+compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.names, censusCollapse, plotFolder){
   
   ## Check models are specified correctly
   if((missing(post.filepaths) & missing(post.list)) |
@@ -16,19 +16,43 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   ## Count number of models
   nModels <- length(model.names)
   
+  ## Make censusCollapse object if not provided
+  if(missing(censusCollapse)){
+    censusCollapse <- rep(FALSE, nModels)
+  }
+  
   ## Reformat posterior samples
   post.data <- data.frame()
   for(i in 1:nModels){
     
     # Extract samples for relevant model
     if(!missing(post.list)){
-      samples <- post.list[[i]]
+      samples <- as.matrix(post.list[[i]])
     }else{
-      samples <- readRDS(post.filepaths[i])
+      samples <- as.matrix(readRDS(post.filepaths[i]))
+    }
+    
+    # Collapse censuses if necessary
+    # if(censusCollapse[i]){
+    #   
+    #   samples[, "N.tot[1]"] <- rowSums(samples[, paste0("octN[", 1:Amax, ", 1]")])
+    #   
+    #   for(t in 2:(Tmax+1)){
+    #     samples[, paste0("N.tot[", t, "]")] <- samples[, paste0("N.tot[", t, "]")] + samples[, paste0("Imm[", t, "]")]
+    #   }
+    # }
+    
+    if(!censusCollapse[i]){
+      
+      samples[, "N.tot[1]"] <- 0
+      
+      for(t in 2:(Tmax+1)){
+        samples[, paste0("N.tot[", t, "]")] <- samples[, paste0("N.tot[", t, "]")] - samples[, paste0("Imm[", t, "]")]
+      }
     }
     
     # Change format and add to list
-    model.data <- reshape2::melt(as.matrix(samples))
+    model.data <- reshape2::melt(samples)
     colnames(model.data) <- c("Sample", "Parameter", "Value")
     model.data$Model <- model.names[i]
     post.data <- rbind(post.data, model.data)
@@ -70,13 +94,14 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
     
   ## Set parameter groups for plotting posterior density overlaps
   plot.params <- list(
-    VRmeans = c(paste0("Mu.mH[", 1:Amax, "]"), 
+    VRmeans = c(paste0("Mu.mH[", 1:Amax, "]"),
+                paste0("Mu.mHs[", 1:Amax, "]"),
                 paste0("Mu.mO[", 1:Amax, "]"), 
                 paste0("Mu.Psi[", 2:Amax, "]"), 
                 paste0("Mu.rho[", 2:Amax, "]"),  
                 "Mu.S0", "Mu.immR"),
     
-    VReffects = c("sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho", "sigma.immR",
+    VReffects = c("sigma.mH", "sigma.mHs", "sigma.mO", "sigma.Psi", "sigma.rho", "sigma.immR",
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]"),
@@ -95,10 +120,10 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   plotTS.params <- list(
     ParamNames = c("N.tot", "B.tot", "R.tot", "Imm",
                    "mO", "S", #"S0",
-                   "mH", "Psi", "rho", "immR"),
+                   "mH", "mHs", "Psi", "rho", "immR"),
     ParamLabels = c("Female population size", "# breeding females", "# female recruits", "# female immigrants",
                     "Natural mortality", "Survival", #"Early survival",
-                    "Harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
+                    "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
   )
 
   ## Set plotting colors

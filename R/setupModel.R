@@ -55,12 +55,12 @@ setupModel <- function(modelCode,
   
   
   ## Set parameters to monitor in all model versions
-  params <- c("Mu.mH", "Mu.mO", "Mu.Psi", "Mu.rho", "Mu.S0",
-              "sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho",
-              "Psi", "rho", "mH", "mO", "S",
+  params <- c("Mu.mHs", "Mu.mH", "Mu.mO", "Mu.Psi", "Mu.rho", "Mu.S0",
+              "sigma.mHs", "sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho",
+              "Psi", "rho", "mHs", "mH", "mO", "S",
               "initN",
               "N.tot", "B.tot", "R.tot", 
-              "N", "B", "L", "R", "Imm", "immR")
+              "N", "octN", "B", "L", "R", "Imm", "immR")
   
   ## Add additional parameters to monitor depending on model version
   if(HoeningPrior){
