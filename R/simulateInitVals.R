@@ -227,7 +227,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t]*Reindeer[t] + epsilon.mO[t])
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t+1]*Reindeer[t] + epsilon.mO[t])
     }
     
     ## Pregnancy rate
