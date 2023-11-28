@@ -23,7 +23,7 @@ minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9)    #removal of summer months: numerical months to be removed from winter age at harvest data
 winter_removal <- c(1:6, 10:12) #removal of winter months: numerical months to be removed from summer age at harvest data
-area_selection<- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
+area_selection <- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
 # start and end of placental scars and embryo sample periods (julian day)
 plac_start <- 180 #including
 plac_end   <- 80  #until, not including
@@ -207,7 +207,7 @@ rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key,
 
 ## Reformat rodent data
 rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
-                                          minYear = minYear)
+                                   minYear = minYear)
 
 ## Reformat reindeer data
 reindeer.data <- reformatData_reindeer(minYear = minYear,
@@ -303,10 +303,10 @@ model.setup <- setupModel(modelCode = redfox.code,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
                           testRun = FALSE,
-                          initVals.seed = mySeed#,
-                          #niter = 100000,
-                          #nburn = 37500,
-                          #nthin = 8
+                          initVals.seed = mySeed,
+                          niter = 100000,
+                          nburn = 37500,
+                          nthin = 8
                           )
 
 
@@ -463,12 +463,12 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_sAaH&sHcount_poolGenData_metaAllPrior.rds",
-                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds",
-                                 "RedFoxIPM_sHcount_poolGenData_metaAllPrior.rds"), 
-              model.names = c("sAaH & sH counts, Meta analysis prior", 
-                              "sAaH, Meta analysis prior",
-                              "sH counts, Meta analysis prior"), 
-              censusCollapse = c(FALSE, TRUE, FALSE),
+                                 "RedFoxIPM_sAaH&Hcount2_poolGenData_metaAllPrior.rds",
+                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds"), 
+              model.names = c("sAaH & sH counts v1, Meta analysis prior",
+                              "sAaH & sH counts v2, Meta analysis prior",
+                              "sAaH, Meta analysis prior"), 
+              censusCollapse = c(TRUE, TRUE, TRUE),
               plotFolder = "Plots/Comp_summerHarvest4")
 
 ###########################################

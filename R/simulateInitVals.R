@@ -97,7 +97,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     Mu.mO <- c(Mu.mO.ad*JuvAdRatio, rep(Mu.mO.ad, Amax-1))
     
   }else{
-    Mu.Snat <- runif(Amax, 0.5, 0.9)
+    #Mu.Snat <- runif(Amax, 0.5, 0.9)
+    Mu.Snat <- c(0.33, 0.71, 0.50, 0.59, 0.59)
     Mu.mO <- -log(Mu.Snat)
   }
   

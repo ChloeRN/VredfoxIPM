@@ -183,7 +183,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ### Likelihood
       
       for(t in Tmin_obsH:Tmax){
-        obsH_s[t] ~ dpois(sum((1-exp(-mHs[1:Amax, t))*N[1:Amax, t]))
+        obsH_s[t] ~ dpois(sum(N[1:Amax, t]) - survN1[t] - sum(octN[2:Amax, t]))
       }
       
       #===============================================================================================
@@ -789,7 +789,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ### Likelihood
       
       for(t in Tmin_obsH:Tmax){
-        obsH_s[t] ~ dpois(sum((1-exp(-mHs[1:Amax, t))*N[1:Amax, t]))
+        obsH_s[t] ~ dpois(sum(N[1:Amax, t]) - survN1[t] - sum(octN[2:Amax, t]))
       }
       
       #===============================================================================================
