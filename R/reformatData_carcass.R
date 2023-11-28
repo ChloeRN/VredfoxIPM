@@ -50,7 +50,7 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   
   #we need hunting year as an actual number sometimes so we can add and substract
   allf$start_hunting_year <- substr(allf$t_hunting_year, start = 1, stop = 4)
-  allf$start_hunting_year<- as.numeric(allf$start_hunting_year)
+  allf$start_hunting_year <- as.numeric(allf$start_hunting_year)
   
   #Add julian day
   allf$julian <- as.POSIXlt(allf$t_hunting_date)$yday  
