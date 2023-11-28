@@ -135,7 +135,11 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   svarFC2$pData <- sprop
   
   #================= total summer counts all years ==============
-   obsH_s  <- table(fvar1$start_hunting_year[fvar1$mnd %notin% winter_removal]) #observed harvest summer (all years)
+  fvar1$start_hunting_year_fac <- as.factor(fvar1$start_hunting_year)
+  obsH_s  <- table(as.factor(fvar1$start_hunting_year_fac[fvar1$mnd %notin% winter_removal])) #observed harvest summer (all years)
+  year_names <- names(obsH_s)
+  obsH_s <- as.vector(obsH_s)
+  names(obsH_s) <- year_names
   
   # ========= REPRODUCTION: NR OF EMBRYO'S / PLACENTAL SCARS =========
   #here we exclude foxes with no age info and foxes with no breeding info recorded (no NA, and nr > 0)

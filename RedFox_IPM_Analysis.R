@@ -79,8 +79,8 @@ saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix sh
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
 #sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
-sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
-#sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
+#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
@@ -132,7 +132,7 @@ carcass.data <- reformatData_carcass(Amax = Amax,
                                      Tmax = Tmax)
 
 
-# 1b) Age-at-Harvest data #
+# 1b) (Age-at-)Harvest data #
 #--------------------------------#
 
 ## Winter AaH data
@@ -141,7 +141,10 @@ wAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$WAaH.matrix,
 ## Summer AaH data
 sAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$SAaH.matrix, 
                              Amax = Amax)
-
+## Summer harvest counts
+obsH_s.data <- wrangleData_obsH(obsH.datafile = carcass.data$obsH_s,
+                                AaH.data = sAaH.data,
+                                minYear = minYear)
 
 # 1c) Reproduction data #
 #-----------------------#
@@ -270,6 +273,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  pImm.type = pImm.type,
                                  wAaH.data = wAaH.data, 
                                  sAaH.data = sAaH.data,
+                                 obsH_s.data = obsH_s.data,
                                  rep.data = rep.data, 
                                  gen.data = gen.data,
                                  pup.data = pup.data,
@@ -298,11 +302,11 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          testRun = TRUE,
-                          initVals.seed = mySeed,
-                          niter = 100000,
-                          nburn = 37500,
-                          nthin = 8
+                          testRun = FALSE,
+                          initVals.seed = mySeed#,
+                          #niter = 100000,
+                          #nburn = 37500,
+                          #nthin = 8
                           )
 
 
@@ -325,7 +329,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_sAaH_poolGenData_NSwedenPrior.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sAaH&Hcount2_poolGenData_metaAllPrior.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -454,6 +458,18 @@ compareModels(Amax = Amax,
                               "sH counts, Meta analysis prior"), 
               censusCollapse = c(FALSE, TRUE, FALSE),
               plotFolder = "Plots/Comp_summerHarvest3")
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_sAaH&sHcount_poolGenData_metaAllPrior.rds",
+                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds",
+                                 "RedFoxIPM_sHcount_poolGenData_metaAllPrior.rds"), 
+              model.names = c("sAaH & sH counts, Meta analysis prior", 
+                              "sAaH, Meta analysis prior",
+                              "sH counts, Meta analysis prior"), 
+              censusCollapse = c(FALSE, TRUE, FALSE),
+              plotFolder = "Plots/Comp_summerHarvest4")
 
 ###########################################
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
