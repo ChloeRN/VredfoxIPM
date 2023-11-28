@@ -1,5 +1,10 @@
 #' Makes yearly reindeer carcass abundance variable
 #'
+#' This function relies on two datafiles "KadaverOstFinnmark-22.rds" and
+#' "KadaverOstF-GamvikLebesby-22.rds". These files originate from Rovbase and
+#' have subsequently been converted to .rds in an R session where the locale was
+#' set to "Norwegian Bokmål_Norway".
+#'  
 #' @param minYear integer. First year to consider in analyses.
 #' @param Tmax integer. Number of years to consider in analysis
 #' @param reinCov.VarTana logical. If TRUE uses varanger (+Tana) municipalities to count reindeer carcasses, if false uses all of eastern finnmark
@@ -13,13 +18,11 @@
 
 reformatData_reindeer <- function(minYear, Tmax, reinCov.VarTana ){
 
-Sys.setlocale(locale = 'Norwegian BokmC%l_Norway')
-
 #---------Load data-----------
 #Carcasses found in Varanger municipalities (+Tana) + Sor varanger
-carc_VTS <- read.delim("Data/KadaverOstFinnmark-22.txt", stringsAsFactors = F)
+carc_VTS <- readRDS("Data/KadaverOstFinnmark-22.rds")
 #Carcasses found in Gamvik and Lebesby
-carc_GL <- read.delim("Data/KadaverOstF-GamvikLebesby-22.txt", stringsAsFactors = F)
+carc_GL <- readRDS("Data/KadaverOstF-GamvikLebesby-22.rds")
 
 #Combine to carcasses found in whole area:
 #East finnmark in this case, but If we get the file directly from Rovbase, it will have all municipalities.
