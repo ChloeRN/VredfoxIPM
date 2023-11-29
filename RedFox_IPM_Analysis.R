@@ -42,8 +42,8 @@ shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\
 COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
 # Chloe
-shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
-#shapefile.dir <- "Data/shapefiles"
+#shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+shapefile.dir <- "Data/shapefiles"
 COAT_key <- Sys.getenv("COAT_API")
 
 ## Source all functions in "R" folder
@@ -296,7 +296,8 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
-                          testRun = TRUE,
+                          imm.asRate = imm.asRate,
+                          testRun = FALSE,
                           initVals.seed = mySeed,
                           niter = 100000,
                           nburn = 37500,
