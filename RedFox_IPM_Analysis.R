@@ -323,7 +323,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_sAaH_poolGenData_NSwedenPrior.rds")
+saveRDS(IPM.out, file = "ModelRuns/RedFoxIPM_genData1.rds")
 #MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -457,7 +457,7 @@ compareModels(Amax = Amax,
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
 ###########################################
 
-IPM.out <- readRDS("RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+IPM.out <- readRDS("RedFoxIPM_main.rds")
 
 
 ## Plot basic IPM outputs (vital rate & population size estimates)
