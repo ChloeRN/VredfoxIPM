@@ -28,6 +28,12 @@
 #' based on literature. 
 #' @param imm.asRate logical. If TRUE, returns initial values associated with 
 #' immigration rate.
+#' @param Mu.mO_fixInits logical. If TRUE (default), sets initial values for
+#' age-specific average natural mortality hazard rates to pre-defined values
+#' taken from the North Sweden red fox population as presented in Devenish-Nelson
+#' et al. 2017. Using these values seems to produce good sets of initial values
+#' for the entire model. If set to FALSE, initial values for Mu.mO parameters
+#' are instead simulated fron uniform distributions. 
 #' 
 #' @return a list containing a complete set of initial values for all parameters
 #' in the IPM. 
@@ -37,7 +43,7 @@
 
 simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, 
                              fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
-                             mO.varT, HoeningPrior, imm.asRate){
+                             mO.varT, HoeningPrior, imm.asRate, Mu.mO_fixInits = TRUE){
   
   Amax <- nim.constants$Amax
   Tmax <- nim.constants$Tmax
@@ -89,21 +95,39 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   Mu.mH <- runif(Amax, 0.05, 0.2)
   
-  if(HoeningPrior){
+  if(Mu.mO_fixInits){
     
-    JuvAdRatio <- exp(nim.constants$ratioJA.logmean)
-    Mu.mO.ad <- exp(nim.constants$mnat.logmean)
-    
-    Mu.mO <- c(Mu.mO.ad*JuvAdRatio, rep(Mu.mO.ad, Amax-1))
+    if(HoeningPrior){
+      
+      Mu.mO.ad <- -log(mean(c(0.71, 0.5, 0.59, 0.59)))
+      Mu.mO <- c(-log(0.33), rep(Mu.mO.ad, Amax-1))
+      JuvAdRatio <- Mu.mO[1]/Mu.mO.ad
+      
+    }else{
+      
+      Mu.Snat <- c(0.33, 0.71, 0.5, 0.59, 0.59)
+      Mu.mO <- -log(Mu.Snat)
+    }
     
   }else{
-    #Mu.Snat <- nim.constants$Snat.mean
-    Mu.Snat <- rep(NA, Amax)
-    Mu.Snat[1] <- runif(1, 0.4, 0.5)
-    Mu.Snat[2] <- runif(1, 0.65, 0.75)
-    Mu.Snat[3:Amax] <- runif(1, 0.6, 0.8)
-    Mu.mO <- -log(Mu.Snat)
+    
+    if(HoeningPrior){
+      
+      JuvAdRatio <- exp(nim.constants$ratioJA.logmean)
+      Mu.mO.ad <- exp(nim.constants$mnat.logmean)
+      Mu.mO <- c(Mu.mO.ad*JuvAdRatio, rep(Mu.mO.ad, Amax-1))
+      
+    }else{
+      #Mu.Snat <- nim.constants$Snat.mean
+      Mu.Snat <- rep(NA, Amax)
+      Mu.Snat[1] <- runif(1, 0.4, 0.5)
+      Mu.Snat[2] <- runif(1, 0.65, 0.75)
+      Mu.Snat[3:Amax] <- runif(1, 0.6, 0.8)
+      Mu.mO <- -log(Mu.Snat)
+    }
+    
   }
+
   
   ## Annual survival
   Mu.S <- exp(-(Mu.mH + Mu.mO))
