@@ -91,7 +91,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   #---------------------------------------------------#
   
   ## Harvest and natural mortality
-  Mu.mHs <- runif(Amax, 0.05, 0.2)
+  Mu.mHs <- runif(Amax, 0.01, 0.1)
   
   Mu.mH <- runif(Amax, 0.05, 0.2)
   
@@ -120,9 +120,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     }else{
       #Mu.Snat <- nim.constants$Snat.mean
       Mu.Snat <- rep(NA, Amax)
-      Mu.Snat[1] <- runif(1, 0.4, 0.5)
-      Mu.Snat[2] <- runif(1, 0.65, 0.75)
-      Mu.Snat[3:Amax] <- runif(1, 0.6, 0.8)
+      Mu.Snat[1] <- runif(1, 0.4, 0.6)
+      Mu.Snat[2:Amax] <- runif(Amax-1, 0.6, 1)
       Mu.mO <- -log(Mu.Snat)
     }
     

@@ -78,10 +78,10 @@ add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individua
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
-HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
-#sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
+HoeningPrior <- TRUE # Use prior on natural mortality derived from Hoening model
+sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
 #sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
-sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
+#sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
@@ -91,7 +91,8 @@ imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 poolYrs.genData <- TRUE # Pool data across all years
 useData.gen <- TRUE # Use genetic data for estimation of immigration rate
 indLikelihood.genData <- FALSE # Apply an individual-level likelihood for genetic data
-threshold <- 0.2
+threshold <- 0.05
+#threshold <- 0.2
 #pImm.type <- "original"
 pImm.type <- "rescaled"
 #pImm.type <- "LL-based"
@@ -300,8 +301,8 @@ model.setup <- setupModel(modelCode = redfox.code,
                           testRun = FALSE,
                           initVals.seed = mySeed,
                           niter = 100000,
-                          nburn = 37500,
-                          nthin = 8
+                          nburn = 40000,
+                          nthin = 10
                           )
 
 
@@ -324,13 +325,13 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-#saveRDS(IPM.out, file = "RedFoxIPM_main.rds")
-saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_survPrior3.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst1.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_survPrior3.rds") # --> Done
+saveRDS(IPM.out, file = "RedFoxIPM_immEst1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds")
@@ -343,18 +344,31 @@ saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 # 5) MODEL COMPARISONS #
 ########################
 
+## Genetic data likelihoods
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_genData1.rds",
+                                 "RedFoxIPM_genData2.rds"), 
+              model.names = c("sum. likelihood (th = 0.05)", 
+                              "sum. likelihood (th = 0.2)",
+                              "ind. likelihood (rescaled p)"), 
+              plotFolder = "Plots/CompFinal_GenData")
+
+
 ## Survival priors
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds", 
-                                 "RedFoxIPM_final_poolGenData_BristolPrior.rds",
-                                 "RedFoxIPM_final_poolGenData_MetaAllPrior.rds",
-                                 "RedFoxIPM_final_poolGenData_HoeningPrior.rds"), 
-              model.names = c("North Sweden", 
-                              "Bristol",
-                              "Literature meta-analysis",
-                              "Hoening Model"), 
+              post.filepaths = c("RedFoxIPM_main.rds", 
+                                 "RedFoxIPM_survPrior1.rds",
+                                 "RedFoxIPM_survPrior2.rds",
+                                 "RedFoxIPM_survPrior3.rds"), 
+              model.names = c("Meta-analysis", 
+                              "Hoening model",
+                              "North Sweden",
+                              "Bristol"), 
               plotFolder = "Plots/CompFinal_SurvPriors")
 
 
@@ -384,86 +398,8 @@ compareModels(Amax = Amax,
               plotFolder = "Plots/CompFinal_ImmModels")
 
 
-## Genetic data likelihoods (no additional covariates)
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("immTests_immR_poolData_sumL02.rds",
-                                 "immTests_immR_yearData_sumL02.rds",
-                                 "immTests_immR_poolData_indL_rescaled.rds",
-                                 "immTests_immR_yearData_indL_rescaled.rds"), 
-              model.names = c("sum. likelihood (0.2), pooled data", 
-                              "sum. likelihood (0.2), yearly data",
-                              "ind. likelihood (rescaled), pooled data",
-                              "ind. likelihood (rescaled), yearly data"), 
-              plotFolder = "Plots/CompFinal_GenDataLik_noExtraCovs")
 
 
-## Prior sensitivity analysis for denning survival
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_S0priorSens_naivePrior.rds",
-                                 "RedFoxIPM_S0priorSens_higherMean.rds",
-                                 "RedFoxIPM_S0priorSens_lowerMean.rds",
-                                 "RedFoxIPM_S0priorSens_doubleSD.rds"), 
-              model.names = c("Original inf. prior", 
-                              "Flat prior",
-                              "inf. prior mean + 0.1",
-                              "inf. prior mean - 0.1",
-                              "inf. prior sd * 2"), 
-              plotFolder = "Plots/PriorSensAnalysis_S0")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_S0priorSens_naivePrior.rds",
-                                 "RedFoxIPM_S0priorSens_pupObsData_infoPrior.rds",
-                                 "RedFoxIPM_S0priorSens_pupObsData_naivePrior.rds"), 
-              model.names = c("Original inf. prior", 
-                              "Flat prior",
-                              "Original inf. prior + data",
-                              "Flat prior + data"), 
-              plotFolder = "Plots/CompFinal_S0_data")
-
-## Inclusion of summer harvest
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_S0priorSens_pupObsData_naivePrior.rds",
-                                 "RedFoxIPM_sHcount_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior.rds"), 
-              model.names = c("No summer harvest", 
-                              "Summer harvest counts",
-                              "Summer age-at-harvest"), 
-              censusCollapse = c(FALSE, FALSE, TRUE),
-              plotFolder = "Plots/Comp_summerHarvest")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_S0priorSens_pupObsData_naivePrior.rds",
-                                 "RedFoxIPM_sAaH_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds"), 
-              model.names = c("1) No sAaH, N Sweden prior", 
-                              "2) sAaH, N Sweden prior",
-                              "3) sAaH, Meta analysis prior"), 
-              censusCollapse = c(FALSE, TRUE, TRUE),
-              plotFolder = "Plots/Comp_summerHarvest2")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_poolGenData_metaAllPrior.rds",
-                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds",
-                                 "RedFoxIPM_sHcount_poolGenData_metaAllPrior.rds"), 
-              model.names = c("No sAaH, Meta analysis prior", 
-                              "sAaH, Meta analysis prior",
-                              "sH counts, Meta analysis prior"), 
-              censusCollapse = c(FALSE, TRUE, FALSE),
-              plotFolder = "Plots/Comp_summerHarvest3")
 
 ###########################################
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #

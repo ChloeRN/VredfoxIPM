@@ -18,7 +18,7 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   
   ## Make censusCollapse object if not provided
   if(missing(censusCollapse)){
-    censusCollapse <- rep(FALSE, nModels)
+    censusCollapse <- rep(TRUE, nModels)
   }
   
   ## Reformat posterior samples
