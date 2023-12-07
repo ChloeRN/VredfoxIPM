@@ -6,9 +6,9 @@
 #' @param Tmax integer. Number of years in analysis. 
 #'
 #' @return a list of lists containing posterior samples for all vital rates and
-#' population-level quantities. The sublist "t" contains time-specific parameters
-#' while the sublist "t_mean" contains time-average parameters. The latter are
-#' needed for evaluating transient sensitivities. 
+#' population-level quantities for t > 2. The sublist "t" contains time-specific 
+#' parameters while the sublist "t_mean" contains time-average parameters. The 
+#' latter are needed for evaluating transient sensitivities. 
 #' 
 #' @export
 #'
@@ -34,6 +34,7 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
   S <- mH <- mO <- array(NA, dim = c(nosamples, Amax, Tmax-1))
   Psi <- rho <- array(NA, dim = c(nosamples, Amax, Tmax))
   S0 <- m0 <- immR <- matrix(NA, nrow = nosamples, ncol = Tmax)
+  mHs <- array(NA, c(nosamples, Amax, Tmax))
   
   # Time-varying population sizes and growth rates
   N <- n <- array(NA, dim = c(nosamples, Amax, Tmax))
@@ -56,6 +57,7 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
       for(a in 1:Amax){
         Psi[i, a, t] <- out.mat[i, paste0("Psi[", a, ", ", t, "]")]
         rho[i, a, t] <- out.mat[i, paste0("rho[", a, ", ", t, "]")]
+        mHs[i, a, t] <- out.mat[i, paste0("mH[", a, ", ", t, "]")]
         
         if(t < Tmax){
           mH[i, a, t] <- out.mat[i, paste0("mH[", a, ", ", t, "]")]
@@ -99,7 +101,9 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
   
   
   ## Calculate time-average population sizes
-  N_mean <- apply(N, c(1, 2), mean)
+  message("The first year is dropped from summaries as no June population size was estimated.")
+  
+  N_mean <- apply(N[, , 2:Tmax], c(1, 2), mean)
   N_tot_mean <- rowMeans(N_tot)
   n_mean <- N_mean / N_tot_mean
   
@@ -112,24 +116,26 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
   
   
   ## Calculate average immigrant numbers
-  Imm_mean <- rowMeans(Imm[, 2:Tmax])
+  Imm_mean <- rowMeans(Imm[, 2:(Tmax-1)])
   
   
   ## Calculate time-average vital rates
-  S_mean <- apply(S, c(1, 2), mean)
-  mH_mean <- apply(mH, c(1, 2), mean)
-  mO_mean <- apply(mO, c(1, 2), mean)
+  S_mean <- apply(S[, , 2:(Tmax-1)], c(1, 2), mean)
+  mH_mean <- apply(mH[, , 2:(Tmax-1)], c(1, 2), mean)
+  mO_mean <- apply(mO[, , 2:(Tmax-1)], c(1, 2), mean)
   
-  Psi_mean <- apply(Psi[,, 2:Tmax], c(1, 2), mean)
-  rho_mean <- apply(rho[,, 2:Tmax], c(1, 2), mean)
+  Psi_mean <- apply(Psi[, , 3:Tmax], c(1, 2), mean)
+  rho_mean <- apply(rho[, , 3:Tmax], c(1, 2), mean)
   
-  S0_mean <- rowMeans(S0[, 2:Tmax], na.rm = T)
-  m0_mean <- rowMeans(m0[, 2:Tmax], na.rm = T)
+  mHs_mean <- apply(mHs[, , 2:(Tmax-1)], c(1, 2), mean)
   
-  immR_mean <- rowMeans(immR[, 2:Tmax], na.rm = T)
+  S0_mean <- rowMeans(S0[, 3:Tmax], na.rm = T)
+  m0_mean <- rowMeans(m0[, 3:Tmax], na.rm = T)
+  
+  immR_mean <- rowMeans(immR[, 2:(Tmax-1)], na.rm = T)
   
   ## Make time-average population growth rate
-  lambda_mean <- rowMeans(lambda, na.rm = T)
+  lambda_mean <- rowMeans(lambda[, 2:(Tmax-1)], na.rm = T)
   
   
   ## Collect parameter samples in a list
@@ -142,6 +148,8 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
              rho = rho,
              S0 = S0,
              m0 = m0,
+             Ss = exp(-mHs),
+             mHs = mHs,
              immR = immR,
              n = n,
              N = N, 
@@ -161,6 +169,8 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
                   rho = rho_mean,
                   S0 = S0_mean,
                   m0 = m0_mean,
+                  Ss = exp(-mHs_mean),
+                  mHs = mHs_mean,
                   immR = immR_mean,
                   n = n_mean,
                   N = N_mean, 
