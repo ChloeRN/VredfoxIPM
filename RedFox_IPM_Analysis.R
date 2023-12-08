@@ -78,10 +78,10 @@ add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individua
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
-HoeningPrior <- TRUE # Use prior on natural mortality derived from Hoening model
-sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
+HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
+#sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
 #sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
-#sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
+sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
@@ -325,16 +325,16 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-#saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
+saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior3.rds") # --> Done
-saveRDS(IPM.out, file = "RedFoxIPM_immEst1.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_immEst1.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds") # --> Done
 
 
 #MCMCvis::MCMCtrace(IPM.out)
@@ -376,8 +376,8 @@ compareModels(Amax = Amax,
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds", 
-                                 "RedFoxIPM_final_poolGenData_NSwedenPrior_noWeightRodentCov.rds"), 
+              post.filepaths = c("RedFoxIPM_main.rds", 
+                                 "RedFoxIPM_noSppWeigth.rds"), 
               model.names = c("species weights", 
                               "no weights"), 
               plotFolder = "Plots/CompFinal_RodentCovType")
@@ -387,14 +387,14 @@ compareModels(Amax = Amax,
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_ImmNum_NSwedenPrior.rds", # Re-run
-                                 "RedFoxIPM_final_noGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_final_yearGenData_NSwedenPrior.rds"), 
-              model.names = c("Imm. numbers", 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_immEst1.rds",
+                                 "RedFoxIPM_immEst2.rds",
+                                 "RedFoxIPM_immEst3.rds"), 
+              model.names = c("Imm. rate, pooled gen. data", 
+                              "Imm. rate, yearly gen. data",
                               "Imm. rate, naive",
-                              "Imm. rate, pooled gen. data",
-                              "Imm. rate, yearly gen. data"), 
+                              "Imm. numbers (logNorm)"), 
               plotFolder = "Plots/CompFinal_ImmModels")
 
 
@@ -405,7 +405,7 @@ compareModels(Amax = Amax,
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
 ###########################################
 
-IPM.out <- readRDS("RedFoxIPM_final_poolGenData_NSwedenPrior.rds")
+IPM.out <- readRDS("RedFoxIPM_main.rds")
 
 
 ## Plot basic IPM outputs (vital rate & population size estimates)
