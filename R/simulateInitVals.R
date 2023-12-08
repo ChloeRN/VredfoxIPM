@@ -144,6 +144,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   Mu.Imm <- runif(1, minImm, maxImm)
   sigma.Imm <- runif(1, 10, 40)
   
+  logsigma.Imm <- sd(log(truncnorm::rtruncnorm(10000, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm)))
+  
+  
   ## Random effect standard deviations
   sigma.mHs <- runif(1, 0.05, 0.5)
   sigma.mH <- runif(1, 0.05, 0.5)
@@ -489,6 +492,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     InitVals$immR <- c(0, rep(InitVals$Mu.immR, Tmax))
     InitVals$sigma.immR <- runif(1, 0, 0.5)
     InitVals$epsilon.immR <- rep(0, Tmax+1)
+  
+  }else{
+    
+    InitVals$Mu.Imm <- Mu.Imm
+    InitVals$logsigma.Imm <- logsigma.Imm
+    InitVals$ImmExp <- Imm
   }
   
   ## Add initial values for missing covariate values (if applicable)
