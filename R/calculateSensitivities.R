@@ -240,7 +240,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
                                         summaries = postSum_elas))
   
   if(is.null(t_period)){
-    saveRDS(sensResults, file = "RedFoxIPM_Sensitivities")
+    saveRDS(sensResults, file = "RedFoxIPM_Sensitivities.rds")
   }
   
   return(sensResults)
