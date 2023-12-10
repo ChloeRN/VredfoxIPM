@@ -115,7 +115,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
   names(m.labs) <- c("Mu.mHs", "Mu.mH", "Mu.mO")
   
   p.m_age <- results %>% 
-    dplyr::filter(ParamName %in% c("Mu.mHs", "Mu.mH", "Mu.mO")) %>%
+    dplyr::filter(ParamName %in% c("Mu.mHs", "Mu.mH", "Mu.mO") & Value < 2) %>%
     dplyr::mutate(ParamName = factor(ParamName, levels = c("Mu.mHs", "Mu.mH", "Mu.mO"))) %>%
     ggplot(aes(x = Value, group = Age)) + 
     geom_density(aes(color = Age, fill = Age), alpha = 0.5) + 
