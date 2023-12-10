@@ -125,7 +125,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
     theme_bw() + theme(panel.grid = element_blank(), axis.title = element_blank())
   
   # Combined panel
-  pdf("Plots/ParamAvg_Survival&Mortality.pdf", width = 7, height = 6)
+  pdf("Plots/ParamAvg_Survival&Mortality.pdf", width = 8, height = 5)
   print(p.S_age | p.m_age) + plot_layout(ncol = 2, widths = c(1, 2)) 
   dev.off()
   
