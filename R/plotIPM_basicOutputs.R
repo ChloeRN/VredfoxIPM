@@ -26,6 +26,11 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
                   `Mu.S[3]` = exp(-(`Mu.mH[3]` + `Mu.mO[3]`)),
                   `Mu.S[4]` = exp(-(`Mu.mH[4]` + `Mu.mO[4]`)),
                   `Mu.S[5]` = exp(-(`Mu.mH[5]` + `Mu.mO[5]`)),
+                  `Mu.Ss[1]` = exp(-(`Mu.mHs[1]`)),
+                  `Mu.Ss[2]` = exp(-(`Mu.mHs[2]`)),
+                  `Mu.Ss[3]` = exp(-(`Mu.mHs[3]`)),
+                  `Mu.Ss[4]` = exp(-(`Mu.mHs[4]`)),
+                  `Mu.Ss[5]` = exp(-(`Mu.mHs[5]`)),
                   SampleID = 1:nrow(as.matrix(MCMC.samples))) %>%
     tidyr::pivot_longer(cols = -SampleID) %>%
     dplyr::rename(Parameter = name,
@@ -97,26 +102,26 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
   ## Age-specific survival and mortality
 
   # Survival panel
-  S.labs <- c("Annual survival")
-  names(S.labs) <- c("Mu.S")
+  S.labs <- c("Annual survival (Oct-Jun)", "Summer survival (Jul-Sep)")
+  names(S.labs) <- c("Mu.S", "Mu.Ss")
   
   p.S_age <- results %>% 
-    dplyr::filter(ParamName == "Mu.S") %>%
+    dplyr::filter(ParamName %in% c("Mu.S", "Mu.Ss")) %>%
     ggplot(aes(x = Value, group = Age)) + 
     geom_density(aes(color = Age, fill = Age), alpha = 0.5) + 
     scale_color_manual(values = plot.colors.age) + 
     scale_fill_manual(values = plot.colors.age) + 
     ylab("Density") +
-    facet_wrap(~ ParamName, ncol = 1, labeller = labeller(ParamName = S.labs)) + 
+    facet_wrap(~ ParamName, ncol = 1, scales = "free_y", labeller = labeller(ParamName = S.labs)) + 
     theme_bw() + theme(panel.grid = element_blank(), axis.title.x = element_blank(), legend.position = "none")
   
   # Mortality panel
-  m.labs <- c("Harvest mortality (Jul-Sep)", "Harvest mortality (Oct-May)", "Natural mortality")
-  names(m.labs) <- c("Mu.mHs", "Mu.mH", "Mu.mO")
+  m.labs <- c("Natural mortality (Oct-Jun)", "Harvest mortality (Oct-Jun)", "Harvest mortality (Jul-Sep)")
+  names(m.labs) <- c("Mu.mH", "Mu.mO", "Mu.mHs")
   
   p.m_age <- results %>% 
     dplyr::filter(ParamName %in% c("Mu.mHs", "Mu.mH", "Mu.mO") & Value < 2) %>%
-    dplyr::mutate(ParamName = factor(ParamName, levels = c("Mu.mHs", "Mu.mH", "Mu.mO"))) %>%
+    dplyr::mutate(ParamName = factor(ParamName, levels = c("Mu.mH", "Mu.mO", "Mu.mHs"))) %>%
     ggplot(aes(x = Value, group = Age)) + 
     geom_density(aes(color = Age, fill = Age), alpha = 0.5) + 
     scale_color_manual(values = plot.colors.age) + 
