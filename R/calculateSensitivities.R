@@ -167,20 +167,20 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
   # CALCULATION OF TRANSIENT ELASTICITIES #
   #---------------------------------------#
   
-  ## Calculate transient elasiticities for vital rates and population size/structure (evaluated at the temporal mean)
+  ## Calculate transient elasticities for vital rates and population size/structure (evaluated at the temporal mean)
   elasList <- list(
     elas_S = sensList$sens_S*(S/lambda),
     elas_mH = sensList$sens_mH*(mH/lambda),
     elas_mO = sensList$sens_mO*(mO/lambda),
-    
-    elas_Ss = sensList$sens_Ss*(S/lambda),
-    elas_mHs = sensList$sens_mHs*(mHs/lambda),
     
     elas_Psi = sensList$sens_Psi*(Psi/lambda),
     elas_rho = sensList$sens_rho*(rho/lambda),
     
     elas_S0 = sensList$sens_S0*(S0/lambda),
     elas_m0 = sensList$sens_m0*(m0/lambda),
+    
+    elas_Ss = sensList$sens_Ss*(S/lambda),
+    elas_mHs = sensList$sens_mHs*(mHs/lambda),
     
     elas_immR = sensList$sens_immR*(immR/lambda),
     
