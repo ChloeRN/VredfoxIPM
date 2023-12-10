@@ -30,7 +30,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     for(i in 1:length(paramSamples$t_mean)){
       
       paramName <- names(paramSamples$t)[i]
-      t_offset <- ifelse(paramName %in% c("Psi", "rho", "S0", "m0", "immR"), 1, 0)
+      t_offset <- ifelse(paramName %in% c("Psi", "rho", "S0", "m0"), 1, 0)
       
       focalParam <- paramSamples$t[[i]]
       
@@ -59,8 +59,8 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     sens_S0 = rep(NA, nosamples),
     sens_m0 = rep(NA, nosamples),
     
-    sens_Ss = rep(NA, nosamples),
-    sens_mHs = rep(NA, nosamples),
+    sens_Ss = matrix(NA, nrow = nosamples, ncol = Amax),
+    sens_mHs = matrix(NA, nrow = nosamples, ncol = Amax),
     
     sens_immR = rep(NA, nosamples),
     
@@ -78,18 +78,18 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
       
       if(a == 1){
         
-        sensList$sens_S[i, a] <- n[i, a]*sS[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])*(1 + immR[i])
+        sensList$sens_S[i, a] <- n[i, a]*Ss[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])*(1 + immR[i])
         sensList$sens_Ss[i, a] <- n[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])*(1 + immR[i])
         
         sensList$sens_Psi[i, a] <- 0
         sensList$sens_rho[i, a] <- 0
         
-        sensList$sens_n[i, a] <-   sS[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])*(1 + immR[i])
+        sensList$sens_n[i, a] <-   Ss[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])*(1 + immR[i])
         
       }else{
         
-        sensList$sens_S[i, a] <- n[i, a]*sS[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])
-        sensList$sens_sS[i, a] <- n[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])
+        sensList$sens_S[i, a] <- n[i, a]*Ss[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])
+        sensList$sens_Ss[i, a] <- n[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])
         
         if(a < Amax){
           
@@ -106,7 +106,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
           sensList$sens_rho[i, a] <- (n[i, a-1]*Ss[i, a-1]*S[i, a-1] + n[i, a]*S[i, a]*Ss[i, a])*0.5*Psi[i, a]*S0[i]
         }
         
-        sensList$sens_n[i, a] <-   sS[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])
+        sensList$sens_n[i, a] <-   Ss[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])
       }
       
       sensList$sens_mH[i, a] <- sensList$sens_mO[i, a] <- -exp(-(mH[i, a] + mO[i, a]))*sensList$sens_S[i, a]
@@ -121,7 +121,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     
     sensList$sens_m0[i] <- -exp(-m0[i])*sensList$sens_S0[i]
     
-    sensList$sens_immR[i] <- n[i, 1]*sS[i, 1]*S[i, 1]*(1 + Psi[i, 2]*0.5*rho[i, 2]*S0[i])
+    sensList$sens_immR[i] <- n[i, 1]*Ss[i, 1]*S[i, 1]*(1 + Psi[i, 2]*0.5*rho[i, 2]*S0[i])
 
   }
   
