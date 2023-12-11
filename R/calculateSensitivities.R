@@ -134,14 +134,14 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     if(is.matrix(sensList[[i]])){
       
       # Extract quantiles for age-specific parameters
-      quantiles <- apply(sensList[[i]], 2, stats::quantile, probs = c(0.05, 0.5, 0.975))
+      quantiles <- apply(sensList[[i]], 2, stats::quantile, probs = c(0.025, 0.5, 0.975))
       dimnames(quantiles)[[1]] <- c("lCI", "median", "uCI")
       
       data_temp <- cbind(data.frame(Parameter = names(sensList[i]), AgeClass = 1:Amax), t(quantiles))
       
       # Extract quantiles for sensitivities summed over age classes
       sum_temp <- cbind(data.frame(Parameter = names(sensList[i]), AgeClass = "summed"), 
-                        t(quantile(rowSums(sensList[[i]]), probs = c(0.05, 0.5, 0.975))))
+                        t(quantile(rowSums(sensList[[i]]), probs = c(0.025, 0.5, 0.975))))
       colnames(sum_temp)[3:5] <- c("lCI", "median", "uCI")
       
       data_temp <- rbind(data_temp, sum_temp)
@@ -152,7 +152,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     }else{
       
       # Extract quantiles for age-specific parameters
-      quantiles <- quantile(sensList[[i]], probs = c(0.05, 0.5, 0.975))
+      quantiles <- quantile(sensList[[i]], probs = c(0.025, 0.5, 0.975))
       names(quantiles) <- c("lCI", "median", "uCI")
       
       data_temp <- cbind(data.frame(Parameter = names(sensList[i]), AgeClass = NA), t(quantiles))
@@ -197,14 +197,14 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     if(is.matrix(elasList[[i]])){
       
       # Extract quantiles for age-specific parameters
-      quantiles <- apply(elasList[[i]], 2, stats::quantile, probs = c(0.05, 0.5, 0.975))
+      quantiles <- apply(elasList[[i]], 2, stats::quantile, probs = c(0.025, 0.5, 0.975))
       dimnames(quantiles)[[1]] <- c("lCI", "median", "uCI")
       
       data_temp <- cbind(data.frame(Parameter = names(elasList[i]), AgeClass = 1:Amax), t(quantiles))
       
       # Extract quantiles for elasitivities summed over age classes
       sum_temp <- cbind(data.frame(Parameter = names(elasList[i]), AgeClass = "summed"), 
-                        t(quantile(rowSums(elasList[[i]]), probs = c(0.05, 0.5, 0.975))))
+                        t(quantile(rowSums(elasList[[i]]), probs = c(0.025, 0.5, 0.975))))
       colnames(sum_temp)[3:5] <- c("lCI", "median", "uCI")
       
       data_temp <- rbind(data_temp, sum_temp)
@@ -215,7 +215,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     }else{
       
       # Extract quantiles for age-specific parameters
-      quantiles <- quantile(elasList[[i]], probs = c(0.05, 0.5, 0.975))
+      quantiles <- quantile(elasList[[i]], probs = c(0.025, 0.5, 0.975))
       names(quantiles) <- c("lCI", "median", "uCI")
       
       data_temp <- cbind(data.frame(Parameter = names(elasList[i]), AgeClass = NA), t(quantiles))
