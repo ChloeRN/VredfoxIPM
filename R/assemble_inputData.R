@@ -35,10 +35,17 @@
 #' for early survival, age-specific annual survival, and juvenile/adult natural
 #' mortality hazard rate.
 #' @param survPriorType a list containing information on prior for annual survival.
-#' @param perturbVecs. a list of perturbation vectors for vital rates, each 
+#' @param perturbVecs a list of perturbation vectors for vital rates, each 
 #' with a length of Tmax+Tmax_sim or Tmax+Tmax_sim+1 and made up of positive 
 #' numerics. The perturbation vectors have to be named pertFac.[X], where [X] =
 #' mH, mO, S0, and immR. Output of function setupPerturbVecs. 
+#' @param factor.mH.rodent numeric. Multiplicative perturbation factor for 
+#' harvest mortality to be apply if rodent covariate is above a defined threshold.
+#' @param threshold.rodent.mH numeric. Threshold for rodent covariate value
+#' (z-standardized) above which to apply harvest perturbation.
+#' @param thresholdAbove logical. If TRUE (default), applies harvest perturbation 
+#' if rodent covariate value > threshold. If FALSE, applies harvest perturbation if rodent
+#' covariate value < threshold.
 #' @param save logical. If TRUE, saves assembled data as an .rds file in the 
 #' working directory. Default = FALSE. 
 #'
@@ -54,7 +61,9 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
                                wAaH.data, sAaH.data, rep.data, gen.data, pup.data,
                                rodent.data, reindeer.data, hunter.data, 
                                surv.priors, survPriorType,
-                               perturbVecs,
+                               perturbVecs, 
+                               factor.mH.rodent, threshold.rodent.mH,
+                               thresholdAbove = TRUE,
                                save = FALSE){
   
   ## Select relevant years from observational data
@@ -144,7 +153,11 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
     pertFac.S0 = perturbVecs$pertFac.S0,
     pertFac.immR = perturbVecs$pertFac.immR,
     pertFac.rodent = perturbVecs$pertFac.rodent,
-    pertFac.reindeer = perturbVecs$pertFac.reindeer
+    pertFac.reindeer = perturbVecs$pertFac.reindeer,
+    
+    factor.mH.rodent = factor.mH.rodent,
+    threshold.rodent.mH = threshold.rodent.mH,
+    thresholdAbove = thresholdAbove
   )
   
   # Constants

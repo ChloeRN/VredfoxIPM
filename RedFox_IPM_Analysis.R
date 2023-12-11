@@ -106,15 +106,15 @@ useInfPrior.S0 <- FALSE
 S0.mean.offset <- 0
 S0.sd.factor <- 1
 
-## Set up perturbation parameters for running scenarios
-pert.mH <- TRUE
+## Set up perturbation parameters for running standard scenarios
+pert.mH <- FALSE
 pert.mO <- FALSE
 pert.S0 <- FALSE
 pert.immR <- FALSE
 pert.rodent <- FALSE
 pert.reindeer <- FALSE
 
-factor.mH <- 0
+factor.mH <- 1
 factor.mO <- 1
 factor.S0 <- 1
 factor.immR <- 1
@@ -128,6 +128,33 @@ perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.immR = pert.immR, factor.immR = factor.immR,
                                     pert.rodent = pert.rodent, factor.rodent = factor.rodent,
                                     pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
+
+## Set up perturbation parameters for running rodent-dependent harvest scenarios
+factor.mH.rodent <- 1.5
+threshold.rodent.mH <- 1
+thresholdAbove <- FALSE
+
+
+## Nimble function for determining perturbation factor based on covariate value
+calculate_pertFac <- nimbleFunction(
+  
+  run = function(pertFactor = double(0),
+                 covThreshold = double(0),
+                 thresholdAbove = logical(0),
+                 covValue = double(0)) {
+    
+    # Set conditional perturbation factor
+    if((thresholdAbove & covValue > covThreshold) | (!thresholdAbove & covValue < covThreshold)){
+      pertFac <- pertFactor
+    }else{
+      pertFac <- 1
+    }
+    
+    # Return perturbation factor
+    return(pertFac)
+    returnType(double(0))
+  }
+)
 
 
 #*********************#
@@ -303,7 +330,10 @@ input.data <- assemble_inputData(Amax = Amax,
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,
                                  survPriorType = survPriorType,
-                                 perturbVecs = perturbVecs)
+                                 perturbVecs = perturbVecs,
+                                 factor.mH.rodent = factor.mH.rodent,
+                                 threshold.rodent.mH = threshold.rodent.mH,
+                                 thresholdAbove = thresholdAbove)
 
 
 # 3c) Set up for model run (incl. simulating initial values) #
@@ -348,17 +378,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-
-saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
-#saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds") # --> Done
-#saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds") # --> Done
-#saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds") # --> Done
-#saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds") # --> Done
-#saveRDS(IPM.out, file = "RedFoxIPM_survPrior3.rds") # --> Done
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst1.rds") # --> Done
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds") # --> Done
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds") # --> Done
-#saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds") # --> Done
+saveRDS(IPM.out, file = "RedFoxIPM_sim_rodentHarvest_thBelow1_fac1.5.rds")
 
 #MCMCvis::MCMCtrace(IPM.out)
 
@@ -367,60 +387,17 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
 # 5) MODEL COMPARISONS #
 ########################
 
-
-## Genetic data likelihoods
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds",
-                                 "RedFoxIPM_genData1.rds",
-                                 "RedFoxIPM_genData2.rds"), 
-              model.names = c("sum. likelihood (th = 0.05)", 
-                              "sum. likelihood (th = 0.2)",
-                              "ind. likelihood (rescaled p)"), 
-              plotFolder = "Plots/CompFinal_GenData")
-
-
-## Survival priors
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_survPrior1.rds",
-                                 "RedFoxIPM_survPrior2.rds",
-                                 "RedFoxIPM_survPrior3.rds"), 
-              model.names = c("Meta-analysis", 
-                              "Hoening model",
-                              "North Sweden",
-                              "Bristol"), 
-              plotFolder = "Plots/CompFinal_SurvPriors")
-
-
-## Rodent covariate type
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_noSppWeigth.rds"), 
-              model.names = c("species weights", 
-                              "no weights"), 
-              plotFolder = "Plots/CompFinal_RodentCovType")
-
-
-## Immigration models
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds",
-                                 "RedFoxIPM_immEst1.rds",
-                                 "RedFoxIPM_immEst2.rds",
-                                 "RedFoxIPM_immEst3.rds"), 
-              model.names = c("Imm. rate, pooled gen. data", 
-                              "Imm. rate, yearly gen. data",
-                              "Imm. rate, naive",
-                              "Imm. numbers (logNorm)"), 
-              plotFolder = "Plots/CompFinal_ImmModels")
-
+              logN = TRUE,
+              post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                 "RedFoxIPM_sim_noHarvest.rds",
+                                 "RedFoxIPM_sim_rodentHarvest_th1_fac1.5.rds"), 
+              model.names = c("Baseline projection", 
+                              "No harvest scenario",
+                              "Rodent-dep. harvest scenario"), 
+              plotFolder = "Plots/CompTest_PVA")
 
 
 ###########################################
