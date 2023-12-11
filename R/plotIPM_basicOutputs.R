@@ -246,7 +246,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
   
   VR.labs <- c("Annual survival", "Winter harvest mortality", "Natural mortality", "Pregnancy rate (1 year old)", "Fetus number (1 year old)", "Summer harvest mortality", "Immigration rate")
   names(VR.labs) <- c("S", "mH", "mO", "Psi", "rho", "mHs", "immR")
-  VR.cols <- plot.colors.param[c(1:5, 7:8)]
+  VR.cols <- c(plot.colors.param[1:5], "#785F94", plot.colors.param[7])
   
   p.VRs_time <- results.sum.VR %>%
     ggplot(aes(x = Year, group = ParamName)) + 
