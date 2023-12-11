@@ -298,7 +298,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
                           imm.asRate = imm.asRate,
-                          testRun = FALSE,
+                          testRun = TRUE,
                           initVals.seed = mySeed
                           )
 
