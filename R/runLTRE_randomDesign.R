@@ -36,9 +36,9 @@ runLTRE_randomDesign <- function(paramSamples, sensitivities, Amax, Tmax, Hazard
   dropParams <- c("N_tot", "B", "B_tot", "L", "L_tot", "R", "R_tot")
   
   if(HazardRates){
-    dropParams <- c(dropParams, "S", "S0", "Ss")
+    dropParams <- c(dropParams, "S", "S0")
   }else{
-    dropParams <- c(dropParams, "mH", "mO", "m0", "mHs")
+    dropParams <- c(dropParams, "mH", "mO", "m0")
   }
   
   if(PopStructure){
@@ -101,10 +101,10 @@ runLTRE_randomDesign <- function(paramSamples, sensitivities, Amax, Tmax, Hazard
       }
       
       # Set time interval based on parameter
-      if(names(paramList)[x] %in% c("Psi", "rho", "S0", "m0")){
-        tInt <- 3:Tmax
+      if(names(paramList)[x] %in% c("Psi", "rho", "S0", "m0", "immR")){
+        tInt <- 2:Tmax
       }else{
-        tInt <- 2:(Tmax-1)
+        tInt <- 1:(Tmax-1)
       }
       
       # Expand age class if required and list relevant parameter estimates
@@ -177,10 +177,10 @@ runLTRE_randomDesign <- function(paramSamples, sensitivities, Amax, Tmax, Hazard
   
   ## Check sum of contributions against variance in lambda
   contList$other$total.contSum <- rowSums(dplyr::bind_rows(contList$cont))
-  quantile(contList$other$total.contSum, probs = c(0.025, 0.5, 0.975))
+  quantile(contList$other$total.contSum, probs = c(0.05, 0.5, 0.995))
   
-  contList$other$tempvar_lambda <- matrixStats::rowVars(paramList$lambda[,2:(Tmax-1)])
-  quantile(contList$other$tempvar_lambda, probs = c(0.025, 0.5, 0.975))
+  contList$other$tempvar_lambda <- matrixStats::rowVars(paramList$lambda[,1:(Tmax-1)])
+  quantile(contList$other$tempvar_lambda, probs = c(0.05, 0.5, 0.995))
   
   
   ## Calculate summed contributions for age-specific parameters
@@ -193,12 +193,6 @@ runLTRE_randomDesign <- function(paramSamples, sensitivities, Amax, Tmax, Hazard
     names(contList$cont)[which(names(contList$cont) == "newSum")] <- paste0(sumParams[x], "_sum")
   }
   
-  ## Calculate overall survival/harvest contributions
-  if(HazardRates){
-    contList$cont$mHtot_sum <- contList$cont$mH_sum + contList$cont$mHs_sum
-  }else{
-    contList$cont$Stot_sum <- contList$cont$S_sum + contList$cont$Ss_sum
-  }
   
   ## Arrange results as dataframe
   contData <- melt(dplyr::bind_rows(contList$cont, .id = "column_label")) 

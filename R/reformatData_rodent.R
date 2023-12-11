@@ -59,6 +59,16 @@ stor$foxreg[stor$reg %in% c("komagdalen",  "stjernevann", "vestre_jakobselv")] <
 stor$foxreg[stor$reg %in% c("nordkynn",  "bekkarfjord")] <- "nordkynn"
 stor$foxreg[stor$reg == "ifjordfjellet"] <- "ifjordfjellet"
 
+#check if 2 seasons for each year
+nrow(stor[stor$season =="fall",])
+nrow(stor[stor$season =="spring",])
+
+check <- aggregate(. ~ season +year, stor, FUN = length)
+if( (length(check$season)) %% 2 !=0 ){    #check if even nr of seasons
+  stop("uneven number of seasons in rodent dataset")  #this will return an error when using google disc folders because autumn 2022 not included
+}
+
+
 #--- continuous rodent variables WINTER (VARANGER only) ---
 agvar <-  aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot) ~ year + season + foxreg, stor, mean)  #the mean nr of rodents per plot, for each year and season
 agvar <- agvar[agvar$foxreg=="varanger",] # we only use varanger
@@ -111,19 +121,29 @@ agstor_fall$st.lemvole <- (agstor_fall$st.lem+ agstor_fall$st.vole) # vole and l
 # and the categories are the same whether we split based on st.tot or st.lemvole (as long as you choose 0.25 as your threshold)
 agstor_fall$cat2 <- ifelse(agstor_fall$st.tot>0.25, 1,0)
 
+#--- Add all rodent variables together
+merged_fallwinter <- merge(agvar_winter, agstor_fall, by="start_hunting_year", all = T, suffixes = c(".wintvar",".fallstor"))
+
+#--- Re-add missing year labels
+merged_fallwinter$year <- ifelse(is.na(merged_fallwinter$year), merged_fallwinter$start_hunting_year, merged_fallwinter$year)
+
+## Discard earlier years (if present)
+merged_fallwinter <- subset(merged_fallwinter, year >= (minYear-1))
 
 ## List and return
-return(list(cont.wintvar          =   agvar_winter$st.tot,      #winter varanger continuous, only standardised for seasons
-            cont.wintvar.stsp     =   agvar_winter$st.lemvole,  #winter varanger continuous, standardised for seasons and species
-            cat2.wintvar          =   agvar_winter$cat2 + 1,    #winter varanger 2 categories
+return(list(cont.wintvar          =   merged_fallwinter$st.tot.wintvar,      #winter varanger continuous, only standardised for seasons
+            cont.wintvar.stsp     =   merged_fallwinter$st.lemvole.wintvar,  #winter varanger continuous, standardised for seasons and species
+            cat2.wintvar          =   merged_fallwinter$cat2.wintvar + 1,    #winter varanger 2 categories
             
-            cont.fallstor         =   agstor_fall$st.tot,     #fall storskala continuous
-            cont.fallstor.stsp    =   agstor_fall$st.lemvole, #fall storskala continuous, standardised for species
-            cat2.fallstor         =   agstor_fall$cat2 + 1,   #fall storskala 2 factors
+            cont.fallstor         =   merged_fallwinter$st.tot.fallstor,     #fall storskala continuous
+            cont.fallstor.stsp    =   merged_fallwinter$st.lemvole.fallstor, #fall storskala continuous, standardised for species
+            cat2.fallstor         =   merged_fallwinter$cat2.fallstor + 1,   #fall storskala 2 factors
             
-            YearInfo.wint         =   paste0("fall ", agvar_winter$start_hunting_year, " - spring ", agvar_winter$start_hunting_year + 1),
-            YearInfo.fall         =   paste0("fall ", agstor_fall$start_hunting_year)))
+            YearInfo.wint         =   paste0("fall ", merged_fallwinter$start_hunting_year, " - spring ", merged_fallwinter$start_hunting_year + 1),
+            YearInfo.fall         =   paste0("fall ", merged_fallwinter$start_hunting_year)))
 
+
+return(merged_fallwinter)
 }
 
 

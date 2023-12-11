@@ -16,9 +16,7 @@
 #' by Geneclass 2 and standardized so that the minimum immigrant probability = 0.
 #' "LL-based" = log likelihood other / log likelihood other + log likelihood Varanger. 
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
-#' @param wAaH.data a list containing a winter Age-at-Harvest matrix (C) and a vector of
-#' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
-#' @param sAaH.data a list containing a summer Age-at-Harvest matrix (C) and a vector of
+#' @param wAaH.data a list containing an Age-at-Harvest matrix (winterC) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @param rep.data a list containing formatted reproduction data in two data 
 #' frames: 'P1' (counts) and 'P2' (presences/absences).
@@ -58,7 +56,7 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
                                maxPups, uLim.N, uLim.Imm, 
                                nLevels.rCov = NA, standSpec.rCov,
                                poolYrs.genData, pImm.type,
-                               wAaH.data, sAaH.data, rep.data, gen.data, pup.data,
+                               wAaH.data, rep.data, gen.data, pup.data,
                                rodent.data, reindeer.data, hunter.data, 
                                surv.priors, survPriorType,
                                perturbVecs, 
@@ -69,14 +67,8 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
   ## Select relevant years from observational data
   
   # Winter Age-at-Harvest data
-  C_w <- wAaH.data$C[,which(colnames(wAaH.data$C) == minYear) + 1:Tmax - 1]
-  pData_w <- wAaH.data$pData[which(colnames(wAaH.data$C) == minYear) + 1:Tmax - 1]
-  
-  # Summer Age-at-Harvest data
-  C_s <- sAaH.data$C
-  pData_s <- sAaH.data$pData
-  XsH <- length(pData_s)
-  sH_year <- as.numeric(colnames(C_s)) - minYear + 1
+  C <- wAaH.data$winterC[,which(colnames(wAaH.data$winterC) == minYear) + 1:Tmax - 1]
+  pData <- wAaH.data$pData[which(colnames(wAaH.data$winterC) == minYear) + 1:Tmax - 1]
   
   # Reproduction data
   P1 <- subset(rep.data$P1, repryear %in% c(minYear + 0:Tmax))
@@ -129,11 +121,8 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
   ## List all relevant data (split into data and constants as used by NIMBLE)
   # Data
   nim.data <- list(
-    C_w = C_w,
-    pData_w = pData_w,
-    
-    C_s = C_s,
-    pData_s = pData_s,
+    C = C,
+    pData = pData,
     
     P1 = P1$P1,
     
@@ -170,9 +159,6 @@ assemble_inputData <- function(Amax, Tmax, Tmax_sim, minYear,
     maxPups = maxPups,
     uLim.N = uLim.N,
     uLim.Imm = uLim.Imm,
-    
-    XsH = XsH,
-    sH_year = sH_year,
     
     P1_age = P1$age_adj,
     P1_year = P1$RepYearIndex,

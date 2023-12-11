@@ -17,12 +17,6 @@
 # pptx files
 *.pptx
 
-# Specific folders
-/Data/shapefiles/
-/Data/shapefiles/*
-Data/shapefiles/
-Data/shapefiles/*
-
 # User-specific files
 .Ruserdata
 

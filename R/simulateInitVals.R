@@ -28,12 +28,6 @@
 #' based on literature. 
 #' @param imm.asRate logical. If TRUE, returns initial values associated with 
 #' immigration rate.
-#' @param Mu.mO_fixInits logical. If TRUE (default), sets initial values for
-#' age-specific average natural mortality hazard rates to pre-defined values
-#' taken from the North Sweden red fox population as presented in Devenish-Nelson
-#' et al. 2017. Using these values seems to produce good sets of initial values
-#' for the entire model. If set to FALSE, initial values for Mu.mO parameters
-#' are instead simulated fron uniform distributions. 
 #' 
 #' @return a list containing a complete set of initial values for all parameters
 #' in the IPM. 
@@ -43,7 +37,7 @@
 
 simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, 
                              fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
-                             mO.varT, HoeningPrior, imm.asRate, Mu.mO_fixInits = TRUE){
+                             mO.varT, HoeningPrior, imm.asRate){
   
   Amax <- nim.constants$Amax
   Tmax <- nim.constants$Tmax + nim.constants$Tmax_sim
@@ -109,42 +103,19 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   #---------------------------------------------------#
   
   ## Harvest and natural mortality
-  Mu.mHs <- runif(Amax, 0.01, 0.1)
-  
   Mu.mH <- runif(Amax, 0.05, 0.2)
   
-  if(Mu.mO_fixInits){
+  if(HoeningPrior){
     
-    if(HoeningPrior){
-      
-      Mu.mO.ad <- -log(mean(c(0.71, 0.5, 0.59, 0.59)))
-      Mu.mO <- c(-log(0.33), rep(Mu.mO.ad, Amax-1))
-      JuvAdRatio <- Mu.mO[1]/Mu.mO.ad
-      
-    }else{
-      
-      Mu.Snat <- c(0.33, 0.71, 0.5, 0.59, 0.59)
-      Mu.mO <- -log(Mu.Snat)
-    }
+    JuvAdRatio <- exp(nim.constants$ratioJA.logmean)
+    Mu.mO.ad <- exp(nim.constants$mnat.logmean)
+    
+    Mu.mO <- c(Mu.mO.ad*JuvAdRatio, rep(Mu.mO.ad, Amax-1))
     
   }else{
-    
-    if(HoeningPrior){
-      
-      JuvAdRatio <- exp(nim.constants$ratioJA.logmean)
-      Mu.mO.ad <- exp(nim.constants$mnat.logmean)
-      Mu.mO <- c(Mu.mO.ad*JuvAdRatio, rep(Mu.mO.ad, Amax-1))
-      
-    }else{
-      #Mu.Snat <- nim.constants$Snat.mean
-      Mu.Snat <- rep(NA, Amax)
-      Mu.Snat[1] <- runif(1, 0.4, 0.6)
-      Mu.Snat[2:Amax] <- runif(Amax-1, 0.6, 1)
-      Mu.mO <- -log(Mu.Snat)
-    }
-    
+    Mu.Snat <- nim.constants$Snat.mean
+    Mu.mO <- -log(Mu.Snat)
   }
-
   
   ## Annual survival
   Mu.S <- exp(-(Mu.mH + Mu.mO))
@@ -162,11 +133,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   Mu.Imm <- runif(1, minImm, maxImm)
   sigma.Imm <- runif(1, 10, 40)
   
-  logsigma.Imm <- sd(log(truncnorm::rtruncnorm(10000, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm)))
-  
-  
   ## Random effect standard deviations
-  sigma.mHs <- runif(1, 0.05, 0.5)
   sigma.mH <- runif(1, 0.05, 0.5)
   sigma.Psi <- runif(1, 0.05, 0.5)
   sigma.rho <- runif(1, 0.05, 0.5)
@@ -178,7 +145,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   ## Random effects (initialize at to 0)
-  epsilon.mHs <- rep(0, Tmax)
   epsilon.mH <- rep(0, Tmax)
   epsilon.mO <- rep(0, Tmax)
   epsilon.Psi <- rep(0, Tmax+1)
@@ -257,22 +223,18 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # Calculate year-specific vital rates #
   #-------------------------------------#
   
-  mHs <- mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
+  mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
   Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
   S0 <- rep(NA, Tmax + 1)
   
   for(t in 1:(Tmax+1)){
     
     if(t <= Tmax){
-      
-      ## Summer harvest mortality hazard rate
-      mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])
-      
-      ## Winter harvest mortality hazard rate
+      ## Harvest and natural mortality
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t+1]*Reindeer[t] + epsilon.mO[t])*pertFac.mO[t]
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t]*Reindeer[t] + epsilon.mO[t])*pertFac.mO[t]
     }
     
     ## Pregnancy rate
@@ -316,44 +278,28 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   ## Prepare empty vectors and matrices
   H <- N <- B <- L <- R <- matrix(NA, nrow = Amax, ncol = Tmax+1)
-  sH <- octN <- matrix(NA, nrow = Amax, ncol = Tmax)
-  survN1 <- rep(NA, Tmax)
   
   ## Set initial population sizes
   for(a in 1:Amax){
-    octN[a, 1] <- round(runif(1, minN1[a], maxN1[a]))
+    N[a, 1] <- round(runif(1, minN1[a], maxN1[a]))
   }
   
   ## Set age class 0 reproductive contributions to 0
   B[1, 1:(Tmax+1)] <- L[1, 1:(Tmax+1)] <- R[1, 1:(Tmax+1)] <- 0
-  
-  ## Set first year reproductive contributions to 0
-  B[2:Amax, 1] <- L[2:Amax, 1] <- R[2:Amax, 1] <- 0
   
   
   for (t in 1:Tmax){
 
     # a) Project local survivors to the next year
     #---------------------------------------------
-    
-    if(t > 1){
-      ## Summer: Age class 0 (index = 1): local pups surviving summer harvest & immigrants
-      survN1[t] <- rbinom(1, size = N[1, t], prob = exp(-mHs[1, t]))
-      octN[1, t] <- survN1[t] + Imm[t+1]     
       
-      ## Summer: Age classes 1 to 4+ (indices = 2:5)
-      for(a in 2:Amax){
-        octN[a, t] <- rbinom(1, size = N[a, t], prob = exp(-mHs[a, t]))
-      }
-    }
-    
-    ## Autumn-Spring: Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
+    ## Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
     for(a in 1:(Amax-2)){
-      N[a+1, t+1] <- rbinom(1, size = octN[a, t], prob = S[a, t])
+      N[a+1, t+1] <- rbinom(1, size = N[a, t], prob = S[a, t])
     }			
       
-    ## Autumn-Spring: Age class 4+ (index = 5): age class 3 and 4+ survivors
-    N[Amax, t+1] <- rbinom(1, size = octN[Amax-1, t] + octN[Amax, t], prob = S[Amax, t])
+    # Age class 4+ (index = 5): age class 3 and 4+ survivors
+    N[Amax, t+1] <- rbinom(1, size = N[Amax-1, t] + N[Amax, t], prob = S[Amax, t])
       
       
     # b) Sample through reproductive season 
@@ -375,72 +321,58 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     # c) Add new recruits and immigrants
     #------------------------------------
       
-    N[1, t+1] <- sum(R[1:Amax, t+1])
+    N[1, t+1] <- sum(R[1:Amax, t+1]) + Imm[t+1]
  }
   
   
   # d) Check for years with more harvests than alive individuals
   #-------------------------------------------------------------
-
-  if(any(nim.data$C_w > octN[, 1:Tmax])){
-    stop('Simulation resulted in less alive than harvested (winter). Retry.')
-  }
   
-  if(any(nim.data$C_s > N[, nim.constants$sH_year])){
-    stop('Simulation resulted in less alive than harvested (summer). Retry.')
+  if(any(nim.data$C > N[, 1:nim.constants$Tmax])){
+    stop('Simulation resulted in less alive than harvested. Retry.')
   }
-  
   
   # e) Assemble and return list of initial values
   #----------------------------------------------  
   
-  ## Fill out NA values in N, survN1, B, L, and R
+  ## Fill out NA values in B, L, and R
   for (a in 2:Amax){
-    N[a, 1] <- 0
     #B[a,1] <- rbinom(1, size = N[a, 1], prob = Psi[a, 1])
     #L[a,1] <- rpois(1, lambda = B[a, 1] * rho[a, 1] * 0.5)
     #R[a,1] <- rbinom(1, size = L[a, 1], prob = S0[t])
-    B[a, 1] <- 0
-    L[a, 1] <- 0
-    R[a, 1] <- 0
+    B[a,1] <- 0
+    L[a,1] <- 0
+    R[a,1] <- 0
   }
-  survN1[1] <- 0
-  
   # NOTE: These nodes do not appear in the model and it therefore does not 
   #       matter what numbers they contain. Filling them in prevents a warning
   #       about NA nodes when building the model. 
     
   ## List all initial values
   InitVals <- list(
-    N = N,
-    initN = octN[, 1],
-    octN = octN,
-    survN1 = survN1,
+    N = N, 
+    initN = N[, 1],
     B = B, 
     L = L,
     R = R,
     Imm = Imm,
     
-    Mu.mHs = Mu.mHs,
     Mu.mH = Mu.mH,
     Mu.mO = Mu.mO,
     Mu.Psi = Mu.Psi,
     Mu.rho = Mu.rho,
     Mu.S0 = Mu.S0,
     
-    sigma.mHs = sigma.mHs,
     sigma.mH = sigma.mH,
     sigma.mO = sigma.mO,
     sigma.Psi = sigma.Psi,
     sigma.rho = sigma.rho,
     
-    epsilon.mHs = epsilon.mHs,
     epsilon.mH = epsilon.mH,
     epsilon.mO = epsilon.mO,
     epsilon.Psi = epsilon.Psi,
     epsilon.rho = epsilon.Psi,
     
-    mHs = mHs,
     mH = mH,
     mO = mO, 
     S = S,
@@ -513,12 +445,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     InitVals$immR <- c(0, rep(InitVals$Mu.immR, Tmax))
     InitVals$sigma.immR <- runif(1, 0, 0.5)
     InitVals$epsilon.immR <- rep(0, Tmax+1)
-  
-  }else{
-    
-    InitVals$Mu.Imm <- Mu.Imm
-    InitVals$logsigma.Imm <- logsigma.Imm
-    InitVals$ImmExp <- Imm
   }
   
   ## Add initial values for missing covariate values (if applicable)

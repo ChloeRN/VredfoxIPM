@@ -31,12 +31,12 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
   
   ## Split off and format summed data
   contData_sum <- contData %>%
-    dplyr::filter(Variable %in% c("Stot_sum", "mHtot_sum", "mO_sum",
+    dplyr::filter(Variable %in% c("S_sum", "mH_sum", "mO_sum",
                                   "Psi_sum", "rho_sum",
                                   "S0", "m0", "immR", 
                                   "n_sum", "N_sum")) %>%
-    dplyr::mutate(type = dplyr::case_when(Variable == "Stot_sum" ~ "Annual survival",
-                                          Variable == "mHtot_sum" ~ "Harvest mortality",
+    dplyr::mutate(type = dplyr::case_when(Variable == "S_sum" ~ "Annual survival",
+                                          Variable == "mH_sum" ~ "Harvest mortality",
                                           Variable == "mO_sum" ~ "Natural mortality",
                                           Variable == "Psi_sum" ~ "Pregnancy rate",
                                           Variable == "rho_sum" ~ "Fetus number",
@@ -87,9 +87,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
     gsub('\\s','\n',x)
   }
   
-  p.sum <- contData_sum %>%
-    dplyr::filter(Contribution < 0.5) %>%
-    ggplot(aes(x = type, y = Contribution, group = type)) + 
+  p.sum <- ggplot(contData_sum, aes(x = type, y = Contribution, group = type)) + 
     geom_violin(aes(fill = type, color = type), alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
     geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
     ylab("Contribution") + 
@@ -100,58 +98,30 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
     theme_bw() + 
     theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
   
-  ## Prepare and add information on season to complete data
-  collapseVars_S <- c(paste0("S_", 1:Amax), paste0("Ss_", 1:Amax))
-  collapseVars_mH <- c(paste0("mH_", 1:Amax), paste0("mHs_", 1:Amax))
-  summerVars <- c(paste0("Ss_", 1:Amax), paste0("mHs_", 1:Amax))
-  winterVars <- c(paste0("S_", 1:Amax), paste0("mH_", 1:Amax))
-  
-  seasonInfo <- data.frame(Variable = c(paste0("S_", 1:Amax), paste0("Ss_", 1:Amax), paste0("mH_", 1:Amax), paste0("mHs_", 1:Amax)),
-                           Variable2 = c(rep(paste0("S_", 1:Amax), 2), rep(paste0("mH_", 1:Amax), 2)),
-                           Season = rep(rep(c("Oct-Jun", "Jul-Sep"), each = Amax), 2))
-  
-  contData <- contData %>%
-    dplyr::left_join(seasonInfo, by = "Variable")
-  
+  p.sum
   
   if(!HazardRates){
     ## Survival panel
-    p.S <- ggplot(subset(contData, Variable2 %in% paste0("S_", 1:Amax)), aes(x = Variable2, y = Contribution, fill = Season)) + 
-      geom_violin(color = plot.colors[1], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+    p.S <- ggplot(subset(contData, Variable %in% paste0("S_", 1:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
+      geom_violin(fill = plot.colors[1], color = plot.colors[1], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
       ylab("Contribution") + 
       xlab('') + 
-      scale_x_discrete(labels = expression(S[1], S[2], S[3], S[4], S[5])) +
-      scale_fill_manual(values = c("white", plot.colors[1])) +
+      scale_x_discrete(labels = expression(S[1], S[2], S[3], S[4], S[5])) + 
       theme_bw() + 
-      theme(legend.position = c(0.8, 0.8), 
-            legend.key.size = unit(0.5, 'cm'),
-            legend.key.height = unit(0.5, 'cm'),
-            legend.key.width = unit(0.5, 'cm'), 
-            legend.title = element_blank(), 
-            legend.text = element_text(size = 8),
-            panel.grid = element_blank(), 
-            axis.text.x = element_text(size = 12), 
-            axis.title = element_text(size = 12))
+      theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
+    p.S
   }else{
     ## Harvest mortality panel
-    p.mH <- ggplot(subset(contData, Variable2 %in% paste0("mH_", 1:Amax)), aes(x = Variable2, y = Contribution, fill = Season)) + 
-      geom_violin(color = plot.colors[1], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
+    p.mH <- ggplot(subset(contData, Variable %in% paste0("mH_", 1:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
+      geom_violin(fill = plot.colors[1], color = plot.colors[1], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
       ylab("Contribution") + 
       xlab('') + 
-      scale_x_discrete(labels = expression(m[1]^H, m[2]^H, m[3]^H, m[4]^H, m[5]^H)) +
-      scale_fill_manual(values = c("white", plot.colors[1])) +
+      scale_x_discrete(labels = expression(m[1]^H, m[2]^H, m[3]^H, m[4]^H, m[5]^H)) + 
       theme_bw() + 
-      theme(legend.position = c(0.8, 0.8), 
-            legend.key.size = unit(0.5, 'cm'),
-            legend.key.height = unit(0.5, 'cm'),
-            legend.key.width = unit(0.5, 'cm'), 
-            legend.title = element_blank(), 
-            legend.text = element_text(size = 8),
-            panel.grid = element_blank(), 
-            axis.text.x = element_text(size = 12), 
-            axis.title = element_text(size = 12))
+      theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
+    p.mH
     
     ## Natural mortality panel
     p.mO <- ggplot(subset(contData, Variable %in% paste0("mO_", 1:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
@@ -162,6 +132,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
       scale_x_discrete(labels = expression(m[1]^O, m[2]^O, m[3]^O, m[4]^O, m[5]^O)) + 
       theme_bw() + 
       theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
+    p.mO
   }
   
   
@@ -174,7 +145,8 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
     scale_x_discrete(labels = expression(Psi[2], Psi[3], Psi[4], Psi[5])) + 
     theme_bw() + 
     theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
-
+  p.Psi
+  
   ## Fetus number panel
   p.rho <- ggplot(subset(contData, Variable %in% paste0("rho_", 2:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
     geom_violin(fill = plot.colors[3+col.offset], color = plot.colors[3+col.offset], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
@@ -184,7 +156,8 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
     scale_x_discrete(labels = expression(rho[2], rho[3], rho[4], rho[5])) + 
     theme_bw() + 
     theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
-
+  p.rho
+  
   ## Population structure panel
   if(PopStructure){
     p.n <- ggplot(subset(contData, Variable %in% paste0("n_", 1:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
@@ -195,6 +168,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
       scale_x_discrete(labels = expression(n[1], n[2], n[3], n[4], n[5])) + 
       theme_bw() + 
       theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
+    p.n
   }else{
     p.n <- ggplot(subset(contData, Variable %in% paste0("N_", 1:Amax)), aes(x = Variable, y = Contribution, group = Variable)) + 
       geom_violin(fill = plot.colors[length(plot.colors)], color = plot.colors[length(plot.colors)], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
@@ -204,6 +178,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
       scale_x_discrete(labels = expression(N[1], N[2], N[3], N[4], N[5])) + 
       theme_bw() + 
       theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
+    p.n
   }
 
   

@@ -31,14 +31,12 @@ plotSensitivities <- function(sensitivities, Amax){
     # Assemble summarised data #
     #--------------------------#
     
-    ## Assemble data (summarized survival/mortality)
     sum.data <- data.frame(
       type = rep(c("Annual survival", "Harvest mortality", "Natural mortality",
                    "Pregnancy rate", "Fetus number",
                    "Denning survival", "Denning mortality",
                    "Immigration rate", "Population structure"), each = nosamples),
-      estimate = c(rowSums(params$S) + rowSums(params$Ss), 
-                   rowSums(params$mH) + rowSums(params$mHs), rowSums(params$mO),
+      estimate = c(rowSums(params$S), rowSums(params$mH), rowSums(params$mO),
                    rowSums(params$Psi), rowSums(params$rho),
                    params$S0, params$m0,
                    params$immR, rowSums(params$n))
@@ -64,31 +62,16 @@ plotSensitivities <- function(sensitivities, Amax){
       paste0("S_", 1:Amax), paste0("mH_", 1:Amax), paste0("mO_", 1:Amax),
       paste0("Psi_", 1:Amax), paste0("rho_", 1:Amax),
       "S0", "m0", 
-      paste0("Ss_", 1:Amax), paste0("mHs_", 1:Amax), 
       "immR", paste0("n_", 1:Amax), paste0("N_", 1:Amax)
     )
     
     ## Convert to longitudinal format
     age.data <- reshape2::melt(age.data)
     
-    ## Prepare and add information on season
-    collapseVars_S <- c(paste0("S_", 1:Amax), paste0("Ss_", 1:Amax))
-    collapseVars_mH <- c(paste0("mH_", 1:Amax), paste0("mHs_", 1:Amax))
-    summerVars <- c(paste0("Ss_", 1:Amax), paste0("mHs_", 1:Amax))
-    winterVars <- c(paste0("S_", 1:Amax), paste0("mH_", 1:Amax))
-    
-    seasonInfo <- data.frame(variable = c(paste0("S_", 1:Amax), paste0("Ss_", 1:Amax), paste0("mH_", 1:Amax), paste0("mHs_", 1:Amax)),
-                             variable2 = c(rep(paste0("S_", 1:Amax), 2), rep(paste0("mH_", 1:Amax), 2)),
-                             Season = rep(rep(c("Oct-Jun", "Jul-Sep"), each = Amax), 2))
-               
-    age.data <- age.data %>%
-      dplyr::left_join(seasonInfo, by = "variable")
-    
     ## Remove unnecessary data
     age.data <- age.data %>%
       dplyr::filter(!(variable %in% c("Psi_1", "rho_1", paste0("N_", 1:Amax)))) %>%
-      dplyr::rename(Parameter = variable,
-                    Parameter2 = variable2,
+      dplyr::rename(Parameter = variable, 
                     Estimate = value)
     
     
@@ -121,41 +104,24 @@ plotSensitivities <- function(sensitivities, Amax){
 
     
     ## Survival panel
-    p.S <- ggplot(subset(age.data, Parameter2 %in% paste0("S_", 1:Amax))) + 
-      geom_violin(aes(x = Parameter2, y = Estimate, fill = Season), color = plot.colors[1], alpha = 0.5, scale = 'width', draw_quantiles = 0.5, position = "dodge") + 
+    p.S <- ggplot(subset(age.data, Parameter %in% paste0("S_", 1:Amax)), aes(x = Parameter, y = Estimate, group = Parameter)) + 
+      geom_violin(fill = plot.colors[1], color = plot.colors[1], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       ylab(ifelse(i == 1, "Sensitivity", "Elasticity")) + 
       xlab('') + 
       scale_x_discrete(labels = expression(S[1], S[2], S[3], S[4], S[5])) + 
-      scale_fill_manual(values = c("white", plot.colors[1])) +
       theme_bw() + 
-      theme(legend.position = c(0.8, 0.8), 
-            legend.key.size = unit(0.5, 'cm'),
-            legend.key.height = unit(0.5, 'cm'),
-            legend.key.width = unit(0.5, 'cm'), 
-            legend.title = element_blank(), 
-            legend.text = element_text(size = 8),
-            panel.grid = element_blank(), 
-            axis.text.x = element_text(size = 12), 
-            axis.title = element_text(size = 12))
+      theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
+    p.S
     
     ## Harvest mortality panel
-    p.mH <- ggplot(subset(age.data, Parameter2 %in% paste0("mH_", 1:Amax))) + 
-      geom_violin(aes(x = Parameter2, y = Estimate, fill = Season), color = plot.colors[2], alpha = 0.5, scale = 'width', draw_quantiles = 0.5, position = "dodge") + 
+    p.mH <- ggplot(subset(age.data, Parameter %in% paste0("mH_", 1:Amax)), aes(x = Parameter, y = Estimate, group = Parameter)) + 
+      geom_violin(fill = plot.colors[2], color = plot.colors[2], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
       ylab(ifelse(i == 1, "Sensitivity", "Elasticity")) + 
       xlab('') + 
       scale_x_discrete(labels = expression(m[1]^H, m[2]^H, m[3]^H, m[4]^H, m[5]^H)) + 
-      scale_fill_manual(values = c("white", plot.colors[2])) +
       theme_bw() + 
-      theme(legend.position = c(0.8, 0.2), 
-            legend.key.size = unit(0.5, 'cm'),
-            legend.key.height = unit(0.5, 'cm'),
-            legend.key.width = unit(0.5, 'cm'), 
-            legend.title = element_blank(), 
-            legend.text = element_text(size = 8),
-            panel.grid = element_blank(), 
-            axis.text.x = element_text(size = 12), 
-            axis.title = element_text(size = 12))
-
+      theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
+    
     ## Natural mortality panel
     p.mO <- ggplot(subset(age.data, Parameter %in% paste0("mO_", 1:Amax)), aes(x = Parameter, y = Estimate, group = Parameter)) + 
       geom_violin(fill = plot.colors[3], color = plot.colors[3], alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
@@ -192,7 +158,8 @@ plotSensitivities <- function(sensitivities, Amax){
       scale_x_discrete(labels = expression(n[1], n[2], n[3], n[4], n[5])) + 
       theme_bw() + 
       theme(legend.position = 'none', panel.grid = element_blank(), axis.text.x = element_text(size = 12), axis.title = element_text(size = 12))
-
+    p.n
+    
     ## Combine panels and save to pdf
     pdf(paste0("Plots/RedFoxIPM_", ifelse(i == 1, "Sensitivities", "Elasticities"), "_sum.pdf"), width = 10, height = 6)
     print(

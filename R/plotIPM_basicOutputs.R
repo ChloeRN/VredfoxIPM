@@ -29,11 +29,6 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
                   `Mu.S[3]` = exp(-(`Mu.mH[3]` + `Mu.mO[3]`)),
                   `Mu.S[4]` = exp(-(`Mu.mH[4]` + `Mu.mO[4]`)),
                   `Mu.S[5]` = exp(-(`Mu.mH[5]` + `Mu.mO[5]`)),
-                  `Mu.Ss[1]` = exp(-(`Mu.mHs[1]`)),
-                  `Mu.Ss[2]` = exp(-(`Mu.mHs[2]`)),
-                  `Mu.Ss[3]` = exp(-(`Mu.mHs[3]`)),
-                  `Mu.Ss[4]` = exp(-(`Mu.mHs[4]`)),
-                  `Mu.Ss[5]` = exp(-(`Mu.mHs[5]`)),
                   SampleID = 1:nrow(as.matrix(MCMC.samples))) %>%
     tidyr::pivot_longer(cols = -SampleID) %>%
     dplyr::rename(Parameter = name,
@@ -121,26 +116,25 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   ## Age-specific survival and mortality
 
   # Survival panel
-  S.labs <- c("Annual survival (Oct-Jun)", "Summer survival (Jul-Sep)")
-  names(S.labs) <- c("Mu.S", "Mu.Ss")
+  S.labs <- c("Annual survival")
+  names(S.labs) <- c("Mu.S")
   
   p.S_age <- results %>% 
-    dplyr::filter(ParamName %in% c("Mu.S", "Mu.Ss")) %>%
+    dplyr::filter(ParamName == "Mu.S") %>%
     ggplot(aes(x = Value, group = Age)) + 
     geom_density(aes(color = Age, fill = Age), alpha = 0.5) + 
     scale_color_manual(values = plot.colors.age) + 
     scale_fill_manual(values = plot.colors.age) + 
     ylab("Density") +
-    facet_wrap(~ ParamName, ncol = 1, scales = "free_y", labeller = labeller(ParamName = S.labs)) + 
+    facet_wrap(~ ParamName, ncol = 1, labeller = labeller(ParamName = S.labs)) + 
     theme_bw() + theme(panel.grid = element_blank(), axis.title.x = element_blank(), legend.position = "none")
   
   # Mortality panel
-  m.labs <- c("Natural mortality (Oct-Jun)", "Harvest mortality (Oct-Jun)", "Harvest mortality (Jul-Sep)")
-  names(m.labs) <- c("Mu.mH", "Mu.mO", "Mu.mHs")
+  m.labs <- c("Harvest mortality", "Natural mortality")
+  names(m.labs) <- c("Mu.mH", "Mu.mO")
   
   p.m_age <- results %>% 
-    dplyr::filter(ParamName %in% c("Mu.mHs", "Mu.mH", "Mu.mO") & Value < 2) %>%
-    dplyr::mutate(ParamName = factor(ParamName, levels = c("Mu.mH", "Mu.mO", "Mu.mHs"))) %>%
+    dplyr::filter(ParamName %in% c("Mu.mH", "Mu.mO")) %>%
     ggplot(aes(x = Value, group = Age)) + 
     geom_density(aes(color = Age, fill = Age), alpha = 0.5) + 
     scale_color_manual(values = plot.colors.age) + 
@@ -149,7 +143,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     theme_bw() + theme(panel.grid = element_blank(), axis.title = element_blank())
   
   # Combined panel
-  pdf("Plots/ParamAvg_Survival&Mortality.pdf", width = 8, height = 5)
+  pdf("Plots/ParamAvg_Survival&Mortality.pdf", width = 7, height = 4)
   print(p.S_age | p.m_age) + plot_layout(ncol = 2, widths = c(1, 2)) 
   dev.off()
   
@@ -190,21 +184,18 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
   
   # Harvest count panel
-  p.H_time <- data.frame(Hcount = c(colSums(nim.data$C_w)/nim.data$pData_w, colSums(nim.data$C_s)/nim.data$pData_s), 
-                         Year = c(as.numeric(colnames(nim.data$C_w)), as.numeric(colnames(nim.data$C_s))),
-                         Period = c(rep("Oct-May", ncol(nim.data$C_w)), rep("Jul-Sep", ncol(nim.data$C_s)))) %>%
-    ggplot(aes(x = Year, y = Hcount, group = Period)) +
-    geom_bar(aes(fill = Period), stat = "identity", position = "dodge") + 
-    scale_x_continuous(breaks = c(minYear:(minYear+Tmax-1)), labels = c(minYear:(minYear+Tmax-1))) + 
-    scale_fill_manual(values = c("#BED68AFF", "#005F94FF")) + 
+  p.H_time <- data.frame(Hcount = colSums(nim.data$C)/nim.data$pData, 
+                         Year = as.numeric(colnames(nim.data$C))) %>%
+    ggplot(aes(x = Year, y = Hcount)) +
+    geom_bar(fill = "#005F94FF", stat = "identity") + 
+    scale_x_continuous(breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax)), limits = c(minYear, (minYear+Tmax))) + 
     ylab("# shot (females)") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 
-                       axis.text.x = element_blank(), axis.title.x = element_blank(),
-                       legend.position = c(0.1, 0.7))
+                       axis.text.x = element_blank(), axis.title.x = element_blank())
   
   # Combined panel
-  pdf("Plots/ParamTime_PopSize.pdf", width = 9, height = 7)
-  print(p.H_time / p.N_time + plot_layout(heights = c(0.4, 1))) 
+  pdf("Plots/ParamTime_PopSize.pdf", width = 7, height = 6)
+  print(p.H_time / p.N_time + plot_layout(heights = c(0.3, 1))) 
   dev.off()
   
   
@@ -259,13 +250,12 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   
   ## Vital rates over time
   results.sum.VR <- results.sum %>%
-    dplyr::filter(ParamName %in% c("S", "mH", "mO", "Psi", "rho", "mHs", "immR") & Year < minYear+Tmax & Age %in% c(NA, 1)) %>%
-    dplyr::mutate(ParamName = factor(ParamName, levels = c("S", "mH", "mO", "Psi", "rho", "mHs", "immR"))) %>%
-    dplyr::filter(!(ParamName == "mHs" & Year == minYear))
+    dplyr::filter(ParamName %in% c("S", "mH", "mO", "Psi", "rho", "immR") & Year < minYear+Tmax & Age %in% c(NA, 1)) %>%
+    dplyr::mutate(ParamName = factor(ParamName, levels = c("S", "mH", "mO", "Psi", "rho", "immR")))
   
-  VR.labs <- c("Annual survival", "Winter harvest mortality", "Natural mortality", "Pregnancy rate (1 year old)", "Fetus number (1 year old)", "Summer harvest mortality", "Immigration rate")
-  names(VR.labs) <- c("S", "mH", "mO", "Psi", "rho", "mHs", "immR")
-  VR.cols <- c(plot.colors.param[1:5], "#785F94", plot.colors.param[7])
+  VR.labs <- c("Annual survival", "Harvest mortality", "Natural mortality", "Pregnancy rate (1 year old)", "Fetus number (1 year old)", "Immigration rate")
+  names(VR.labs) <- c("S", "mH", "mO", "Psi", "rho", "immR")
+  VR.cols <- plot.colors.param[c(1:5, 7)]
   
   p.VRs_time <- results.sum.VR %>%
     ggplot(aes(x = Year, group = ParamName)) + 
