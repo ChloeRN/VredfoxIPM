@@ -19,7 +19,7 @@ sourceDir('R')
 #-----------------------------#
 
 ## Seed
-mySeed <- 0
+mySeed <- 10
 
 ## Test run vs. full run
 #testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
@@ -30,7 +30,8 @@ Amax <- 5 # Number of age classes
 Tmax <- 18  # Number of years
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
-summer_removal <- c(6, 7, 8, 9) # Months to be removed from age-at-harvest data (summer harvest is not currently included)
+summer_removal <- c(6,7,8,9)    #removal of summer months: numerical months to be removed from winter age at harvest data
+winter_removal <- c(1:6, 10:12) #removal of winter months: numerical months to be removed from summer age at harvest data
 area_selection <- c("Inner", "BB", "Tana") # Varanger sub-area to include in analyses (BB = Batsfjord and Berlevag areas)
 
 # start and end of placental scars and embryo sample periods (julian day)
@@ -62,7 +63,8 @@ hoening.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
 #COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
 # Chloe
-shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+#shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+shapefile.dir <- "Data/shapefiles"
 COAT_key <- Sys.getenv("COAT_API")
 
 
@@ -78,15 +80,20 @@ rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
 standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
+reinCov.VarTana <- TRUE # Calculate the reindeer carcass data count covariate using Varanger (+Tana) municipalities as geographical area. FALSE is for whole of Eastern Finnmark
 
 # Random year effect toggles
 mO.varT <- TRUE
 
+# Age-at-harvest data toggles
+add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
+saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
+
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
 #sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
-sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
-#sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
+#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
@@ -104,6 +111,11 @@ pImm.type <- "rescaled"
 # Den survey prior and data toggles
 useData.pup <- TRUE
 useInfPrior.S0 <- FALSE
+
+## Changes to denning survival prior
+S0.mean.offset <- 0
+S0.sd.factor <- 1
+
 
 ## Toggles for LTRE analyses
 HazardRates <- TRUE
@@ -136,22 +148,32 @@ list(
     carcass.data,
     reformatData_carcass(Amax = Amax,   
                          summer_removal = summer_removal ,
+                         winter_removal = winter_removal ,
                          area_selection = area_selection,
                          plac_start = plac_start,
                          plac_end = plac_end ,
                          embr_start = embr_start ,
                          embr_end = embr_end,
                          carcass.dataset = carcass.data.raw,
-                         shapefile.dir = shapefile.dir)
+                         shapefile.dir = shapefile.dir,
+                         add.sumr.unaged = add.sumr.unaged, 
+                         saAH.years = saAH.years)
   ),
   
   # Extract winter age-at-harvest matrix
   tar_target(
     wAaH.data,
-    wrangleData_winterAaH(wAaH.datafile = carcass.data$AaH.matrix, 
-                          Amax = Amax)
+    wrangleData_AaH(AaH.datafile = carcass.data$WAaH.matrix, 
+                    Amax = Amax)
   ),
 
+  # Extract summer age-at-harvest matrix
+  tar_target(
+    sAaH.data,
+    wrangleData_AaH(AaH.datafile = carcass.data$SAaH.matrix, 
+                    Amax = Amax)
+  ),
+  
   # Extract reproduction data
   tar_target(
     rep.data,
@@ -205,7 +227,8 @@ list(
   tar_target(
     reindeer.data,
     reformatData_reindeer(minYear = minYear,
-                          Tmax = Tmax)
+                          Tmax = Tmax,
+                          reinCov.VarTana = reinCov.VarTana)
   ),
   
   # Collate conceptual year information
@@ -253,6 +276,7 @@ list(
                        poolYrs.genData = poolYrs.genData,
                        pImm.type = pImm.type,
                        wAaH.data = wAaH.data, 
+                       sAaH.data = sAaH.data,
                        rep.data = rep.data, 
                        gen.data = gen.data,
                        pup.data = pup.data,
@@ -281,6 +305,7 @@ list(
                rCov.idx = rCov.idx,
                mO.varT = mO.varT,
                HoeningPrior = HoeningPrior,
+               imm.asRate = imm.asRate,
                testRun = testRun,
                initVals.seed = mySeed
     )
@@ -300,7 +325,7 @@ list(
                nburnin = model.setup$mcmcParams$nburn, 
                thin = model.setup$mcmcParams$nthin, 
                samplesAsCodaMCMC = TRUE, 
-               setSeed = mySeed)
+               setSeed = 0)
   ),
   
   # Save model output as .rds
