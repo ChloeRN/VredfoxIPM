@@ -14,7 +14,7 @@ library(patchwork)
 #**********#
 
 ## Set seed
-mySeed <- 0
+mySeed <- 10
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -22,7 +22,8 @@ Tmax <- 18  # Number of years
 Tmax_sim <- 10
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
-summer_removal <- c(6,7,8,9) #removal of summer months: numerical months to be removed from age at harvest data
+summer_removal <- c(6,7,8,9)    #removal of summer months: numerical months to be removed from winter age at harvest data
+winter_removal <- c(1:6, 10:12) #removal of winter months: numerical months to be removed from summer age at harvest data
 area_selection<- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
 # start and end of placental scars and embryo sample periods (julian day)
 plac_start <- 180 #including
@@ -42,7 +43,8 @@ shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\
 COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
 # Chloe
-shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+#shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+shapefile.dir <- "Data/shapefiles"
 COAT_key <- Sys.getenv("COAT_API")
 
 ## Source all functions in "R" folder
@@ -67,15 +69,20 @@ rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
 standSpec.rCov <- TRUE # standardize different rodent species before summing (offset catchability) v.s. simply sum all numbers
+reinCov.VarTana <- TRUE # Calculate the reindeer carcass data count covariate using Varanger (+Tana) municipalities as geographical area. FALSE is for whole of Eastern Finnmark
 
 # Random year effect toggles
 mO.varT <- TRUE
 
+# Age-at-harvest data toggles
+add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
+saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
+
 # Annual survival prior type toggles
 HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
 #sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
-sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
-#sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
+#sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
+sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
@@ -85,7 +92,8 @@ imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 poolYrs.genData <- TRUE # Pool data across all years
 useData.gen <- TRUE # Use genetic data for estimation of immigration rate
 indLikelihood.genData <- FALSE # Apply an individual-level likelihood for genetic data
-threshold <- 0.2
+threshold <- 0.05
+#threshold <- 0.2
 #pImm.type <- "original"
 pImm.type <- "rescaled"
 #pImm.type <- "LL-based"
@@ -137,23 +145,28 @@ carcass.data.raw <- downloadData_COAT(COAT_key = COAT_key,
 ## Reformat carcass data
 carcass.data <- reformatData_carcass(Amax = Amax,   
                                      summer_removal = summer_removal ,
+                                     winter_removal = winter_removal ,
                                      area_selection = area_selection,
                                      plac_start = plac_start,
                                      plac_end = plac_end ,
                                      embr_start = embr_start ,
                                      embr_end = embr_end,
                                      carcass.dataset = carcass.data.raw,
-                                     shapefile.dir = shapefile.dir)
+                                     shapefile.dir = shapefile.dir,
+                                     add.sumr.unaged = add.sumr.unaged, 
+                                     saAH.years = saAH.years)
 
-# 1b) Winter Age-at-Harvest data #
+
+# 1b) Age-at-Harvest data #
 #--------------------------------#
 
-## Set data path/filename
-wAaH.datafile <- carcass.data$AaH.matrix
+## Winter AaH data
+wAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$WAaH.matrix, 
+                             Amax = Amax)
+## Summer AaH data
+sAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$SAaH.matrix, 
+                             Amax = Amax)
 
-## Prepare winter AaH data
-wAaH.data <- wrangleData_winterAaH(wAaH.datafile = wAaH.datafile, 
-                                   Amax = Amax)
 
 # 1c) Reproduction data #
 #-----------------------#
@@ -218,7 +231,8 @@ rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
 
 ## Reformat reindeer data
 reindeer.data <- reformatData_reindeer(minYear = minYear,
-                                       Tmax = Tmax)
+                                       Tmax = Tmax,
+                                       reinCov.VarTana = reinCov.VarTana)
 
 
 # 1h) Conceptual year information #
@@ -280,6 +294,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  poolYrs.genData = poolYrs.genData,
                                  pImm.type = pImm.type,
                                  wAaH.data = wAaH.data, 
+                                 sAaH.data = sAaH.data,
                                  rep.data = rep.data, 
                                  gen.data = gen.data,
                                  pup.data = pup.data,
@@ -309,6 +324,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
+                          imm.asRate = imm.asRate,
                           testRun = FALSE,
                           initVals.seed = mySeed
                           )
@@ -332,7 +348,18 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds")
+
+saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_survPrior3.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_immEst1.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds") # --> Done
+
 #MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -340,54 +367,67 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds")
 # 5) MODEL COMPARISONS #
 ########################
 
-compareModels(Amax = Amax, 
-              Tmax = Tmax+Tmax_sim, 
-              minYear = minYear, 
-              logN = TRUE,
-              post.filepaths = c("RedFoxIPM_final_simTest.rds", 
-                                 "RedFoxIPM_sim_noHarvest.rds"), 
-              model.names = c("Baseline projection", 
-                              "No harvest scenario"), 
-              plotFolder = "Plots/CompTest_PVA")
 
-
-
-## Prior sensitivity analysis for denning survival
+## Genetic data likelihoods
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_S0priorSens_naivePrior.rds",
-                                 "RedFoxIPM_S0priorSens_higherMean.rds",
-                                 "RedFoxIPM_S0priorSens_lowerMean.rds",
-                                 "RedFoxIPM_S0priorSens_doubleSD.rds"), 
-              model.names = c("Original inf. prior", 
-                              "Flat prior",
-                              "inf. prior mean + 0.1",
-                              "inf. prior mean - 0.1",
-                              "inf. prior sd * 2"), 
-              plotFolder = "Plots/PriorSensAnalysis_S0")
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_genData1.rds",
+                                 "RedFoxIPM_genData2.rds"), 
+              model.names = c("sum. likelihood (th = 0.05)", 
+                              "sum. likelihood (th = 0.2)",
+                              "ind. likelihood (rescaled p)"), 
+              plotFolder = "Plots/CompFinal_GenData")
 
+
+## Survival priors
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_final_poolGenData_NSwedenPrior.rds",
-                                 "RedFoxIPM_S0priorSens_naivePrior.rds",
-                                 "RedFoxIPM_S0priorSens_pupObsData_infoPrior.rds",
-                                 "RedFoxIPM_S0priorSens_pupObsData_naivePrior.rds"), 
-              model.names = c("Original inf. prior", 
-                              "Flat prior",
-                              "Original inf. prior + data",
-                              "Flat prior + data"), 
-              plotFolder = "Plots/CompFinal_S0_data")
+              post.filepaths = c("RedFoxIPM_main.rds", 
+                                 "RedFoxIPM_survPrior1.rds",
+                                 "RedFoxIPM_survPrior2.rds",
+                                 "RedFoxIPM_survPrior3.rds"), 
+              model.names = c("Meta-analysis", 
+                              "Hoening model",
+                              "North Sweden",
+                              "Bristol"), 
+              plotFolder = "Plots/CompFinal_SurvPriors")
+
+
+## Rodent covariate type
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds", 
+                                 "RedFoxIPM_noSppWeigth.rds"), 
+              model.names = c("species weights", 
+                              "no weights"), 
+              plotFolder = "Plots/CompFinal_RodentCovType")
+
+
+## Immigration models
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_immEst1.rds",
+                                 "RedFoxIPM_immEst2.rds",
+                                 "RedFoxIPM_immEst3.rds"), 
+              model.names = c("Imm. rate, pooled gen. data", 
+                              "Imm. rate, yearly gen. data",
+                              "Imm. rate, naive",
+                              "Imm. numbers (logNorm)"), 
+              plotFolder = "Plots/CompFinal_ImmModels")
+
 
 
 ###########################################
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
 ###########################################
 
-IPM.out <- readRDS("RedFoxIPM_sim_noHarvest.rds")
-
+IPM.out <- readRDS("RedFoxIPM_main.rds")
 
 ## Plot basic IPM outputs (vital rate & population size estimates)
 plotIPM_basicOutputs(MCMC.samples = IPM.out,
@@ -420,7 +460,7 @@ plotSensitivities(sensitivities = sensitivities,
 
 
 ## Set LTRE options
-HazardRates <- FALSE
+HazardRates <- TRUE
 PopStructure <- TRUE
 
 ## Run random design LTRE

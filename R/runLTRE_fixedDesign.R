@@ -36,9 +36,9 @@ runLTRE_fixedDesign <- function(paramSamples, t_pair, Amax, HazardRates = TRUE, 
   dropParams <- c("N_tot", "B", "B_tot", "L", "L_tot", "R", "R_tot")
   
   if(HazardRates){
-    dropParams <- c(dropParams, "S", "S0")
+    dropParams <- c(dropParams, "S", "S0", "Ss")
   }else{
-    dropParams <- c(dropParams, "mH", "mO", "m0")
+    dropParams <- c(dropParams, "mH", "mO", "m0", "mHs")
   }
   
   if(PopStructure){
@@ -112,7 +112,7 @@ runLTRE_fixedDesign <- function(paramSamples, t_pair, Amax, HazardRates = TRUE, 
       }
       
       # Set time interval based on parameter
-      if(names(paramList)[x] %in% c("Psi", "rho", "S0", "m0", "immR")){
+      if(names(paramList)[x] %in% c("Psi", "rho", "S0", "m0")){
         tInt <- t_pair + 1
       }else{
         tInt <- t_pair
@@ -149,7 +149,6 @@ runLTRE_fixedDesign <- function(paramSamples, t_pair, Amax, HazardRates = TRUE, 
     ## Calculate and save change in lambda 
     contList$delta_lambda[i] <- diff(paramList$lambda[i, t_pair])
     contList$delta_loglambda[i] <- diff(log(paramList$lambda[i, t_pair]))
-    
 
     ## Calculate demographic contributions
     # NOTE: Here we multiply sensitivities and parameter differences
@@ -173,7 +172,6 @@ runLTRE_fixedDesign <- function(paramSamples, t_pair, Amax, HazardRates = TRUE, 
   # SUMMARIZE RESULTS #
   #-------------------#
   
-
   ## Calculate summed contributions for age-specific parameters
   sumParams <- names(paramList)[which(!(names(paramList) %in% c("S0", "m0", "immR", "lambda")))] 
   
@@ -184,6 +182,12 @@ runLTRE_fixedDesign <- function(paramSamples, t_pair, Amax, HazardRates = TRUE, 
     names(contList$cont)[which(names(contList$cont) == "newSum")] <- paste0(sumParams[x], "_sum")
   }
   
+  ## Calculate overall survival/harvest contributions
+  if(HazardRates){
+    contList$cont$mHtot_sum <- contList$cont$mH_sum + contList$cont$mHs_sum
+  }else{
+    contList$cont$Stot_sum <- contList$cont$S_sum + contList$cont$Ss_sum
+  }
   
   ## Arrange results as dataframe
   contData <- melt(dplyr::bind_rows(contList$cont, .id = "column_label")) 
