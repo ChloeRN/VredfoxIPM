@@ -19,6 +19,7 @@ mySeed <- 10
 ## Set general parameters
 Amax <- 5 # Number of age classes
 Tmax <- 18  # Number of years
+Tmax_sim <- 10
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9)    #removal of summer months: numerical months to be removed from winter age at harvest data
@@ -104,6 +105,30 @@ useInfPrior.S0 <- FALSE
 ## Changes to denning survival prior
 S0.mean.offset <- 0
 S0.sd.factor <- 1
+
+## Set up perturbation parameters for running scenarios
+pert.mH <- TRUE
+pert.mO <- FALSE
+pert.S0 <- FALSE
+pert.immR <- FALSE
+pert.rodent <- FALSE
+pert.reindeer <- FALSE
+
+factor.mH <- 0
+factor.mO <- 1
+factor.S0 <- 1
+factor.immR <- 1
+factor.rodent <- 1
+factor.reindeer <- 1
+
+perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
+                                    pert.mH = pert.mH, factor.mH = factor.mH,
+                                    pert.mO = pert.mO, factor.mO = factor.mO,
+                                    pert.S0 = pert.S0, factor.S0 = factor.S0,
+                                    pert.immR = pert.immR, factor.immR = factor.immR,
+                                    pert.rodent = pert.rodent, factor.rodent = factor.rodent,
+                                    pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
+
 
 #*********************#
 # 1) DATA PREPARATION #
@@ -259,6 +284,7 @@ redfox.code <- writeCode_redfoxIPM(indLikelihood.genData = indLikelihood.genData
 
 input.data <- assemble_inputData(Amax = Amax, 
                                  Tmax = Tmax, 
+                                 Tmax_sim = Tmax_sim,
                                  minYear = minYear,
                                  maxPups = 14,
                                  uLim.N = 800,
@@ -276,7 +302,8 @@ input.data <- assemble_inputData(Amax = Amax,
                                  reindeer.data = reindeer.data,
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,
-                                 survPriorType = survPriorType)
+                                 survPriorType = survPriorType,
+                                 perturbVecs = perturbVecs)
 
 
 # 3c) Set up for model run (incl. simulating initial values) #
@@ -333,13 +360,13 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds") # --> Done
 
-
 #MCMCvis::MCMCtrace(IPM.out)
 
 
 ########################
 # 5) MODEL COMPARISONS #
 ########################
+
 
 ## Genetic data likelihoods
 compareModels(Amax = Amax, 
@@ -396,19 +423,17 @@ compareModels(Amax = Amax,
 
 
 
-
-
 ###########################################
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
 ###########################################
 
 IPM.out <- readRDS("RedFoxIPM_main.rds")
 
-
 ## Plot basic IPM outputs (vital rate & population size estimates)
 plotIPM_basicOutputs(MCMC.samples = IPM.out,
                      nim.data = input.data$nim.data,
-                     Amax = Amax, Tmax = Tmax, minYear = minYear)
+                     Amax = Amax, Tmax = Tmax+Tmax_sim, minYear = minYear,
+                     logN = TRUE)
 
 ## Plot covariate relationships
 plotIPM_covariateEffects(MCMC.samples = IPM.out,
