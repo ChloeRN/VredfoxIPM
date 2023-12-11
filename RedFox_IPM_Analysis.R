@@ -298,10 +298,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           HoeningPrior = HoeningPrior,
                           imm.asRate = imm.asRate,
                           testRun = FALSE,
-                          initVals.seed = mySeed,
-                          niter = 100000,
-                          nburn = 37500,
-                          nthin = 8
+                          initVals.seed = mySeed
                           )
 
 
@@ -324,8 +321,8 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-#saveRDS(IPM.out, file = "RedFoxIPM_main.rds")
-saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_main.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds")
@@ -502,7 +499,7 @@ plotSensitivities(sensitivities = sensitivities,
 
 
 ## Set LTRE options
-HazardRates <- FALSE
+HazardRates <- TRUE
 PopStructure <- TRUE
 
 ## Run random design LTRE
