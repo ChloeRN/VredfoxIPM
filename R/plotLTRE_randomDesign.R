@@ -92,6 +92,7 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
     ggplot(aes(x = type, y = Contribution, group = type)) + 
     geom_violin(aes(fill = type, color = type), alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
     geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
+    ylim(-0.5, 0.5) + 
     ylab("Contribution") + 
     xlab('') + 
     scale_fill_manual(values = plot.colors) + 
