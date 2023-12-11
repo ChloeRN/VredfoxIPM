@@ -57,7 +57,7 @@ extractParamSamples <- function(MCMC.samples, Amax, Tmax){
       for(a in 1:Amax){
         Psi[i, a, t] <- out.mat[i, paste0("Psi[", a, ", ", t, "]")]
         rho[i, a, t] <- out.mat[i, paste0("rho[", a, ", ", t, "]")]
-        mHs[i, a, t] <- out.mat[i, paste0("mH[", a, ", ", t, "]")]
+        mHs[i, a, t] <- out.mat[i, paste0("mHs[", a, ", ", t, "]")]
         
         if(t < Tmax){
           mH[i, a, t] <- out.mat[i, paste0("mH[", a, ", ", t, "]")]
