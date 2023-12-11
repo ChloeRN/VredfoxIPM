@@ -299,10 +299,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           HoeningPrior = HoeningPrior,
                           imm.asRate = imm.asRate,
                           testRun = FALSE,
-                          initVals.seed = mySeed,
-                          niter = 100000,
-                          nburn = 40000,
-                          nthin = 10
+                          initVals.seed = mySeed
                           )
 
 
@@ -438,7 +435,7 @@ plotSensitivities(sensitivities = sensitivities,
 
 
 ## Set LTRE options
-HazardRates <- FALSE
+HazardRates <- TRUE
 PopStructure <- TRUE
 
 ## Run random design LTRE

@@ -56,7 +56,7 @@ setupModel <- function(modelCode,
                        minN1, maxN1, minImm, maxImm,
                        fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
                        mO.varT, HoeningPrior, imm.asRate, Mu.mO_fixInits = TRUE,
-                       niter = 30000, nthin = 4, nburn = 5000, nchains = 3,
+                       niter = 100000, nthin = 8, nburn = 37500, nchains = 3,
                        testRun = FALSE, initVals.seed){
   
   
