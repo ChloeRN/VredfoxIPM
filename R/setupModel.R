@@ -97,6 +97,8 @@ setupModel <- function(modelCode,
     if(!poolYrs.genData){
       params <- c(params, "immR_pre")
     }
+  }else{
+    params <- c(params, "Mu.Imm", "logsigma.Imm")
   } 
   
   if(fitCov.immR){

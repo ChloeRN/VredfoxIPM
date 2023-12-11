@@ -18,7 +18,7 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   
   ## Make censusCollapse object if not provided
   if(missing(censusCollapse)){
-    censusCollapse <- rep(FALSE, nModels)
+    censusCollapse <- rep(TRUE, nModels)
   }
   
   ## Reformat posterior samples
@@ -99,9 +99,10 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
                 paste0("Mu.mO[", 1:Amax, "]"), 
                 paste0("Mu.Psi[", 2:Amax, "]"), 
                 paste0("Mu.rho[", 2:Amax, "]"),  
-                "Mu.S0", "Mu.immR"),
+                "Mu.S0", "Mu.immR", "Mu.Imm"),
     
-    VReffects = c("sigma.mH", "sigma.mHs", "sigma.mO", "sigma.Psi", "sigma.rho", "sigma.immR",
+    VReffects = c("sigma.mH", "sigma.mHs", "sigma.mO", "sigma.Psi", "sigma.rho", 
+                  "sigma.immR", "logsigma.Imm",
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]"),
