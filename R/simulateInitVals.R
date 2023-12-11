@@ -91,6 +91,19 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     Reindeer[which(is.na(Reindeer))] <- mean(Reindeer, na.rm = TRUE)
   }
   
+  #--------------------------------------------------------#
+  # Set initial values for conditional perturbation factor #
+  #--------------------------------------------------------#
+  
+  ## Harvest perturbation based on rodent abundance
+  if(nim.data$thresholdAbove){
+    pertFac.mH.flex <- ifelse(RodentAbundance > nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
+  }else{
+    pertFac.mH.flex <- ifelse(RodentAbundance < nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
+  }
+  
+  pertFac.mH.flex[1:nim.constants$Tmax] <- 1
+  
   #---------------------------------------------------#
   # Set initial values for vital rate base parameters #
   #---------------------------------------------------#
@@ -256,7 +269,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])
       
       ## Winter harvest mortality hazard rate
-      mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]
+      mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
       
       ## Other (natural) mortality hazard rate
       mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t+1]*Reindeer[t] + epsilon.mO[t])*pertFac.mO[t]
@@ -435,7 +448,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     h = h, 
     Psi = Psi, 
     rho = rho,
-    S0 = S0
+    S0 = S0,
+    
+    pertFac.mH.flex = pertFac.mH.flex
     
     #Mu.Imm = Mu.Imm,
     #sigma.Imm = sigma.Imm
