@@ -298,8 +298,8 @@ model.setup <- setupModel(modelCode = redfox.code,
                           mO.varT = mO.varT,
                           HoeningPrior = HoeningPrior,
                           imm.asRate = imm.asRate,
-                          testRun = TRUE,
-                          initVals.seed = mySeed
+                          testRun = FALSE,
+                          initVals.seed = 0
                           )
 
 
@@ -322,7 +322,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
+saveRDS(IPM.out, file = "RedFoxIPM_shiftT_rodentmO.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds") # --> Done
@@ -335,6 +335,16 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
 
 
 #MCMCvis::MCMCtrace(IPM.out)
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_shiftT_rodentmO.rds"), 
+              model.names = c("Correct index (now)", 
+                              "Delayed index (previous)"), 
+              plotFolder = "Plots/Comp_RodentTIndex")
+
 
 
 ########################

@@ -155,9 +155,9 @@ plotIPM_covariateEffects <- function(MCMC.samples, rCov.idx, rodentMIN, rodentMA
     facet_wrap(~VitalRate, nrow = 1, scales = "free_y") + 
     theme_bw() + theme(panel.grid = element_blank(), legend.position = "none")
   
-  pdf("Plots/RedfoxIPM_rodentEff_Psi&rho&immR.pdf", width = 8, height = 3)
-  print(p.Psi_rho_immR)
-  dev.off()
+  #pdf("Plots/RedfoxIPM_rodentEff_Psi&rho&immR.pdf", width = 8, height = 3)
+  #print(p.Psi_rho_immR)
+  #dev.off()
   
   ## Rodent and reindeer effects on natural mortality 
   
@@ -180,14 +180,13 @@ plotIPM_covariateEffects <- function(MCMC.samples, rCov.idx, rodentMIN, rodentMA
     facet_wrap(~RodentAbundance, nrow = 1) + 
     theme_bw() + theme(panel.grid = element_blank())
   
-  pdf("Plots/RedfoxIPM_covEff_mO.pdf", width = 8, height = 6)
+  pdf("Plots/RedfoxIPM_covEff_mO_altModel.pdf", width = 8, height = 6)
   print(p.mO.R / p.mO.Rd)
   dev.off()
   
   
   ## Return list of plots
-  plotList <- c("Plots/RedfoxIPM_rodentEff_Psi&rho&immR.pdf",
-                "Plots/RedfoxIPM_covEff_mO.pdf")
+  plotList <- c("Plots/RedfoxIPM_rodentEff_Psi&rho&immR_altModel.pdf")
   
   return(plotList)
 } 
