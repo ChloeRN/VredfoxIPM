@@ -104,6 +104,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   pertFac.mH.flex[1:nim.constants$Tmax] <- 1
+  pertFac.mH.flex <- pertFac.mH.flex[1:Tmax]
   
   #---------------------------------------------------#
   # Set initial values for vital rate base parameters #

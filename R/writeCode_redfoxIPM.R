@@ -65,7 +65,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       # JUN - OCT (SUMMER) #
       #--------------------#
       
-      for(t in 2:Tmax){
+      for(t in 2:(Tmax+Tmax_sim)){
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
         octN[1, t] <- survN1[t] + Imm[t]     
         survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
@@ -493,7 +493,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }else{
         
         ## Lognormal prior for immigrant numbers
-        for(t in 2:Tmax){
+        for(t in 2:(Tmax+Tmax_sim)){
           Imm[t] <- round(ImmExp[t])
           ImmExp[t] ~ dlnorm(meanlog = log(Mu.Imm), sdlog = logsigma.Imm) 
         }
@@ -669,7 +669,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       # JUN - OCT (SUMMER) #
       #--------------------#
       
-      for(t in 2:Tmax){
+      for(t in 2:(Tmax+Tmax_sim)){
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
         octN[1, t] <- survN1[t] + Imm[t]     
         survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
@@ -1065,7 +1065,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }else{
         
         ## Lognormal prior for immigrant numbers
-        for(t in 2:Tmax){
+        for(t in 2:(Tmax+Tmax_sim)){
           Imm[t] <- round(ImmExp[t])
           ImmExp[t] ~ dlnorm(meanlog = log(Mu.Imm), sdlog = logsigma.Imm) 
         }
