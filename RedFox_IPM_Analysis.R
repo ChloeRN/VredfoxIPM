@@ -121,10 +121,19 @@ factor.immR <- 1
 factor.rodent <- 1
 factor.reindeer <- 1
 
+if(pert.mH & factor.mH == 0){
+  pert.mHs <- TRUE
+  factor.mHs <- 0
+}else{
+  pert.mHs <- FALSE
+  factor.mHs <- 1
+}
+
 perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.mH = pert.mH, factor.mH = factor.mH,
                                     pert.mO = pert.mO, factor.mO = factor.mO,
                                     pert.S0 = pert.S0, factor.S0 = factor.S0,
+                                    pert.mHs = pert.mHs, factor.mHs = factor.mHs,
                                     pert.immR = pert.immR, factor.immR = factor.immR,
                                     pert.rodent = pert.rodent, factor.rodent = factor.rodent,
                                     pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)

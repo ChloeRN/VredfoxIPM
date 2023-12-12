@@ -288,7 +288,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       for(t in 1:(Tmax+Tmax_sim)){ 
         
         # Summer harvest mortality hazard rate
-        log(mHs[1:Amax, t]) <- log(Mu.mHs[1:Amax]) + epsilon.mHs[t]
+        mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])*pertFac.mHs[t]
         
         # Winter harvest mortality hazard rate
         if(fitCov.mH){
@@ -466,7 +466,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
                                        replace0 = 0.01)
           
           ## Projection of immigration rates beyond genetic data coverage
-          for(t in (Tmax_Gen+1):(Tmax+Tmax_sim+1)){
+          for(t in (Tmax_Gen+1):(Tmax+Tmax_sim)){
             immR[t] <- exp(log(Mu.immR) + epsilon.immR[t])*pertFac.immR[t]
           }
           
@@ -474,14 +474,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           
           if(fitCov.immR){
             if(rCov.idx){
-              for(t in 1:(Tmax+Tmax_sim+1)){
+              for(t in 1:(Tmax+Tmax_sim)){
                 immR[t] <- exp(log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t])*pertFac.immR[t]
               }
             }else{
-              immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
+              immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
             }
           }else{
-            immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
+            immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
           }
         }
         
@@ -566,7 +566,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       if(imm.asRate){
-        for(t in 1:(Tmax+Tmax_sim+1)){
+        for(t in 1:(Tmax+Tmax_sim)){
           epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
         }
         sigma.immR ~ dunif(0, 10)
@@ -872,7 +872,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       for(t in 1:(Tmax+Tmax_sim)){ 
         
         # Summer harvest mortality hazard rate
-        log(mHs[1:Amax, t]) <- log(Mu.mHs[1:Amax]) + epsilon.mHs[t]
+        mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])*pertFac.mHs[t]
         
         # Winter harvest mortality hazard rate
         if(fitCov.mH){
@@ -1044,14 +1044,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           
         if(fitCov.immR){
           if(rCov.idx){
-            for(t in 1:(Tmax+Tmax_sim+1)){
+            for(t in 1:(Tmax+Tmax_sim)){
               immR[t] <- exp(log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t])*pertFac.immR[t]
             }
           }else{
-            immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
+            immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
           }
         }else{
-          immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
+          immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
         }
         
   
@@ -1156,7 +1156,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       if(imm.asRate){
-        for(t in 1:(Tmax+Tmax_sim+1)){
+        for(t in 1:(Tmax+Tmax_sim)){
           epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
         }
         sigma.immR ~ dunif(0, 10)

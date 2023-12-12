@@ -51,6 +51,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   pertFac.mH <- nim.data$pertFac.mH
   pertFac.mO <- nim.data$pertFac.mO
   pertFac.S0 <- nim.data$pertFac.S0
+  pertFac.mHs <- nim.data$pertFac.mHs
   pertFac.immR <- nim.data$pertFac.immR
   
   #-------------------------------------------------#
@@ -266,7 +267,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(t <= Tmax){
       
       ## Summer harvest mortality hazard rate
-      mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])
+      mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])*pertFac.mHs[t]
       
       ## Winter harvest mortality hazard rate
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
