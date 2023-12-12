@@ -1,5 +1,5 @@
 
-compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.names, censusCollapse, plotFolder){
+compareModels <- function(Amax, Tmax, minYear, logN, post.filepaths, post.list, model.names, censusCollapse, plotFolder){
   
   ## Check models are specified correctly
   if((missing(post.filepaths) & missing(post.list)) |
