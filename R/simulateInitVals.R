@@ -307,7 +307,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   h <- (1 - S)*alpha
 
   ## Immigrant numbers
-  Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))*pertFac.immR[t]
+  Imm <- round(truncnorm::rtruncnorm(Tmax, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))*pertFac.immR
   Imm[1] <- 0
   
 
@@ -340,7 +340,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(t > 1){
       ## Summer: Age class 0 (index = 1): local pups surviving summer harvest & immigrants
       survN1[t] <- rbinom(1, size = N[1, t], prob = exp(-mHs[1, t]))
-      octN[1, t] <- survN1[t] + Imm[t+1]     
+      octN[1, t] <- survN1[t] + Imm[t]     
       
       ## Summer: Age classes 1 to 4+ (indices = 2:5)
       for(a in 2:Amax){

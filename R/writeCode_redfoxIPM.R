@@ -478,10 +478,10 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
                 immR[t] <- exp(log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t])*pertFac.immR[t]
               }
             }else{
-              immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
+              immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim)] + epsilon.immR[1:(Tmax+Tmax_sim)])*pertFac.immR[1:(Tmax+Tmax_sim)]
             }
           }else{
-            immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
+            immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim)])*pertFac.immR[1:(Tmax+Tmax_sim)]
           }
         }
         
@@ -1048,10 +1048,10 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
               immR[t] <- exp(log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t])*pertFac.immR[t]
             }
           }else{
-            immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim+1)] + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
+            immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim)] + epsilon.immR[1:(Tmax+Tmax_sim)])*pertFac.immR[1:(Tmax+Tmax_sim)]
           }
         }else{
-          immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
+          immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim)]
         }
         
   
