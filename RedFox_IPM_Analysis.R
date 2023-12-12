@@ -413,69 +413,69 @@ compareModels(Amax = Amax,
               plotFolder = "Plots/ScenarioComp_PVA2")
 
 
-###########################################
-# 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
-###########################################
-
-IPM.out <- readRDS("RedFoxIPM_main.rds")
-
-## Plot basic IPM outputs (vital rate & population size estimates)
-plotIPM_basicOutputs(MCMC.samples = IPM.out,
-                     nim.data = input.data$nim.data,
-                     Amax = Amax, Tmax = Tmax+Tmax_sim, minYear = minYear,
-                     logN = TRUE)
-
-## Plot covariate relationships
-plotIPM_covariateEffects(MCMC.samples = IPM.out,
-                        rCov.idx = rCov.idx,
-                        rodentMIN = -1.75, rodentMAX = 4,
-                        reindeerMIN = -1.5, reindeerMAX = 1.5,
-                        AgeClass = 1) 
-
-########################
-# 7) POST-HOC ANALYSES #
-########################
-
-## Extract parameter samples
-paramSamples <- extractParamSamples(MCMC.samples = IPM.out,
-                                    Amax = Amax, Tmax = Tmax)
-
-## Calculate sensitivities and elasticities
-sensitivities <- calculateSensitivities(paramSamples = paramSamples,
-                                        Amax = Amax)
-
-## Plot sensitivities
-plotSensitivities(sensitivities = sensitivities,
-                  Amax = Amax)
-
-
-## Set LTRE options
-HazardRates <- TRUE
-PopStructure <- TRUE
-
-## Run random design LTRE
-randomLTRE <- runLTRE_randomDesign(paramSamples = paramSamples, 
-                                   sensitivities = sensitivities, 
-                                   Amax = Amax, Tmax = Tmax, 
-                                   HazardRates = HazardRates, 
-                                   PopStructure = PopStructure)
-
-## Plot results from random design LTRE
-plotLTRE_randomDesign(LTRE_results = randomLTRE,
-                      Amax = Amax,
-                      HazardRates = HazardRates,
-                      PopStructure = PopStructure)
-
-## Run fixed design LTRE
-fixedLTRE <- runLTRE_fixedDesign_allYears(paramSamples = paramSamples, 
-                                          Amax = Amax, Tmax = Tmax, 
-                                          HazardRates = HazardRates, 
-                                          PopStructure = PopStructure)
-
-## Plot results from fixed design LTRE
-plotLTRE_fixedDesign(LTRE_results = fixedLTRE, 
-                     Amax = Amax, Tmax = Tmax, minYear = minYear, 
-                     HazardRates = HazardRates, 
-                     PopStructure = PopStructure)
-  
-
+# ###########################################
+# # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
+# ###########################################
+# 
+# IPM.out <- readRDS("RedFoxIPM_main.rds")
+# 
+# ## Plot basic IPM outputs (vital rate & population size estimates)
+# plotIPM_basicOutputs(MCMC.samples = IPM.out,
+#                      nim.data = input.data$nim.data,
+#                      Amax = Amax, Tmax = Tmax+Tmax_sim, minYear = minYear,
+#                      logN = TRUE)
+# 
+# ## Plot covariate relationships
+# plotIPM_covariateEffects(MCMC.samples = IPM.out,
+#                         rCov.idx = rCov.idx,
+#                         rodentMIN = -1.75, rodentMAX = 4,
+#                         reindeerMIN = -1.5, reindeerMAX = 1.5,
+#                         AgeClass = 1) 
+# 
+# ########################
+# # 7) POST-HOC ANALYSES #
+# ########################
+# 
+# ## Extract parameter samples
+# paramSamples <- extractParamSamples(MCMC.samples = IPM.out,
+#                                     Amax = Amax, Tmax = Tmax)
+# 
+# ## Calculate sensitivities and elasticities
+# sensitivities <- calculateSensitivities(paramSamples = paramSamples,
+#                                         Amax = Amax)
+# 
+# ## Plot sensitivities
+# plotSensitivities(sensitivities = sensitivities,
+#                   Amax = Amax)
+# 
+# 
+# ## Set LTRE options
+# HazardRates <- TRUE
+# PopStructure <- TRUE
+# 
+# ## Run random design LTRE
+# randomLTRE <- runLTRE_randomDesign(paramSamples = paramSamples, 
+#                                    sensitivities = sensitivities, 
+#                                    Amax = Amax, Tmax = Tmax, 
+#                                    HazardRates = HazardRates, 
+#                                    PopStructure = PopStructure)
+# 
+# ## Plot results from random design LTRE
+# plotLTRE_randomDesign(LTRE_results = randomLTRE,
+#                       Amax = Amax,
+#                       HazardRates = HazardRates,
+#                       PopStructure = PopStructure)
+# 
+# ## Run fixed design LTRE
+# fixedLTRE <- runLTRE_fixedDesign_allYears(paramSamples = paramSamples, 
+#                                           Amax = Amax, Tmax = Tmax, 
+#                                           HazardRates = HazardRates, 
+#                                           PopStructure = PopStructure)
+# 
+# ## Plot results from fixed design LTRE
+# plotLTRE_fixedDesign(LTRE_results = fixedLTRE, 
+#                      Amax = Amax, Tmax = Tmax, minYear = minYear, 
+#                      HazardRates = HazardRates, 
+#                      PopStructure = PopStructure)
+#   
+# 
