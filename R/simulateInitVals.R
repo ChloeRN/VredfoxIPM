@@ -382,7 +382,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # d) Check for years with more harvests than alive individuals
   #-------------------------------------------------------------
 
-  if(any(nim.data$C_w > octN[, 1:Tmax])){
+  if(any(nim.data$C_w[,1:nim.constants$Tmax] > octN[, 1:nim.constants$Tmax])){
     stop('Simulation resulted in less alive than harvested (winter). Retry.')
   }
   
