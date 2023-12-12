@@ -386,17 +386,31 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds")
 # 5) MODEL COMPARISONS #
 ########################
 
+## Baseline vs. no harvest
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
               logN = TRUE,
               post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
-                                 "RedFoxIPM_sim_noHarvest.rds",
-                                 "RedFoxIPM_sim_rodentHarvest_th1_fac1.5.rds"), 
+                                 "RedFoxIPM_sim_noHarvest.rds"), 
               model.names = c("Baseline projection", 
-                              "No harvest scenario",
-                              "Rodent-dep. harvest scenario"), 
-              plotFolder = "Plots/CompTest_PVA")
+                              "No harvest scenario"), 
+              plotFolder = "Plots/ScenarioComp_PVA1")
+
+## Different harvest scenario types
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              logN = TRUE,
+              post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                 "RedFoxIPM_sim_harvest_fac1.5.rds",
+                                 "RedFoxIPM_sim_highRodentHarvest_th0_fac1.5.rds",
+                                 "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.5.rds"), 
+              model.names = c("Baseline projection", 
+                              "50% harvest increase",
+                              "High rodent 50% harvest increase",
+                              "Low rodent 50% harvest increase"), 
+              plotFolder = "Plots/ScenarioComp_PVA2")
 
 
 ###########################################
