@@ -130,8 +130,8 @@ perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
 
 ## Set up perturbation parameters for running rodent-dependent harvest scenarios
-factor.mH.rodent <- 1.5
-threshold.rodent.mH <- 1
+factor.mH.rodent <- 1
+threshold.rodent.mH <- 0
 thresholdAbove <- FALSE
 
 
@@ -214,7 +214,6 @@ rep.data <- wrangleData_rep(P1.datafile = P1.datafile,
 
 ## Set data paths
 genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
-#genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities_LvarLother.txt"
 
 ## Prepare genetic data
 gen.data <- wrangleData_gen(datapath = genetics.datapath,
@@ -378,7 +377,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_rodentHarvest_thBelow1_fac1.5.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds")
 
 #MCMCvis::MCMCtrace(IPM.out)
 
