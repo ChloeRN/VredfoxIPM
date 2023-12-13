@@ -26,11 +26,11 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN, post.filepaths, po
   for(i in 1:nModels){
     
     # Extract samples for relevant model
-    #if(!missing(post.list)){
-    #  samples <- as.matrix(post.list[[i]])
-    #}else{
+    if(!missing(post.list)){
+      samples <- as.matrix(post.list[[i]])
+    }else{
       samples <- as.matrix(readRDS(post.filepaths[i]))
-    #}
+    }
     
     # Collapse censuses if necessary
     # if(censusCollapse[i]){
