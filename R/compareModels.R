@@ -1,5 +1,5 @@
 
-compareModels <- function(Amax, Tmax, minYear, logN, post.filepaths, post.list, model.names, censusCollapse, plotFolder){
+compareModels <- function(Amax, Tmax, minYear, maxYear, logN, post.filepaths, post.list, model.names, censusCollapse, plotFolder){
   
   ## Check models are specified correctly
   if((missing(post.filepaths) & missing(post.list)) |
@@ -118,15 +118,18 @@ compareModels <- function(Amax, Tmax, minYear, logN, post.filepaths, post.list, 
   )
   
   ## Set parameters plotting time series of posterior summaries
-  plotTS.params <- list(
-    ParamNames = c("N.tot", "B.tot", "R.tot", "Imm",
-                   "mO", "S", #"S0",
-                   "mH", "mHs", "Psi", "rho", "immR"),
-    ParamLabels = c("Female population size", "# breeding females", "# female recruits", "# female immigrants",
-                    "Natural mortality", "Survival", #"Early survival",
-                    "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
+  plotTS.paramsAge <- list(
+    ParamNames = c("mO", "S", "mH", "mHs", "Psi", "rho", "immR"),
+    ParamLabels = c("Natural mortality", "Survival", 
+                    "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female")
   )
 
+  plotTS.params <- list(
+    ParamNames = c("N.tot", "B.tot", "R.tot", "Imm", "immR"),
+    ParamLabels = c("Female population size", "# breeding females", "# female recruits", 
+                    "# female immigrants", "Immigration rate")
+  )
+  
   ## Optional: convert population size estimates to log scale
   if(logN){
   
@@ -164,35 +167,41 @@ compareModels <- function(Amax, Tmax, minYear, logN, post.filepaths, post.list, 
   }
   dev.off()
   
-  ## Plot posterior summary time series
-  pdf(paste0(plotFolder, "/PosteriorSummaries_TimeSeries.pdf"), width = 8, height = 8)
+  ## Plot posterior summary time series for age-specific parameters
+  pdf(paste0(plotFolder, "/PosteriorSummaries_TimeSeriesAge.pdf"), width = 8, height = 8)
+  for(x in 1:length(plotTS.paramsAge$ParamNames)){
+    
+    print(
+      ggplot(subset(sum.data, ParamName == plotTS.paramsAge$ParamNames[x] & Year <= maxYear), aes(group = Model)) + 
+        geom_line(aes(x = Year, y = median, color = Model)) + 
+        geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
+        scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
+        scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
+        facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
+        ggtitle(plotTS.paramsAge$ParamLabels[x]) +  
+        theme_bw() + theme(panel.grid.minor = element_blank(), 
+                           panel.grid.major.y = element_blank(), 
+                           axis.text.x = element_text(angle = 45, vjust = 0.5))
+    )
+    
+  }
+  dev.off()
+  
+  ## Plot posterior summary time series for age-specific parameters
+  pdf(paste0(plotFolder, "/PosteriorSummaries_TimeSeries.pdf"), width = 8, height = 4)
   for(x in 1:length(plotTS.params$ParamNames)){
     
-    #sum.data.sub <- subset(sum.data, ParamName == plotTS.params$ParamNames[x])
-    
-    if(plotTS.params$ParamNames[x] %in% c("N.tot", "B.tot", "R.tot", "Imm")){
-      print(
-        ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x] & Year > minYear), aes(group = Model)) + 
-          geom_line(aes(x = Year, y = median, color = Model)) + 
-          geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
-          #scale_fill_viridis_d() + scale_color_viridis_d() + 
-          scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
-          facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
-          ggtitle(plotTS.params$ParamLabels[x]) +  
-          theme_bw() + theme(panel.grid = element_blank())
-      )
-    }else{
-      print(
-        ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x]), aes(group = Model)) + 
-          geom_line(aes(x = Year, y = median, color = Model)) + 
-          geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
-          #scale_fill_viridis_d() + scale_color_viridis_d() + 
-          scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
-          facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
-          ggtitle(plotTS.params$ParamLabels[x]) +  
-          theme_bw() + theme(panel.grid = element_blank())
-      )
-    }
+    print(
+      ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x] & Year > minYear & Year <= maxYear), aes(group = Model)) + 
+        geom_line(aes(x = Year, y = median, color = Model)) + 
+        geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
+        scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
+        scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
+        ggtitle(plotTS.params$ParamLabels[x]) +  
+        theme_bw() + theme(panel.grid.minor = element_blank(), 
+                           panel.grid.major.y = element_blank(), 
+                           axis.text.x = element_text(angle = 45, vjust = 0.5))
+    )
     
   }
   dev.off()
