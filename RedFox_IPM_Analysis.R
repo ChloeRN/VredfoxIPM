@@ -418,9 +418,9 @@ compareModels(Amax = Amax,
                                  #"RedFoxIPM_sim_highRodentHarvest_th0_fac1.25.rds",
                                  "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.25.rds"), 
               model.names = c("Baseline projection", 
-                              "50% harvest increase",
-                              #"High rodent 50% harvest increase",
-                              "Low rodent 50% harvest increase"), 
+                              "25% harvest increase",
+                              #"High rodent 25% harvest increase",
+                              "Low rodent 25% harvest increase"), 
               plotFolder = "Plots/ScenarioComp_PVA2")
 
 
