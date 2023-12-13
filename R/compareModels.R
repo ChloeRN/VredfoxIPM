@@ -26,11 +26,11 @@ compareModels <- function(Amax, Tmax, minYear, logN, post.filepaths, post.list, 
   for(i in 1:nModels){
     
     # Extract samples for relevant model
-    if(!missing(post.list)){
-      samples <- as.matrix(post.list[[i]])
-    }else{
+    #if(!missing(post.list)){
+    #  samples <- as.matrix(post.list[[i]])
+    #}else{
       samples <- as.matrix(readRDS(post.filepaths[i]))
-    }
+    #}
     
     # Collapse censuses if necessary
     # if(censusCollapse[i]){
@@ -170,32 +170,30 @@ compareModels <- function(Amax, Tmax, minYear, logN, post.filepaths, post.list, 
     
     #sum.data.sub <- subset(sum.data, ParamName == plotTS.params$ParamNames[x])
     
-    print(
-      ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x]), aes(group = Model)) + 
-        geom_line(aes(x = Year, y = median, color = Model)) + 
-        geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
-        #scale_fill_viridis_d() + scale_color_viridis_d() + 
-        scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
-        facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
-        ggtitle(plotTS.params$ParamLabels[x]) +  
-        theme_bw() + theme(panel.grid = element_blank())
-    )
-    
-    if(plotTS.params$ParamNames[x] %in% c("Imm", "immR")){
-      
-      subset.years <- (min(sum.data$Year, na.rm = TRUE) + 1):(max(sum.data$Year, na.rm = TRUE) - 1)
+    if(plotTS.params$ParamNames[x] %in% c("N.tot", "B.tot", "R.tot", "Imm")){
       print(
-        ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x] & Year %in% subset.years), aes(group = Model)) + 
+        ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x] & Year > minYear), aes(group = Model)) + 
           geom_line(aes(x = Year, y = median, color = Model)) + 
           geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
           #scale_fill_viridis_d() + scale_color_viridis_d() + 
           scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
           facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
-          ggtitle(paste0(plotTS.params$ParamLabels[x], " (without first/last year)")) +  
+          ggtitle(plotTS.params$ParamLabels[x]) +  
           theme_bw() + theme(panel.grid = element_blank())
       )
-      
+    }else{
+      print(
+        ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x]), aes(group = Model)) + 
+          geom_line(aes(x = Year, y = median, color = Model)) + 
+          geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
+          #scale_fill_viridis_d() + scale_color_viridis_d() + 
+          scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
+          facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
+          ggtitle(plotTS.params$ParamLabels[x]) +  
+          theme_bw() + theme(panel.grid = element_blank())
+      )
     }
+    
   }
   dev.off()
   

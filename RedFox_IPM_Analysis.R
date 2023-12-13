@@ -107,14 +107,14 @@ S0.mean.offset <- 0
 S0.sd.factor <- 1
 
 ## Set up perturbation parameters for running standard scenarios
-pert.mH <- FALSE
+pert.mH <- TRUE
 pert.mO <- FALSE
 pert.S0 <- FALSE
 pert.immR <- FALSE
 pert.rodent <- FALSE
 pert.reindeer <- FALSE
 
-factor.mH <- 1
+factor.mH <- 1.25
 factor.mO <- 1
 factor.S0 <- 1
 factor.immR <- 1
@@ -386,7 +386,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sim_incHarvest_fac1.25.rds")
 
 #MCMCvis::MCMCtrace(IPM.out)
 
@@ -412,9 +412,9 @@ compareModels(Amax = Amax,
               minYear = minYear, 
               logN = TRUE,
               post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
-                                 "RedFoxIPM_sim_harvest_fac1.5.rds",
-                                 "RedFoxIPM_sim_highRodentHarvest_th0_fac1.5.rds",
-                                 "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.5.rds"), 
+                                 "RedFoxIPM_sim_incHarvest_fac1.25.rds",
+                                 "RedFoxIPM_sim_highRodentHarvest_th0_fac1.25.rds",
+                                 "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.25.rds"), 
               model.names = c("Baseline projection", 
                               "50% harvest increase",
                               "High rodent 50% harvest increase",
