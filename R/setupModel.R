@@ -31,6 +31,12 @@
 #' informative survival priors based on literature. 
 #' @param imm.asRate logical. If TRUE, sets up a model that estimates immigration
 #' as a rate. 
+#' @param Mu.mO_fixInits logical. If TRUE (default), sets initial values for
+#' age-specific average natural mortality hazard rates to pre-defined values
+#' taken from the North Sweden red fox population as presented in Devenish-Nelson
+#' et al. 2017. Using these values seems to produce good sets of initial values
+#' for the entire model. If set to FALSE, initial values for Mu.mO parameters
+#' are instead simulated fron uniform distributions. 
 #' @param niter integer. Number of MCMC iterations (default = 30000)
 #' @param nthin integer. Thinning factor (default = 4)
 #' @param nburn integer. Number of iterations to discard as burn-in (default = 5000)
@@ -49,8 +55,8 @@ setupModel <- function(modelCode,
                        nim.data, nim.constants,
                        minN1, maxN1, minImm, maxImm,
                        fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
-                       mO.varT, HoeningPrior,
-                       niter = 30000, nthin = 4, nburn = 5000, nchains = 3,
+                       mO.varT, HoeningPrior, imm.asRate, Mu.mO_fixInits = TRUE,
+                       niter = 100000, nthin = 8, nburn = 37500, nchains = 3,
                        testRun = FALSE, initVals.seed){
   
   
@@ -91,6 +97,8 @@ setupModel <- function(modelCode,
     if(!poolYrs.genData){
       params <- c(params, "immR_pre")
     }
+  }else{
+    params <- c(params, "Mu.Imm", "logsigma.Imm")
   } 
   
   if(fitCov.immR){
@@ -113,7 +121,8 @@ setupModel <- function(modelCode,
                                       rCov.idx = rCov.idx, 
                                       mO.varT = mO.varT,
                                       HoeningPrior = HoeningPrior,
-                                      imm.asRate = imm.asRate)
+                                      imm.asRate = imm.asRate,
+                                      Mu.mO_fixInits = Mu.mO_fixInits)
   }
   
   ## Adjust MCMC parameters if doing a test run

@@ -30,7 +30,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     for(i in 1:length(paramSamples$t_mean)){
       
       paramName <- names(paramSamples$t)[i]
-      t_offset <- ifelse(paramName %in% c("Psi", "rho", "S0", "m0", "immR"), 1, 0)
+      t_offset <- ifelse(paramName %in% c("Psi", "rho", "S0", "m0"), 1, 0)
       
       focalParam <- paramSamples$t[[i]]
       
@@ -59,6 +59,9 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     sens_S0 = rep(NA, nosamples),
     sens_m0 = rep(NA, nosamples),
     
+    sens_Ss = matrix(NA, nrow = nosamples, ncol = Amax),
+    sens_mHs = matrix(NA, nrow = nosamples, ncol = Amax),
+    
     sens_immR = rep(NA, nosamples),
     
     sens_n = matrix(NA, nrow = nosamples, ncol = Amax),
@@ -73,36 +76,53 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
       
       x <- ifelse(a < Amax, 1, 0)
       
-      sensList$sens_S[i, a] <- n[i, a]*(1 + 0.5*Psi[i, a+x]*rho[i, a+x]*S0[i]*(1 + immR[i]))
-      
-      sensList$sens_mH[i, a] <- sensList$sens_mO[i, a] <- -exp(-(mH[i, a] + mO[i, a]))*sensList$sens_S[i, a]
-      
-      
       if(a == 1){
+        
+        sensList$sens_S[i, a] <- n[i, a]*Ss[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])*(1 + immR[i])
+        sensList$sens_Ss[i, a] <- n[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])*(1 + immR[i])
+        
         sensList$sens_Psi[i, a] <- 0
         sensList$sens_rho[i, a] <- 0
+        
+        sensList$sens_n[i, a] <-   Ss[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])*(1 + immR[i])
+        
       }else{
         
+        sensList$sens_S[i, a] <- n[i, a]*Ss[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])
+        sensList$sens_Ss[i, a] <- n[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])
+        
         if(a < Amax){
-          sensList$sens_Psi[i, a] <- S[i, a]*n[i, a]*0.5*rho[i, a+1]*S0[i]*(1 + immR[i])
-          sensList$sens_rho[i, a] <- S[i, a]*n[i, a]*0.5*Psi[i, a+1]*S0[i]*(1 + immR[i])
+          
+          if(a == 2){
+            sensList$sens_Psi[i, a] <- n[i, a-1]*Ss[i, a-1]*S[i, a-1]*0.5*rho[i, a]*S0[i]*(1 + immR[i])
+            sensList$sens_rho[i, a] <- n[i, a-1]*Ss[i, a-1]*S[i, a-1]*0.5*Psi[i, a]*S0[i]*(1 + immR[i])
+          }else{
+            sensList$sens_Psi[i, a] <- n[i, a-1]*Ss[i, a-1]*S[i, a-1]*0.5*rho[i, a]*S0[i]
+            sensList$sens_rho[i, a] <- n[i, a-1]*Ss[i, a-1]*S[i, a-1]*0.5*Psi[i, a]*S0[i]
+          }
+          
         }else{
-          sensList$sens_Psi[i, a] <- (S[i, a-1]*n[i, a] + S[i, a-1]*n[i, a-1])*0.5*rho[i, a]*S0[i]*(1 + immR[i])
-          sensList$sens_rho[i, a] <- (S[i, a-1]*n[i, a] + S[i, a-1]*n[i, a-1])*0.5*Psi[i, a]*S0[i]*(1 + immR[i])
+          sensList$sens_Psi[i, a] <- (n[i, a-1]*Ss[i, a-1]*S[i, a-1] + n[i, a]*S[i, a]*Ss[i, a])*0.5*rho[i, a]*S0[i]
+          sensList$sens_rho[i, a] <- (n[i, a-1]*Ss[i, a-1]*S[i, a-1] + n[i, a]*S[i, a]*Ss[i, a])*0.5*Psi[i, a]*S0[i]
         }
+        
+        sensList$sens_n[i, a] <-   Ss[i, a]*S[i, a]*(1 + Psi[i, a+x]*0.5*rho[i, a+x]*S0[i])
       }
       
-      sensList$sens_n[i, a] <-   S[i, a]*(1 + 0.5*Psi[i, a+x]*rho[i, a+x]*S0[i]*(1 + immR[i]))
+      sensList$sens_mH[i, a] <- sensList$sens_mO[i, a] <- -exp(-(mH[i, a] + mO[i, a]))*sensList$sens_S[i, a]
+      sensList$sens_mHs[i, a] <- -exp(-mHs[i, a])*sensList$sens_Ss[i, a]
+      
       sensList$sens_N[i, a] <- (sensList$sens_n[i, a] - lambda[i]) / (sum(N[i, 1:Amax]))
     } 
     
-    sensList$sens_S0[i] <- sum(S[i, 1:(Amax-1)]*Psi[i, 2:Amax]*rho[i, 2:Amax]*n[i, 1:(Amax-1)], 
-                               S[i, Amax]*Psi[i, Amax]*rho[i, Amax]*n[i, Amax])*0.5*(1 + immR[i])
+    sensList$sens_S0[i] <- n[i, 1]*Ss[i, 1]*S[i, 1]*Psi[i, 2]*0.5*rho[i, 2]*(1 + immR[i]) +
+                           sum(n[i, 2:(Amax-1)]*Ss[i, 2:(Amax-1)]*S[i, 2:(Amax-1)]*Psi[i, 3:Amax]*0.5*rho[i, 3:Amax]) +  
+                           n[i, Amax]*Ss[i, Amax]*S[i, Amax]*Psi[i, Amax]*0.5*rho[i, Amax]
     
     sensList$sens_m0[i] <- -exp(-m0[i])*sensList$sens_S0[i]
     
-    sensList$sens_immR[i] <- sum(S[i, 1:(Amax-1)]*Psi[i, 2:Amax]*rho[i, 2:Amax]*n[i, 1:(Amax-1)], 
-                                 S[i, Amax]*Psi[i, Amax]*rho[i, Amax]*n[i, Amax])*0.5*S0[i]
+    sensList$sens_immR[i] <- n[i, 1]*Ss[i, 1]*S[i, 1]*(1 + Psi[i, 2]*0.5*rho[i, 2]*S0[i])
+
   }
   
   
@@ -114,14 +134,14 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     if(is.matrix(sensList[[i]])){
       
       # Extract quantiles for age-specific parameters
-      quantiles <- apply(sensList[[i]], 2, stats::quantile, probs = c(0.05, 0.5, 0.975))
+      quantiles <- apply(sensList[[i]], 2, stats::quantile, probs = c(0.025, 0.5, 0.975))
       dimnames(quantiles)[[1]] <- c("lCI", "median", "uCI")
       
       data_temp <- cbind(data.frame(Parameter = names(sensList[i]), AgeClass = 1:Amax), t(quantiles))
       
       # Extract quantiles for sensitivities summed over age classes
       sum_temp <- cbind(data.frame(Parameter = names(sensList[i]), AgeClass = "summed"), 
-                        t(quantile(rowSums(sensList[[i]]), probs = c(0.05, 0.5, 0.975))))
+                        t(quantile(rowSums(sensList[[i]]), probs = c(0.025, 0.5, 0.975))))
       colnames(sum_temp)[3:5] <- c("lCI", "median", "uCI")
       
       data_temp <- rbind(data_temp, sum_temp)
@@ -132,7 +152,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     }else{
       
       # Extract quantiles for age-specific parameters
-      quantiles <- quantile(sensList[[i]], probs = c(0.05, 0.5, 0.975))
+      quantiles <- quantile(sensList[[i]], probs = c(0.025, 0.5, 0.975))
       names(quantiles) <- c("lCI", "median", "uCI")
       
       data_temp <- cbind(data.frame(Parameter = names(sensList[i]), AgeClass = NA), t(quantiles))
@@ -147,7 +167,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
   # CALCULATION OF TRANSIENT ELASTICITIES #
   #---------------------------------------#
   
-  ## Calculate transient elasiticities for vital rates and population size/structure (evaluated at the temporal mean)
+  ## Calculate transient elasticities for vital rates and population size/structure (evaluated at the temporal mean)
   elasList <- list(
     elas_S = sensList$sens_S*(S/lambda),
     elas_mH = sensList$sens_mH*(mH/lambda),
@@ -158,6 +178,9 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     
     elas_S0 = sensList$sens_S0*(S0/lambda),
     elas_m0 = sensList$sens_m0*(m0/lambda),
+    
+    elas_Ss = sensList$sens_Ss*(S/lambda),
+    elas_mHs = sensList$sens_mHs*(mHs/lambda),
     
     elas_immR = sensList$sens_immR*(immR/lambda),
     
@@ -174,14 +197,14 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     if(is.matrix(elasList[[i]])){
       
       # Extract quantiles for age-specific parameters
-      quantiles <- apply(elasList[[i]], 2, stats::quantile, probs = c(0.05, 0.5, 0.975))
+      quantiles <- apply(elasList[[i]], 2, stats::quantile, probs = c(0.025, 0.5, 0.975))
       dimnames(quantiles)[[1]] <- c("lCI", "median", "uCI")
       
       data_temp <- cbind(data.frame(Parameter = names(elasList[i]), AgeClass = 1:Amax), t(quantiles))
       
       # Extract quantiles for elasitivities summed over age classes
       sum_temp <- cbind(data.frame(Parameter = names(elasList[i]), AgeClass = "summed"), 
-                        t(quantile(rowSums(elasList[[i]]), probs = c(0.05, 0.5, 0.975))))
+                        t(quantile(rowSums(elasList[[i]]), probs = c(0.025, 0.5, 0.975))))
       colnames(sum_temp)[3:5] <- c("lCI", "median", "uCI")
       
       data_temp <- rbind(data_temp, sum_temp)
@@ -192,7 +215,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
     }else{
       
       # Extract quantiles for age-specific parameters
-      quantiles <- quantile(elasList[[i]], probs = c(0.05, 0.5, 0.975))
+      quantiles <- quantile(elasList[[i]], probs = c(0.025, 0.5, 0.975))
       names(quantiles) <- c("lCI", "median", "uCI")
       
       data_temp <- cbind(data.frame(Parameter = names(elasList[i]), AgeClass = NA), t(quantiles))
@@ -217,7 +240,7 @@ calculateSensitivities <- function(paramSamples, Amax, t_period = NULL){
                                         summaries = postSum_elas))
   
   if(is.null(t_period)){
-    saveRDS(sensResults, file = "RedFoxIPM_Sensitivities")
+    saveRDS(sensResults, file = "RedFoxIPM_Sensitivities.rds")
   }
   
   return(sensResults)

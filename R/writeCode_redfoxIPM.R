@@ -318,7 +318,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t+1] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t+1] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -509,17 +509,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
       }else{
         
-        ## Discrete uniform prior for immigrant numbers
-        Imm[1] <- 0 # (Immigration in the first year cannot be disentangled from reproduction)
-        #ImmT[1] <- 0 
-        
+        ## Lognormal prior for immigrant numbers
         for(t in 2:Tmax){
-          Imm[t] ~ dcat(DU.prior.Imm[1:uLim.Imm]) 
-          #Imm[t] ~ dpois(ImmT[t])
-          #ImmT[t] ~ T(dnorm(Mu.Imm, sd = sigma.Imm), 0, uLim.Imm)
+          Imm[t] <- round(ImmExp[t])
+          ImmExp[t] ~ dlnorm(meanlog = log(Mu.Imm), sdlog = logsigma.Imm) 
         }
         
-        DU.prior.Imm[1:uLim.Imm] <- 1/uLim.Imm
+        Mu.Imm ~ dunif(1, uLim.Imm)
+        logsigma.Imm ~ dunif(0, 10)
         
         ## Derivation of immigration rates
         immR[1] <- 0
@@ -905,7 +902,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t+1] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t+1] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -1084,14 +1081,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
       }else{
         
-        ## Discrete uniform prior for immigrant numbers
-        Imm[1] <- 0 # (Immigration in the first year cannot be disentangled from reproduction)
-        
+        ## Lognormal prior for immigrant numbers
         for(t in 2:Tmax){
-          Imm[t] ~ dcat(DU.prior.Imm[1:uLim.Imm]) 
+          Imm[t] <- round(ImmExp[t])
+          ImmExp[t] ~ dlnorm(meanlog = log(Mu.Imm), sdlog = logsigma.Imm) 
         }
         
-        DU.prior.Imm[1:uLim.Imm] <- 1/uLim.Imm
+        Mu.Imm ~ dunif(1, uLim.Imm)
+        logsigma.Imm ~ dunif(0, 10)
         
         ## Derivation of immigration rates
         immR[1] <- 0
