@@ -12,8 +12,11 @@
 #' @param shapefile.dir string. Directory of shapefiles delineating study areas and sub-areas.
 #' @param add.sumr.unaged logical. Add summer harvested individuals as unaged individuals to the total harvested individuals and their proportion aged.
 #' @param saAH.years a vector of years for which the summer age at harvest matrix should be constructed
+#' @param minYear integer. First year to consider in analyses.
+#' @param Tmax integer. The number of years to consider in analyses.
 #'
-#' @return a list containing the age-at-harvest matrix and dataframes with embryo count (P1var) and placental scar presence-absence (P2var) data.
+#' @return a list containing the age-at-harvest matrix and dataframes with embryo count (P1var) and placental scar presence-absence (P2var) data, 
+#' and a count of observed harvested individuals in summer for each year.
 #' @export
 #'
 #' @examples
@@ -23,7 +26,8 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
                               plac_start, plac_end , embr_start, embr_end,
                               carcass.dataset, 
                               shapefile.dir,
-                              add.sumr.unaged, saAH.years ) {
+                              add.sumr.unaged, saAH.years,
+                              minYear, Tmax) {
   
   #========= HELPER FUNCTIONS ==============
   '%notin%' <- Negate('%in%')
@@ -89,6 +93,10 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   fvar1$alder4 <- fvar1$v_age
   fvar1$alder4[fvar1$alder4 > (Amax-1)] <- (Amax-1)
   
+  #Define year range 
+  years <- minYear:(minYear + Tmax - 1)
+  fvar1 <- fvar1[fvar1$start_hunting_year %in% years,]
+  
   #===============    WINTER AGE AT HARVEST MATRIX BUILDING ==============================
   #here we exclude foxes shot in summer months and foxes with no age info
   
@@ -125,6 +133,13 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   sallf.ann  <- table(fvar1$start_hunting_year[fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]) #where unaged not removed
   sprop <- sagedf.ann/sallf.ann
   svarFC2$pData <- sprop
+  
+  #================= total summer counts all years ==============
+  fvar1$start_hunting_year_fac <- as.factor(fvar1$start_hunting_year)
+  obsH_s  <- table(as.factor(fvar1$start_hunting_year_fac[fvar1$mnd %notin% winter_removal])) #observed harvest summer (all years)
+  year_names <- names(obsH_s)
+  obsH_s <- as.vector(obsH_s)
+  names(obsH_s) <- year_names
   
   # ========= REPRODUCTION: NR OF EMBRYO'S / PLACENTAL SCARS =========
   #here we exclude foxes with no age info and foxes with no breeding info recorded (no NA, and nr > 0)
@@ -168,7 +183,8 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   carcassData <- list(WAaH.matrix = varFC2,
                       SAaH.matrix = svarFC2,
                       P1var = P1var,
-                      P2var = P2var)
+                      P2var = P2var,
+                      obsH_s = obsH_s)
   
   #=== return ===
   return(carcassData)

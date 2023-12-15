@@ -18,6 +18,8 @@
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @param sAaH.data a list containing a summer Age-at-Harvest matrix (C) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
+#' @param obsH_s.data a list containing a vector of annual harvest counts (obsH)
+#' and an index at which to start analysis of counts as opposed to AaH data (Tmin_obsH).
 #' @param rep.data a list containing formatted reproduction data in two data 
 #' frames: 'P1' (counts) and 'P2' (presences/absences).
 #' @param gen.data a list containing relevant data on genetically determined 
@@ -45,7 +47,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
                                maxPups, uLim.N, uLim.Imm, 
                                nLevels.rCov = NA, standSpec.rCov,
                                poolYrs.genData, pImm.type,
-                               wAaH.data, sAaH.data, rep.data, gen.data, pup.data,
+                               wAaH.data, sAaH.data, obsH_s.data,
+                               rep.data, gen.data, pup.data,
                                rodent.data, reindeer.data, hunter.data, 
                                surv.priors, survPriorType,
                                save = FALSE){
@@ -107,6 +110,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     C_s = C_s,
     pData_s = pData_s,
     
+    obsH_s = obsH_s.data$obsH,
+    
     P1 = P1$P1,
     
     P2 = P2$P2,
@@ -133,6 +138,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     
     XsH = XsH,
     sH_year = sH_year,
+    
+    Tmin_obsH = obsH_s.data$Tmin_obsH,
     
     P1_age = P1$age_adj,
     P1_year = P1$RepYearIndex,

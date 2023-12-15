@@ -3,7 +3,7 @@
 #' @param AaH.datafile Age at harvest data file from carcass.data
 #' @param Amax integer. Number of age classes to consider in analyses.
 #'
-#' @return a list containing an Age-at-Harvest matrix (winterC) and a vector of
+#' @return a list containing an Age-at-Harvest matrix (C) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @export
 #'

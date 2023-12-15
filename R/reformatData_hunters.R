@@ -3,6 +3,8 @@
 #' @param area_selection vector of study-area sub-area names to consider in the analyses: c("Inner", "BB",  "Tana")
 #' @param carcass.dataset dataframe containing the carcass dataset downloaded from the COAT dataportal
 #' @param shapefile.dir string. Directory of shapefile data with study areas sub-areas
+#' @param minYear integer. First year to consider in analyses.
+#' @param Tmax integer. The number of years to consider in analyses.
 #'
 #' @return a dataframe containing numbers of succesfull hunters per year (regular and standardised)
 #' @export
@@ -11,7 +13,8 @@
 
 
 reformatData_hunters <- function(area_selection,
-                                      carcass.dataset, shapefile.dir){
+                                      carcass.dataset, shapefile.dir,
+                                 minYear, Tmax){
   
 
 # === 1 thing that I use later down ====
@@ -65,6 +68,10 @@ if(sum(is.na(fvar1$sub_area)) > 0 || !identical(unique(fvar1$sub_area), c("Inner
 
 #Selecting for study area - sub areas
 fvar1 <- subset(fvar1,(fvar1$sub_area %in% area_selection))
+
+#Define year range 
+years <- minYear:(minYear + Tmax - 1)
+fvar1 <- fvar1[fvar1$start_hunting_year %in% years,]
 
 #======= HUNTING EFFORT ========
 #nr of successfull hunters per year

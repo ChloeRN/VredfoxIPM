@@ -23,7 +23,7 @@ minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9)    #removal of summer months: numerical months to be removed from winter age at harvest data
 winter_removal <- c(1:6, 10:12) #removal of winter months: numerical months to be removed from summer age at harvest data
-area_selection<- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
+area_selection <- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
 # start and end of placental scars and embryo sample periods (julian day)
 plac_start <- 180 #including
 plac_end   <- 80  #until, not including
@@ -42,8 +42,8 @@ shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\
 COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
 # Chloe
-#shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
-shapefile.dir <- "Data/shapefiles"
+shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+#shapefile.dir <- "Data/shapefiles"
 COAT_key <- Sys.getenv("COAT_API")
 
 ## Source all functions in "R" folder
@@ -129,10 +129,12 @@ carcass.data <- reformatData_carcass(Amax = Amax,
                                      carcass.dataset = carcass.data.raw,
                                      shapefile.dir = shapefile.dir,
                                      add.sumr.unaged = add.sumr.unaged, 
-                                     saAH.years = saAH.years)
+                                     saAH.years = saAH.years,
+                                     minYear = minYear,
+                                     Tmax = Tmax)
 
 
-# 1b) Age-at-Harvest data #
+# 1b) (Age-at-)Harvest data #
 #--------------------------------#
 
 ## Winter AaH data
@@ -141,7 +143,10 @@ wAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$WAaH.matrix,
 ## Summer AaH data
 sAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$SAaH.matrix, 
                              Amax = Amax)
-
+## Summer harvest counts
+obsH_s.data <- wrangleData_obsH(obsH.datafile = carcass.data$obsH_s,
+                                AaH.data = sAaH.data,
+                                minYear = minYear)
 
 # 1c) Reproduction data #
 #-----------------------#
@@ -189,7 +194,9 @@ pup.data <- wrangleData_pup(datapath = pups.datapath,
 ## Prepare harvest effort data
 hunter.data <- reformatData_hunters(area_selection = area_selection,
                                     carcass.dataset = carcass.data.raw,
-                                    shapefile.dir = shapefile.dir)
+                                    shapefile.dir = shapefile.dir,
+                                    minYear = minYear,
+                                    Tmax = Tmax)
 
 
 # 1g) Environmental data #
@@ -202,7 +209,7 @@ rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key,
 
 ## Reformat rodent data
 rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
-                                          minYear = minYear)
+                                   minYear = minYear)
 
 ## Reformat reindeer data
 reindeer.data <- reformatData_reindeer(minYear = minYear,
@@ -269,6 +276,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  pImm.type = pImm.type,
                                  wAaH.data = wAaH.data, 
                                  sAaH.data = sAaH.data,
+                                 obsH_s.data = obsH_s.data,
                                  rep.data = rep.data, 
                                  gen.data = gen.data,
                                  pup.data = pup.data,
@@ -333,7 +341,6 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds") # --> Done
 
-
 #MCMCvis::MCMCtrace(IPM.out)
 
 
@@ -397,6 +404,18 @@ compareModels(Amax = Amax,
 
 
 
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_sAaH&sHcount_poolGenData_metaAllPrior.rds",
+                                 "RedFoxIPM_sAaH&Hcount2_poolGenData_metaAllPrior.rds",
+                                 "RedFoxIPM_sAaH_poolGenData_metaAllPrior.rds"), 
+              model.names = c("sAaH & sH counts v1, Meta analysis prior",
+                              "sAaH & sH counts v2, Meta analysis prior",
+                              "sAaH, Meta analysis prior"), 
+              censusCollapse = c(TRUE, TRUE, TRUE),
+              plotFolder = "Plots/Comp_summerHarvest4")
 
 ###########################################
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
