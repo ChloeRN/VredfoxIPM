@@ -42,8 +42,8 @@ shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\
 COAT_key <- Sys.getenv("API_COAT_Stijn") # Stijn's API key for the COAT dataportal is saved as an environmental variable on the computer 
 
 # Chloe
-shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
-#shapefile.dir <- "Data/shapefiles"
+#shapefile.dir <- "C:/Users/chloe.nater/OneDrive - NINA/Documents/Projects/RedFox_IPM/Data/shapefiles"
+shapefile.dir <- "Data/shapefiles"
 COAT_key <- Sys.getenv("COAT_API")
 
 ## Source all functions in "R" folder
@@ -330,7 +330,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
+saveRDS(IPM.out, file = "RedFoxIPM_main_Hcounts.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds") # --> Done
@@ -416,6 +416,16 @@ compareModels(Amax = Amax,
                               "sAaH, Meta analysis prior"), 
               censusCollapse = c(TRUE, TRUE, TRUE),
               plotFolder = "Plots/Comp_summerHarvest4")
+
+## Summer harvest data includion
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_main_Hcounts.rds"), 
+              model.names = c("05-12 AaH only", 
+                              "05-12 AaH + 13-21 counts"), 
+              plotFolder = "Plots/CompFinal_SummerHarvest")
 
 ###########################################
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
