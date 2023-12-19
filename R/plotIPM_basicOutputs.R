@@ -6,7 +6,7 @@
 #' @param Tmax integer. Number of years in the analysis.
 #' @param minYear integer. First year in the analysis. 
 #'
-#' @returna character vector of plot names. The plots themselves are saved
+#' @return a character vector of plot names. The plots themselves are saved
 #' as pdf's in the subfolder "Plots".
 #' @export
 #'
@@ -108,7 +108,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
   p.S_age <- results %>% 
     dplyr::filter(ParamName %in% c("Mu.S", "Mu.Ss")) %>%
     ggplot(aes(x = Value, group = Age)) + 
-    geom_density(aes(color = Age, fill = Age), alpha = 0.5) + 
+    geom_density(aes(y = after_stat(scaled), color = Age, fill = Age), alpha = 0.5) + 
     scale_color_manual(values = plot.colors.age) + 
     scale_fill_manual(values = plot.colors.age) + 
     ylab("Density") +
@@ -123,7 +123,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
     dplyr::filter(ParamName %in% c("Mu.mHs", "Mu.mH", "Mu.mO") & Value < 2) %>%
     dplyr::mutate(ParamName = factor(ParamName, levels = c("Mu.mH", "Mu.mO", "Mu.mHs"))) %>%
     ggplot(aes(x = Value, group = Age)) + 
-    geom_density(aes(color = Age, fill = Age), alpha = 0.5) + 
+    geom_density(aes(y = after_stat(scaled), color = Age, fill = Age), alpha = 0.5) + 
     scale_color_manual(values = plot.colors.age) + 
     scale_fill_manual(values = plot.colors.age) + 
     facet_wrap(~ ParamName, ncol = 1, scales = "free_y", labeller = labeller(ParamName = m.labs)) + 
@@ -162,11 +162,11 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
   
   # Population size panel
   p.N_time <- results.sum %>%
-    dplyr::filter(ParamName == "N.tot" & Year < minYear+Tmax) %>%
+    dplyr::filter(ParamName == "N.tot" & Year < minYear+Tmax & Year > minYear) %>%
     ggplot(aes(x = Year)) + 
     geom_line(aes(y = median), color = "#4D004B") + 
     geom_ribbon(aes(ymin = lCI, ymax = uCI), fill = "#4D004B", alpha = 0.5) + 
-    scale_x_continuous(breaks = c(minYear:(minYear+Tmax-1)), labels = c(minYear:(minYear+Tmax-1))) + 
+    scale_x_continuous(limits = c(minYear, NA), breaks = c(minYear:(minYear+Tmax-1)), labels = c(minYear:(minYear+Tmax-1))) + 
     ylab("Population size (females)") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
   
