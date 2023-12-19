@@ -338,7 +338,9 @@ list(
   # Write posterior summaries to file (for reporting)
   tar_target(
     postSum.files,
-    writePostSummaries(MCMC.samples = IPM.out),
+    writePostSummaries(MCMC.samples = IPM.out,
+                       Amax = Amax,
+                       minYear = minYear),
     format = "file"
   ),
   

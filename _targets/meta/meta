@@ -5,7 +5,7 @@ adjustAge_repData|function|3b52cbb282c0d820|||||||||||||||
 Amax|object|703a354a3d076f23|||||||||||||||
 area_selection|object|1576b0d5df8cbb79|||||||||||||||
 assemble_inputData|function|c50d013ce53ead78|||||||||||||||
-basePlots|stem|cefe86305c388c92|f2464f34d0003fea|c1fa2d1f4380463d|-686649888|Plots/ParamAvg_Survival&Mortality.pdf*Plots/ParamAvg_Reproduction&Immigration.pdf*Plots/ParamTime_PopSize.pdf*Plots/ParamTime_PopStructure.pdf*Plots/ParamTime_RecruitsVSImmigrants.pdf*Plots/ParamTime_VitalRates.pdf|t19710.3958563661s|298c6c4baed697c5|120025|file|local|vector|||20.04|1m22mRemoved 5 rows containing nonfinite values stat_align.. 1m22mRemoved 4 rows containing nonfinite values stat_align.|
+basePlots|stem|4258d21872767f0a|f2464f34d0003fea|f057d20846de6123|-686649888|Plots/ParamAvg_Survival&Mortality.pdf*Plots/ParamAvg_Reproduction&Immigration.pdf*Plots/ParamTime_PopSize.pdf*Plots/ParamTime_PopStructure.pdf*Plots/ParamTime_RecruitsVSImmigrants.pdf*Plots/ParamTime_VitalRates.pdf|t19710.4616544575s|3d7579b14749c692|120048|file|local|vector|||20|1m22mRemoved 5 rows containing nonfinite values stat_align.. 1m22mRemoved 4 rows containing nonfinite values stat_align.|
 calculateImmR|function|80216c3dba8ee948|||||||||||||||
 calculateLogSD|function|1c43252a9217f4af|||||||||||||||
 calculateSensitivities|function|5f56430c222f75be|||||||||||||||
@@ -55,14 +55,14 @@ paramSamples|stem|e84f908d2389e1b1|6e5a1c8945b3e147|ab2c4e743851404a|-1111307465
 pImm.type|object|64c12cf07367861b|||||||||||||||
 plac_end|object|6281f79619f6778a|||||||||||||||
 plac_start|object|fef240c3b35f4169|||||||||||||||
-plotIPM_basicOutputs|function|6efced5bce4911f6|||||||||||||||
+plotIPM_basicOutputs|function|3245cfdab7724fb0|||||||||||||||
 plotIPM_covariateEffects|function|a13d81a93a86d27a|||||||||||||||
 plotLTRE_fixedDesign|function|8bcab47ff4751bbb|||||||||||||||
 plotLTRE_randomDesign|function|3b672d987f4bbf93|||||||||||||||
 plotSensitivities|function|198e557e59d847d5|||||||||||||||
 poolYrs.genData|object|909013909b1f03d4|||||||||||||||
 PopStructure|object|909013909b1f03d4|||||||||||||||
-postSum.files|stem|e25a36eae9d1093d|0f62de074a444405|9ab963289e808f55|1806645973|RedfoxIPM_PostSummaries.rds*RedfoxIPM_PostSummaries.csv|t19710.4100371791s|9da2a66b118fe5b0|74863|file|local|vector|||4.78||
+postSum.files|stem|077b9d2b64cccbfd|72a8e2169264cbdd|6eacd46dbb4bf9a1|1806645973|RedfoxIPM_PostSummaries.rds*RedfoxIPM_PostSummaries.csv|t19710.4605792771s|97d6281d1ff67ca3|89898|file|local|vector|||11.88||
 predict_mO_HoeningMod|function|f71e965236ece8bc|||||||||||||||
 pup.data|stem|92aa173df5a6c49a|9e70d590ad56be63|f1bd8660e4c6b94e|1322132507||t19702.4324229938s|4ff05336d644dae2|106|qs|local|vector|||1.78|package sf was built under R version 4.3.2. package Matrix was built under R version 4.3.2|
 pups.datapath|object|0fdd81ce3a5406d6|||||||||||||||
@@ -112,5 +112,5 @@ wrangleData_pup|function|b7fed25a9327a66b|||||||||||||||
 wrangleData_rep|function|69bf74c0db1ba657|||||||||||||||
 wrangleData_winterAaH|function|97e2f31347e9fa41|||||||||||||||
 writeCode_redfoxIPM|function|2e0f4fad78d8d633|||||||||||||||
-writePostSummaries|function|938e5dd1f41ee97e|||||||||||||||
+writePostSummaries|function|e99ee11926b0cb07|||||||||||||||
 YearInfo|stem|70285083a01a575c|5a74a94f9685e016|a439d2a863666e8c|826698710||t19702.4324270538s|97a26c45a1019e11|344|qs|local|vector|||0.01||
