@@ -416,15 +416,17 @@ compareModels(Amax = Amax,
               post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
                                  #"RedFoxIPM_sim_incHarvest_fac1.50.rds",
                                  "RedFoxIPM_sim_highRodentHarvest_th0_fac1.50.rds",
-                                 "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.50.rds",
-                                 "RedFoxIPM_sim_highRodentHarvest_th1_fac1.50.rds",
-                                 "RedFoxIPM_sim_lowRodentHarvest_th1_fac1.50.rds"), 
+                                 "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.50.rds"#,
+                                 #"RedFoxIPM_sim_highRodentHarvest_th1_fac1.50.rds",
+                                 #"RedFoxIPM_sim_lowRodentHarvest_th1_fac1.50.rds"
+                                 ), 
               model.names = c("Baseline projection", 
                               #"50% harvest increase",
-                              "Above avg. rodent 50% harvest increase",
-                              "Below avg. rodent 50% harvest increase",
-                              "High rodent 50% harvest increase",
-                              "Low rodent 50% harvest increase"), 
+                              "Higher rodent +50% harvest",
+                              "Lower rodent +50% harvest"#,
+                              #"High rodent 50% harvest increase",
+                              #"Low rodent 50% harvest increase"
+                              ), 
               plotFolder = "Plots/ScenarioComp_PVA2")
 
 
