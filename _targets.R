@@ -335,6 +335,13 @@ list(
     format = "file"
   ),
   
+  # Write posterior summaries to file (for reporting)
+  tar_target(
+    postSum.files,
+    writePostSummaries(MCMC.samples = IPM.out),
+    format = "file"
+  ),
+  
   # Plot basic IPM results
   tar_target(
     basePlots,
