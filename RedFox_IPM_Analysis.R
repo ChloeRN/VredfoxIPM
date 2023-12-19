@@ -107,14 +107,14 @@ S0.mean.offset <- 0
 S0.sd.factor <- 1
 
 ## Set up perturbation parameters for running standard scenarios
-pert.mH <- TRUE
+pert.mH <- FALSE
 pert.mO <- FALSE
 pert.S0 <- FALSE
 pert.immR <- FALSE
 pert.rodent <- FALSE
 pert.reindeer <- FALSE
 
-factor.mH <- 1.25
+factor.mH <- 1
 factor.mO <- 1
 factor.S0 <- 1
 factor.immR <- 1
@@ -139,9 +139,9 @@ perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
 
 ## Set up perturbation parameters for running rodent-dependent harvest scenarios
-factor.mH.rodent <- 1
-threshold.rodent.mH <- 0
-thresholdAbove <- FALSE
+factor.mH.rodent <- 1.5
+threshold.rodent.mH <- 1
+thresholdAbove <- TRUE
 
 
 ## Nimble function for determining perturbation factor based on covariate value
@@ -386,7 +386,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_incHarvest_fac1.25.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvest_th1_fac1.50.rds")
 
 #MCMCvis::MCMCtrace(IPM.out)
 
@@ -411,16 +411,20 @@ compareModels(Amax = Amax,
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              maxYear = 2027,
+              maxYear = 2032,
               logN = TRUE,
               post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
-                                 "RedFoxIPM_sim_incHarvest_fac1.25.rds",
-                                 #"RedFoxIPM_sim_highRodentHarvest_th0_fac1.25.rds",
-                                 "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.25.rds"), 
+                                 #"RedFoxIPM_sim_incHarvest_fac1.50.rds",
+                                 "RedFoxIPM_sim_highRodentHarvest_th0_fac1.50.rds",
+                                 "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.50.rds",
+                                 "RedFoxIPM_sim_highRodentHarvest_th1_fac1.50.rds",
+                                 "RedFoxIPM_sim_lowRodentHarvest_th1_fac1.50.rds"), 
               model.names = c("Baseline projection", 
-                              "25% harvest increase",
-                              #"High rodent 25% harvest increase",
-                              "Low rodent 25% harvest increase"), 
+                              #"50% harvest increase",
+                              "Above avg. rodent 50% harvest increase",
+                              "Below avg. rodent 50% harvest increase",
+                              "High rodent 50% harvest increase",
+                              "Low rodent 50% harvest increase"), 
               plotFolder = "Plots/ScenarioComp_PVA2")
 
 

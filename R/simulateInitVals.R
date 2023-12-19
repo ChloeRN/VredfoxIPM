@@ -67,12 +67,15 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   ## Rodent abundance (continuous)
   RodentAbundance <- nim.data$RodentAbundance
   if(NA %in% RodentAbundance){
-    RodentAbundance[which(is.na(RodentAbundance))] <- mean(RodentAbundance, na.rm = TRUE)
+    #RodentAbundance[which(is.na(RodentAbundance))] <- mean(RodentAbundance, na.rm = TRUE)
+    RodentAbundance[which(is.na(RodentAbundance))] <- 0
   }
   
   RodentAbundance2 <- nim.data$RodentAbundance2
   if(NA %in% RodentAbundance2){
-    RodentAbundance2[which(is.na(RodentAbundance2))] <- mean(RodentAbundance2, na.rm = TRUE)
+    #RodentAbundance2[which(is.na(RodentAbundance2))] <- mean(RodentAbundance2, na.rm = TRUE)
+    RodentAbundance2[which(is.na(RodentAbundance2))] <- 0
+    
   }
   
   ## Rodent abundance (categorical)
@@ -89,7 +92,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   ## Reindeer carcass abundance
   Reindeer <- nim.data$Reindeer
   if(NA %in% Reindeer){
-    Reindeer[which(is.na(Reindeer))] <- mean(Reindeer, na.rm = TRUE)
+    #Reindeer[which(is.na(Reindeer))] <- mean(Reindeer, na.rm = TRUE)
+    Reindeer[which(is.na(Reindeer))] <- 0
   }
   
   #--------------------------------------------------------#
