@@ -116,12 +116,12 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
     theme_bw() + theme(panel.grid = element_blank(), axis.title.x = element_blank(), legend.position = "none")
   
   # Mortality panel
-  m.labs <- c("Natural mortality (Oct-Jun)", "Harvest mortality (Oct-Jun)", "Harvest mortality (Jul-Sep)")
+  m.labs <- c("Harvest mortality (Oct-Jun)", "Natural mortality (Oct-Jun)", "Harvest mortality (Jul-Sep)")
   names(m.labs) <- c("Mu.mH", "Mu.mO", "Mu.mHs")
   
   p.m_age <- results %>% 
     dplyr::filter(ParamName %in% c("Mu.mHs", "Mu.mH", "Mu.mO") & Value < 2) %>%
-    dplyr::mutate(ParamName = factor(ParamName, levels = c("Mu.mH", "Mu.mO", "Mu.mHs"))) %>%
+    dplyr::mutate(ParamName = factor(ParamName, levels = c("Mu.mO", "Mu.mH", "Mu.mHs"))) %>%
     ggplot(aes(x = Value, group = Age)) + 
     geom_density(aes(y = after_stat(scaled), color = Age, fill = Age), alpha = 0.5) + 
     scale_color_manual(values = plot.colors.age) + 
