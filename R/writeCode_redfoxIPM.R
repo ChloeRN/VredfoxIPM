@@ -621,7 +621,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
                                                   covThreshold = threshold.rodent.mH,
                                                   thresholdAbove = thresholdAbove,
-                                                  covValue = RodentAbundance[t])
+                                                  covValue = RodentAbundance[t+1])
         }
       }
       
@@ -1227,7 +1227,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
                                                   covThreshold = threshold.rodent.mH,
                                                   thresholdAbove = thresholdAbove,
-                                                  covValue = RodentAbundance[t])
+                                                  covValue = RodentAbundance[t+1])
         }
       }
       

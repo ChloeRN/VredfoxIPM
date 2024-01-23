@@ -4,7 +4,7 @@ add.sumr.unaged|object|df161ddba3dacc9e|||||||||||||||
 adjustAge_repData|function|3b52cbb282c0d820|||||||||||||||
 Amax|object|703a354a3d076f23|||||||||||||||
 area_selection|object|1576b0d5df8cbb79|||||||||||||||
-assemble_inputData|function|c50d013ce53ead78|||||||||||||||
+assemble_inputData|function|cffe2386c4c2e74a|||||||||||||||
 basePlots|stem|174ced304e356790|f2464f34d0003fea|2e2e99a6b73a31fd|-686649888|Plots/ParamAvg_Survival&Mortality.pdf*Plots/ParamAvg_Reproduction&Immigration.pdf*Plots/ParamTime_PopSize.pdf*Plots/ParamTime_PopStructure.pdf*Plots/ParamTime_RecruitsVSImmigrants.pdf*Plots/ParamTime_VitalRates.pdf|t19702.5797116246s|fa95b8e99882b4b2|118762|file|local|vector|||20.08|1m22mRemoved 5 rows containing nonfinite values stat_align.. 1m22mRemoved 4 rows containing nonfinite values stat_align.|
 calculateImmR|function|80216c3dba8ee948|||||||||||||||
 calculateLogSD|function|1c43252a9217f4af|||||||||||||||
@@ -16,7 +16,7 @@ carcass.dataset.version|object|d62de3d7487789a8|||||||||||||||
 COAT_key|object|76ae306fe264b97b|||||||||||||||
 collate_priorInfo|function|6bec1ddc370af2c3|||||||||||||||
 collate_yearInfo|function|3515c2304306e748|||||||||||||||
-compareModels|function|eb64b0c86e0bbe21|||||||||||||||
+compareModels|function|f013fbf20e0874d7|||||||||||||||
 covariatePlots|stem|f93cb0acd1080d0a|e6cb0491049a635b|52fa8bd96f82a6fa|-1196967885|Plots/RedfoxIPM_rodentEff_Psi&rho&immR.pdf*Plots/RedfoxIPM_covEff_mO.pdf|t19702.531549956s|20e06ef1a3f28e8b|24828|file|local|vector|||193.86||
 definePriorType_AnnSurv|function|9f1327ea22c41a73|||||||||||||||
 downloadData_COAT|function|edea5d61030c58a4|||||||||||||||
@@ -55,7 +55,7 @@ paramSamples|stem|835403ddf8273c7c|6e5a1c8945b3e147|3c0b3c0c781b3037|-1111307465
 pImm.type|object|64c12cf07367861b|||||||||||||||
 plac_end|object|6281f79619f6778a|||||||||||||||
 plac_start|object|fef240c3b35f4169|||||||||||||||
-plotIPM_basicOutputs|function|7198b810e5d70db7|||||||||||||||
+plotIPM_basicOutputs|function|16d157ab63fced75|||||||||||||||
 plotIPM_covariateEffects|function|a13d81a93a86d27a|||||||||||||||
 plotLTRE_fixedDesign|function|8bcab47ff4751bbb|||||||||||||||
 plotLTRE_randomDesign|function|3b672d987f4bbf93|||||||||||||||
@@ -88,9 +88,10 @@ sAaH.data|stem|d74a09734598c030|f5c7caa8d96fc53d|e5729ce84c905427|-1342768850||t
 saAH.years|object|7b55d58b08daee12|||||||||||||||
 sensitivities|stem|fbbee829aa95007a|a418eeb38f4d00f4|7fe90f0694de4328|-16115146||t19702.5319755191s|d71ec1410e959285|14455723|qs|local|vector|||2.25||
 sensitivityPlots|stem|53bf0f49ea751eb4|04443766af1ec5db|04e4dd4eea3bd29c|-550962332|Plots/RedFoxIPM_Sensitivities_sum.pdf*Plots/RedFoxIPM_Elasticities_sum.pdf*Plots/RedFoxIPM_Sensitivities_age.pdf*Plots/RedFoxIPM_Elasticities_age.pdf|t19702.5681150081s|951211de65a3750d|462930|file|local|vector|||7.92||
-setupModel|function|62cbec30ad1003be|||||||||||||||
+setupModel|function|26cba03ef16f1553|||||||||||||||
+setupPerturbVecs_PVA|function|30dfbfd183c83a8d|||||||||||||||
 shapefile.dir|object|a7f16731041943bb|||||||||||||||
-simulateInitVals|function|0afc78dc7c51728a|||||||||||||||
+simulateInitVals|function|27510a077ef6d39f|||||||||||||||
 sourceDir|function|a90de91c32efc2cb|||||||||||||||
 sPriorSource|object|47065c6e6131471e|||||||||||||||
 standSpec.rCov|object|909013909b1f03d4|||||||||||||||
@@ -110,5 +111,5 @@ wrangleData_gen|function|2c1dd65961d21a8a|||||||||||||||
 wrangleData_pup|function|b7fed25a9327a66b|||||||||||||||
 wrangleData_rep|function|69bf74c0db1ba657|||||||||||||||
 wrangleData_winterAaH|function|97e2f31347e9fa41|||||||||||||||
-writeCode_redfoxIPM|function|c41ab3d9310e4e6e|||||||||||||||
+writeCode_redfoxIPM|function|4aea9707689dab45|||||||||||||||
 YearInfo|stem|70285083a01a575c|5a74a94f9685e016|a439d2a863666e8c|826698710||t19702.4324270538s|97a26c45a1019e11|344|qs|local|vector|||0.01||

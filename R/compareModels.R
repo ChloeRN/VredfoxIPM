@@ -1,5 +1,5 @@
 
-compareModels <- function(Amax, Tmax, minYear, maxYear, logN, post.filepaths, post.list, model.names, censusCollapse, plotFolder){
+compareModels <- function(Amax, Tmax, minYear, maxYear, logN, post.filepaths, post.list, model.names, censusCollapse, plotFolder, returnSumData = FALSE){
   
   ## Check models are specified correctly
   if((missing(post.filepaths) & missing(post.list)) |
@@ -206,4 +206,8 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN, post.filepaths, po
   }
   dev.off()
   
+  ## Optional: return summary data
+  if(returnSumData){
+    return(sum.data)
+  }
 }

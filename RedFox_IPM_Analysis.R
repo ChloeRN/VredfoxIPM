@@ -140,8 +140,8 @@ perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
 
 ## Set up perturbation parameters for running rodent-dependent harvest scenarios
 factor.mH.rodent <- 1.5
-threshold.rodent.mH <- 1
-thresholdAbove <- TRUE
+threshold.rodent.mH <- 0
+thresholdAbove <- FALSE
 
 
 ## Nimble function for determining perturbation factor based on covariate value
@@ -386,7 +386,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvest_th1_fac1.50.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
 
 #MCMCvis::MCMCtrace(IPM.out)
 
@@ -428,6 +428,58 @@ compareModels(Amax = Amax,
                               #"Low rodent 50% harvest increase"
                               ), 
               plotFolder = "Plots/ScenarioComp_PVA2")
+
+PVA3_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2032,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              #"RedFoxIPM_sim_incHarvest_fac1.50.rds",
+                                              "RedFoxIPM_sim_highRodentHarvestMatch_th0_fac1.50.rds",
+                                              "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds",
+                                              "RedFoxIPM_sim_highRodentHarvest_th0_fac1.50.rds",
+                                              "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.50.rds"#,
+                           ), 
+                           model.names = c("Baseline projection", 
+                                           #"50% harvest increase",
+                                           "Higher rodent +50% harvest, match",
+                                           "Lower rodent +50% harvest, match",
+                                           "Higher rodent +50% harvest, delay",
+                                           "Lower rodent +50% harvest, delay"
+                           ), 
+                           plotFolder = "Plots/ScenarioComp_PVA3",
+                           returnSumData = TRUE)
+
+# Extra plot for manuscript: 
+maxYear <- 2032
+scenInfo <- data.frame(Action = c("None", 
+                                  rep("High rodent +50% harvest", 2),
+                                  rep("Low rodent +50% harvest", 2)), 
+                       Timing = c("matched", 
+                                  rep(c("delayed", "matched"), 2)),
+                       Model = unique(PVA3_comp$Model))
+scenInfo$Action <- factor(scenInfo$Action, levels = c("None", "High rodent +50% harvest", "Low rodent +50% harvest"))
+scenInfo$Timing <- factor(scenInfo$Timing, levels = c("matched", "delayed"))
+
+pdf("Plots/ScenarioComp_PVA3/PosteriorSummaries_TimeSeries_Ntot.pdf", width = 8, height = 4)
+  print(
+    PVA3_comp %>%
+      dplyr::filter(ParamName == "N.tot" & Year > minYear & Year <= maxYear) %>%
+      dplyr::left_join(scenInfo, by = "Model") %>%
+      ggplot(aes(x = Year, group = Model)) + 
+      geom_line(aes(y = median, color = Action, linetype = Timing)) + 
+      geom_ribbon(aes(ymin = lCI, ymax = uCI, fill = Action), alpha = 0.2) + 
+      scale_fill_manual(values = c("grey50", "#089392FF", "#E3756FFF")) + 
+      scale_color_manual(values =  c("grey50", "#089392FF", "#E3756FFF")) + 
+      scale_linetype_manual(values = c("solid", "dashed")) +
+      scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
+      ggtitle("Female population size") +  
+      theme_bw() + theme(panel.grid.minor = element_blank(), 
+                         panel.grid.major.y = element_blank(), 
+                         axis.text.x = element_text(angle = 45, vjust = 0.5))
+  )
+dev.off()
 
 
 # ###########################################
