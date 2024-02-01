@@ -63,10 +63,12 @@ setupModel <- function(modelCode,
   ## Set parameters to monitor in all model versions
   params <- c("Mu.mHs", "Mu.mH", "Mu.mO", "Mu.Psi", "Mu.rho", "Mu.S0",
               "sigma.mHs", "sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho",
+              "epsilon.mHs", "epsilon.mH", "epsilon.mO", "epsilon.Psi", "epsilon.rho",
               "Psi", "rho", "mHs", "mH", "mO", "S",
               "initN",
               "N.tot", "B.tot", "R.tot", 
-              "N", "octN", "B", "L", "R", "Imm", "immR")
+              "N", "octN", "B", "L", "R", "Imm", "immR",
+              "RodentAbundance")
   
   ## Add additional parameters to monitor depending on model version
   if(HoeningPrior){
@@ -80,7 +82,7 @@ setupModel <- function(modelCode,
   }
   
   if(fitCov.mO){
-    params <- c(params, "betaRd.mO", "betaR.mO", "betaRxRd.mO")
+    params <- c(params, "betaRd.mO", "betaR.mO", "betaRxRd.mO", "Reindeer")
   }
   
   if(fitCov.Psi){
@@ -102,7 +104,7 @@ setupModel <- function(modelCode,
   } 
   
   if(fitCov.immR){
-    params <- c(params, "betaR.immR")
+    params <- c(params, "betaR.immR", "RodentAbundance2")
   }
   
   ## Simulate initial values
