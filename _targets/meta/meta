@@ -30,7 +30,7 @@ fitCov.mO|object|909013909b1f03d4|||||||||||||||
 fitCov.Psi|object|909013909b1f03d4|||||||||||||||
 fitCov.rho|object|909013909b1f03d4|||||||||||||||
 fixedLTRE|stem|34af1865ec69450a|28da51e10d52f2b9|c6517a062b92ea97|1792267106||t19710.3818356446s|cbd782442a671158|189110485|qs|local|vector|||829.19||
-gen.data|stem|0eb3019e907cd0bf|3ed924253618fa00|f67bef6f4d5a72dc|-1019946322||t19702.432584974s|9c7e219034a52320|9982|qs|local|vector|||0.12||
+gen.data|stem|8fe56b839be957f4|3ed924253618fa00|7ab3751fcd9c77fa|-1019946322||t19829.4017071663s|6994580ef3e6c1f9|9981|qs|local|vector|||4.13|package sf was built under R version 4.3.2. package Matrix was built under R version 4.3.2|
 genetics.datapath|object|0083cd0a1577a18a|||||||||||||||
 HazardRates|object|909013909b1f03d4|||||||||||||||
 hoening.datafile|object|79ac3f0a7bb7e356|||||||||||||||
@@ -99,7 +99,7 @@ summer_removal|object|43a8995d1a1878e7|||||||||||||||
 surv.priors|stem|72c3228723b7b349|4bd67960a3a4241e|5ad7773873966286|-933039002||t19702.4326124676s|ca5702343e34d133|536|qs|local|vector|||1.5|Unknown or uninitialised column Age4_sd.. 9 studies with NAs omitted from model fitting.. Unknown or uninitialised column Age4_sd.. 3 studies with NAs omitted from model fitting.|
 survPriorType|stem|96c9ee9a0dbe29b7|cfa2251e7b121595|7911b169f4c6fff8|690985216||t19702.4324396486s|e655bbbdcbba1d63|81|qs|local|vector|||0||
 testRun|object|df161ddba3dacc9e|||||||||||||||
-threshold|object|5ea7bfad35a47e2e|||||||||||||||
+threshold|object|c0ad24454042019f|||||||||||||||
 Tmax|object|0def296f86d0c67b|||||||||||||||
 useData.gen|object|909013909b1f03d4|||||||||||||||
 useData.pup|object|909013909b1f03d4|||||||||||||||

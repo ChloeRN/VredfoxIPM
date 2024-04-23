@@ -103,7 +103,7 @@ imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 poolYrs.genData <- TRUE # Pool data across all years
 useData.gen <- TRUE # Use genetic data for estimation of immigration rate
 indLikelihood.genData <- FALSE # Apply an individual-level likelihood for genetic data
-threshold <- 0.2
+threshold <- 0.05
 #pImm.type <- "original"
 pImm.type <- "rescaled"
 #pImm.type <- "LL-based"
