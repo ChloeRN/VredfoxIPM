@@ -364,7 +364,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           HoeningPrior = HoeningPrior,
                           imm.asRate = imm.asRate,
                           testRun = FALSE,
-                          initVals.seed = mySeed
+                          initVals.seed = mySeed #+ 2
                           )
 
 
@@ -386,7 +386,13 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds") # No perturbation
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestMatch_th0_fac1.50.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestDelay_th0_fac1.50.rds")
+saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestDelay_th0_fac1.50.rds")
 
 #MCMCvis::MCMCtrace(IPM.out)
 
@@ -396,50 +402,56 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
 ########################
 
 ## Baseline vs. no harvest
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              maxYear = 2027,
-              logN = TRUE,
-              post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
-                                 "RedFoxIPM_sim_noHarvest.rds"), 
-              model.names = c("Baseline projection", 
-                              "No harvest scenario"), 
-              plotFolder = "Plots/ScenarioComp_PVA1")
-
-## Different harvest scenario types
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              maxYear = 2032,
-              logN = TRUE,
-              post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
-                                 #"RedFoxIPM_sim_incHarvest_fac1.50.rds",
-                                 "RedFoxIPM_sim_highRodentHarvest_th0_fac1.50.rds",
-                                 "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.50.rds"#,
-                                 #"RedFoxIPM_sim_highRodentHarvest_th1_fac1.50.rds",
-                                 #"RedFoxIPM_sim_lowRodentHarvest_th1_fac1.50.rds"
-                                 ), 
-              model.names = c("Baseline projection", 
-                              #"50% harvest increase",
-                              "Higher rodent +50% harvest",
-                              "Lower rodent +50% harvest"#,
-                              #"High rodent 50% harvest increase",
-                              #"Low rodent 50% harvest increase"
-                              ), 
-              plotFolder = "Plots/ScenarioComp_PVA2")
-
-PVA3_comp <- compareModels(Amax = Amax, 
+PVA1_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
                            minYear = minYear, 
-                           maxYear = 2032,
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              "RedFoxIPM_sim_noHarvest.rds",
+                                              "RedFoxIPM_sim_higherHarvest_fac1.5.rds"), 
+                           model.names = c("Baseline", 
+                                           "No harvest",
+                                           "50% higher harvest"), 
+                           plotFolder = "Plots/ScenarioComp_PVA1_RodDyn",
+                           returnSumData = TRUE)
+
+# Extra plot for manuscript: 
+maxYear <- 2030
+pdf("Plots/ScenarioComp_PVA1_RodDyn/PosteriorSummaries_TimeSeries_Ntot.pdf", width = 8, height = 4)
+print(
+  PVA1_comp %>%
+    dplyr::mutate(Action = dplyr::case_when(Model == "Baseline" ~ "None",
+                                            Model == "50% higher harvest" ~ "+50% harvest",
+                                            Model == "No harvest" ~ "Stop harvest")) %>%
+    dplyr::filter(ParamName == "N.tot" & Year > minYear & Year <= maxYear) %>%
+    ggplot(aes(x = Year, group = Model)) + 
+    geom_line(aes(y = median, color = Action)) + 
+    geom_ribbon(aes(ymin = lCI, ymax = uCI, fill = Action), alpha = 0.2) + 
+    scale_fill_manual(values = c("#087792", "grey70", "#E3416F")) + 
+    scale_color_manual(values =  c("#087792", "grey70", "#E3416F")) + 
+    scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
+    ylab("Log population size") +
+    ggtitle("Female population size") +  
+    theme_bw() + theme(panel.grid.minor = element_blank(), 
+                       panel.grid.major.y = element_blank(), 
+                       axis.text.x = element_text(angle = 45, vjust = 0.5))
+)
+dev.off()
+
+
+## Different harvest scenario types
+PVA2_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
                            logN = TRUE,
                            post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
                                               #"RedFoxIPM_sim_incHarvest_fac1.50.rds",
                                               "RedFoxIPM_sim_highRodentHarvestMatch_th0_fac1.50.rds",
                                               "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds",
-                                              "RedFoxIPM_sim_highRodentHarvest_th0_fac1.50.rds",
-                                              "RedFoxIPM_sim_lowRodentHarvest_th0_fac1.50.rds"#,
+                                              "RedFoxIPM_sim_highRodentHarvestDelay_th0_fac1.50.rds",
+                                              "RedFoxIPM_sim_lowRodentHarvestDelay_th0_fac1.50.rds"#,
                            ), 
                            model.names = c("Baseline projection", 
                                            #"50% harvest increase",
@@ -448,11 +460,11 @@ PVA3_comp <- compareModels(Amax = Amax,
                                            "Higher rodent +50% harvest, delay",
                                            "Lower rodent +50% harvest, delay"
                            ), 
-                           plotFolder = "Plots/ScenarioComp_PVA3",
+                           plotFolder = "Plots/ScenarioComp_PVA2_RodDyn",
                            returnSumData = TRUE)
 
 # Extra plot for manuscript: 
-maxYear <- 2032
+maxYear <- 2030
 scenInfo <- data.frame(Action = c("None", 
                                   rep("High rodent +50% harvest", 2),
                                   rep("Low rodent +50% harvest", 2)), 
@@ -462,18 +474,19 @@ scenInfo <- data.frame(Action = c("None",
 scenInfo$Action <- factor(scenInfo$Action, levels = c("None", "High rodent +50% harvest", "Low rodent +50% harvest"))
 scenInfo$Timing <- factor(scenInfo$Timing, levels = c("matched", "delayed"))
 
-pdf("Plots/ScenarioComp_PVA3/PosteriorSummaries_TimeSeries_Ntot.pdf", width = 8, height = 4)
+pdf("Plots/ScenarioComp_PVA2_RodDyn/PosteriorSummaries_TimeSeries_Ntot.pdf", width = 8, height = 4)
   print(
-    PVA3_comp %>%
+    PVA2_comp %>%
       dplyr::filter(ParamName == "N.tot" & Year > minYear & Year <= maxYear) %>%
       dplyr::left_join(scenInfo, by = "Model") %>%
       ggplot(aes(x = Year, group = Model)) + 
       geom_line(aes(y = median, color = Action, linetype = Timing)) + 
-      geom_ribbon(aes(ymin = lCI, ymax = uCI, fill = Action), alpha = 0.2) + 
-      scale_fill_manual(values = c("grey50", "#089392FF", "#E3756FFF")) + 
-      scale_color_manual(values =  c("grey50", "#089392FF", "#E3756FFF")) + 
+      geom_ribbon(aes(ymin = lCI, ymax = uCI, fill = Action), alpha = 0.1) + 
+      scale_fill_manual(values = c("grey70", "#089392FF", "#E3756FFF")) + 
+      scale_color_manual(values =  c("grey70", "#089392FF", "#E3756FFF")) + 
       scale_linetype_manual(values = c("solid", "dashed")) +
       scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
+      ylab("Log population size") + 
       ggtitle("Female population size") +  
       theme_bw() + theme(panel.grid.minor = element_blank(), 
                          panel.grid.major.y = element_blank(), 

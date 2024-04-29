@@ -30,7 +30,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
     warning("Attempting to fit a model containing environmental covariates but no random year variation for natural mortality. This is not recommended as it may result in inflated effect size/precision due to due to pseudo-replication.")
   }
   
-  ## Write model code (individua-level likelihood for genetic data)
+  ## Write model code (individual-level likelihood for genetic data)
   if(indLikelihood.genData){
     redfox.code <- nimbleCode({
       
@@ -299,7 +299,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t+1] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t+1] + epsilon.mO[t])*pertFac.mO[t]
+          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance_pert[t+1] + betaRxRd.mO*Reindeer[t]*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
         }else{
           mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + epsilon.mO[t])*pertFac.mO[t]
         }
@@ -372,7 +372,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           if(rCov.idx){
             logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t] # Reindeer.rodent interaction not (yet) written in
           }else{
-            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
+            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance_pert[t] + epsilon.Psi[t]
           }
         }else{
           logit(Psi[2:Amax, t]) <- logit(Mu.Psi[2:Amax]) + epsilon.Psi[t]
@@ -409,7 +409,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           if(rCov.idx){
             log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t]
           }else{
-            log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t]
+            log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance_pert[t] + epsilon.rho[t]
           }
         }else{
           log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]
@@ -478,7 +478,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
                 immR[t] <- exp(log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t])*pertFac.immR[t]
               }
             }else{
-              immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim)] + epsilon.immR[1:(Tmax+Tmax_sim)])*pertFac.immR[1:(Tmax+Tmax_sim)]
+              immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2_pert[1:(Tmax+Tmax_sim)] + epsilon.immR[1:(Tmax+Tmax_sim)])*pertFac.immR[1:(Tmax+Tmax_sim)]
             }
           }else{
             immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim)])*pertFac.immR[1:(Tmax+Tmax_sim)]
@@ -587,6 +587,11 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
       }
       
+      ## Missing covariate values in reindeer information
+      for(t in 1:(Tmax+Tmax_sim+1)){
+        Reindeer[t] ~ dnorm(0 + (1-pertFac.reindeer[t]), sd = 1)
+      }
+      
       ## Missing covariate value(s) in rodent abundance
       if(rCov.idx){
         
@@ -598,16 +603,42 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
       }else{
         
-        for(t in 1:(Tmax+Tmax_sim+1)){
-          RodentAbundance[t] ~ dnorm(0 + (1-pertFac.rodent[t]), sd = 1)
-          RodentAbundance2[t] ~ dnorm(0 + (1-pertFac.rodent[t]), sd = 1)
+        # Naive normal distribution for NAs early in time series
+        for(t in 1:2){
+          RodentAbundance[t] ~ dnorm(0, sd = 1)
+        }
+        
+        # Varanger: Second-order autoregressive & correlation models for remainder of time series
+        for(t in 3:(Tmax+Tmax_sim+1)){
+
+          RodentAbundance_pred[t] <- beta.RodMod[1]*RodentAbundance[t-1] + 
+            beta.RodMod[2]*RodentAbundance[t-2] + 
+            beta.RodMod[3]*RodentAbundance[t-1]*RodentAbundance[t-2]
+          RodentAbundance[t] ~ dnorm(RodentAbundance_pred[t], sd = sigmaT.RodAbun)
+        }
+          
+        # Larger area: Correlative model for rodent dynamics in the larger area
+        for(t in 1:(Tmax+Tmax_sim)){
+          RodentAbundance2[t] ~ dnorm(beta.RodCorr*RodentAbundance[t+1], sd = sigmaT.RodAbun2)
         }
       }
       
-      ## Missing covariate values in reindeer information
+      # Add perturbation 
       for(t in 1:(Tmax+Tmax_sim+1)){
-        Reindeer[t] ~ dnorm(0 + (1-pertFac.reindeer[t]), sd = 1)
+        RodentAbundance_pert[t] <- RodentAbundance[t] + (1-pertFac.rodent[t])
       }
+      for(t in 1:(Tmax+Tmax_sim)){
+        RodentAbundance2_pert[t] <- RodentAbundance2[t] + (1-pertFac.rodent[t])
+      }
+      
+      # Additional priors for rodent model
+      for(i in 1:3){
+        beta.RodMod[i] ~ dunif(-5, 5)
+      }
+      beta.RodCorr ~ dunif(0, 1)
+      sigmaT.RodAbun ~ dunif(0, 5)
+      sigmaT.RodAbun2 ~ dunif(0, 5)
+
       
       #########################################
       #### PERTURBATION FACTOR CALCULATION ####
@@ -621,7 +652,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
                                                   covThreshold = threshold.rodent.mH,
                                                   thresholdAbove = thresholdAbove,
-                                                  covValue = RodentAbundance[t+1])
+                                                  covValue = RodentAbundance_pert[t])
         }
       }
       
@@ -883,7 +914,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance[t+1] + betaRxRd.mO*Reindeer[t]*RodentAbundance[t+1] + epsilon.mO[t])*pertFac.mO[t]
+          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance_pert[t+1] + betaRxRd.mO*Reindeer[t]*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
         }else{
           mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + epsilon.mO[t])*pertFac.mO[t]
         }
@@ -956,7 +987,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           if(rCov.idx){
             logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t] # Reindeer.rodent interaction not (yet) written in
           }else{
-            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
+            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance_pert[t] + epsilon.Psi[t]
           }
         }else{
           logit(Psi[2:Amax, t]) <- logit(Mu.Psi[2:Amax]) + epsilon.Psi[t]
@@ -993,7 +1024,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           if(rCov.idx){
             log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t]
           }else{
-            log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t]
+            log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance_pert[t] + epsilon.rho[t]
           }
         }else{
           log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]
@@ -1048,7 +1079,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
               immR[t] <- exp(log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t])*pertFac.immR[t]
             }
           }else{
-            immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+Tmax_sim)] + epsilon.immR[1:(Tmax+Tmax_sim)])*pertFac.immR[1:(Tmax+Tmax_sim)]
+            immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + betaR.immR*RodentAbundance2_pert[1:(Tmax+Tmax_sim)] + epsilon.immR[1:(Tmax+Tmax_sim)])*pertFac.immR[1:(Tmax+Tmax_sim)]
           }
         }else{
           immR[1:(Tmax+Tmax_sim)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim)]
@@ -1177,6 +1208,11 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
       }
       
+      ## Missing covariate values in reindeer information
+      for(t in 1:(Tmax+Tmax_sim+1)){
+        Reindeer[t] ~ dnorm(0 + (1-pertFac.reindeer[t]), sd = 1)
+      }
+      
       ## Missing covariate value(s) in rodent abundance
       if(rCov.idx){
         
@@ -1184,35 +1220,45 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           RodentIndex[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
           RodentIndex2[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
         }
-        
-        if(imm.asRate & fitCov.immR & !poolYrs.genData){
-          for(t in 1:Tmax_Gen_pre){
-            RodentIndex2_pre[t] ~ dcat(DU.prior.rCov[1:nLevels.rCov]) 
-          }
-        }
-        
         DU.prior.rCov[1:nLevels.rCov] <- 1/nLevels.rCov
         
       }else{
         
-        for(t in 1:(Tmax+Tmax_sim+1)){
-          RodentAbundance[t] ~ dnorm(0 + (1-pertFac.rodent[t]), sd = 1)
-          RodentAbundance2[t] ~ dnorm(0 + (1-pertFac.rodent[t]), sd = 1)
+        # Naive normal distribution for NAs early in time series
+        for(t in 1:2){
+          RodentAbundance[t] ~ dnorm(0, sd = 1)
         }
         
-        if(imm.asRate & fitCov.immR & !poolYrs.genData){
-          for(t in 1:Tmax_Gen_pre){
-            RodentAbundance2_pre[t] ~ dnorm(0, sd = 1) 
-          }
+        # Varanger: Second-order autoregressive & correlation models for remainder of time series
+        for(t in 3:(Tmax+Tmax_sim+1)){
+          
+          RodentAbundance_pred[t] <- beta.RodMod[1]*RodentAbundance[t-1] + 
+            beta.RodMod[2]*RodentAbundance[t-2] + 
+            beta.RodMod[3]*RodentAbundance[t-1]*RodentAbundance[t-2]
+          RodentAbundance[t] ~ dnorm(RodentAbundance_pred[t], sd = sigmaT.RodAbun)
+        }
+        
+        # Larger area: Correlative model for rodent dynamics in the larger area
+        for(t in 1:(Tmax+Tmax_sim)){
+          RodentAbundance2[t] ~ dnorm(beta.RodCorr*RodentAbundance[t+1], sd = sigmaT.RodAbun2)
         }
       }
       
-      ## Missing covariate values in reindeer information
-      if(fitCov.mO){
-        for(t in 1:(Tmax+Tmax_sim+1)){
-          Reindeer[t] ~ dnorm(0 + (1-pertFac.reindeer[t]), sd = 1)
-        }
+      # Add perturbation 
+      for(t in 1:(Tmax+Tmax_sim+1)){
+        RodentAbundance_pert[t] <- RodentAbundance[t] + (1-pertFac.rodent[t])
       }
+      for(t in 1:(Tmax+Tmax_sim)){
+        RodentAbundance2_pert[t] <- RodentAbundance2[t] + (1-pertFac.rodent[t])
+      }
+      
+      # Additional priors for rodent model
+      for(i in 1:3){
+        beta.RodMod[i] ~ dunif(-5, 5)
+      }
+      beta.RodCorr ~ dunif(0, 1)
+      sigmaT.RodAbun ~ dunif(0, 5)
+      sigmaT.RodAbun2 ~ dunif(0, 5)
 
       
       #########################################
@@ -1227,7 +1273,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
                                                   covThreshold = threshold.rodent.mH,
                                                   thresholdAbove = thresholdAbove,
-                                                  covValue = RodentAbundance[t+1])
+                                                  covValue = RodentAbundance[t])
         }
       }
       

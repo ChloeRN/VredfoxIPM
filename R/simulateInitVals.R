@@ -53,6 +53,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   pertFac.S0 <- nim.data$pertFac.S0
   pertFac.mHs <- nim.data$pertFac.mHs
   pertFac.immR <- nim.data$pertFac.immR
+  pertFac.reindeer <- nim.data$pertFac.reindeer
+  pertFac.rodent <- nim.data$pertFac.rodent
+  
+  if(any(c(pertFac.reindeer, pertFac.rodent) != 1)){
+    warning("Initial value simulation for scenarios with perturbations to covariates (rodents, reindeer) have not been tested throroughly yet and may not be implemented correctly.")
+  }
   
   #-------------------------------------------------#
   # Set initial values for missing covariate values #
@@ -62,20 +68,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   NHunters <- nim.data$HarvestEffort
   if(NA %in% NHunters){
     NHunters[which(is.na(NHunters))] <- mean(NHunters, na.rm = TRUE)
-  }
-  
-  ## Rodent abundance (continuous)
-  RodentAbundance <- nim.data$RodentAbundance
-  if(NA %in% RodentAbundance){
-    #RodentAbundance[which(is.na(RodentAbundance))] <- mean(RodentAbundance, na.rm = TRUE)
-    RodentAbundance[which(is.na(RodentAbundance))] <- 0
-  }
-  
-  RodentAbundance2 <- nim.data$RodentAbundance2
-  if(NA %in% RodentAbundance2){
-    #RodentAbundance2[which(is.na(RodentAbundance2))] <- mean(RodentAbundance2, na.rm = TRUE)
-    RodentAbundance2[which(is.na(RodentAbundance2))] <- 0
-    
   }
   
   ## Rodent abundance (categorical)
@@ -95,16 +87,33 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     #Reindeer[which(is.na(Reindeer))] <- mean(Reindeer, na.rm = TRUE)
     Reindeer[which(is.na(Reindeer))] <- 0
   }
+  Reindeer_pert <- Reindeer + (1-pertFac.reindeer)
   
+  ## Rodent abundance (continuous)
+  RodentAbundance <- nim.data$RodentAbundance
+  if(NA %in% RodentAbundance){
+    #RodentAbundance[which(is.na(RodentAbundance))] <- mean(RodentAbundance, na.rm = TRUE)
+    RodentAbundance[which(is.na(RodentAbundance))] <- 0
+  }
+  RodentAbundance_pert <- RodentAbundance + (1-pertFac.rodent)
+
+  RodentAbundance2 <- nim.data$RodentAbundance2
+  if(NA %in% RodentAbundance2){
+    #RodentAbundance2[which(is.na(RodentAbundance2))] <- mean(RodentAbundance2, na.rm = TRUE)
+    RodentAbundance2[which(is.na(RodentAbundance2))] <- 0
+  }
+  RodentAbundance2_pert <- RodentAbundance2 + (1-pertFac.rodent)
+  
+
   #--------------------------------------------------------#
   # Set initial values for conditional perturbation factor #
   #--------------------------------------------------------#
   
   ## Harvest perturbation based on rodent abundance
   if(nim.data$thresholdAbove){
-    pertFac.mH.flex <- ifelse(RodentAbundance > nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
+    pertFac.mH.flex <- ifelse(RodentAbundance_pert > nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
   }else{
-    pertFac.mH.flex <- ifelse(RodentAbundance < nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
+    pertFac.mH.flex <- ifelse(RodentAbundance_pert < nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
   }
   
   pertFac.mH.flex[1:nim.constants$Tmax] <- 1
@@ -278,7 +287,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t+1]*Reindeer[t] + epsilon.mO[t])*pertFac.mO[t]
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance_pert[t+1] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance_pert[t+1]*Reindeer[t] + epsilon.mO[t])*pertFac.mO[t]
     }
     
     ## Pregnancy rate
@@ -287,7 +296,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(fitCov.Psi & rCov.idx){
       Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t])
     }else{
-      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t])
+      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance_pert[t] + epsilon.Psi[t])
     }
 
     ## Placental scars
@@ -295,7 +304,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(fitCov.Psi & rCov.idx){
       rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t])
     }else{
-      rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t])
+      rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance_pert[t] + epsilon.rho[t])
     }
     
     ## Early survival
@@ -534,61 +543,50 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     InitVals$HarvestEffort <- Inits_NHunters
   }
   
-  if(fitCov.Psi){
-    if(rCov.idx & (NA %in% nim.data$RodentIndex)){
-      Inits_RodentIndex <- rep(NA, length(RodentIndex))
-      Inits_RodentIndex[which(is.na(nim.data$RodentIndex))] <- RodentIndex[which(is.na(nim.data$RodentIndex))]
-      InitVals$RodentIndex <- Inits_RodentIndex
-    }
-    if(!rCov.idx & (NA %in% nim.data$RodentAbundance)){
-      Inits_RodentAbundance <- rep(NA, length(RodentAbundance))
-      Inits_RodentAbundance[which(is.na(nim.data$RodentAbundance))] <- RodentAbundance[which(is.na(nim.data$RodentAbundance))]
-      InitVals$RodentAbundance <- Inits_RodentAbundance
-    }
+  if(rCov.idx & (NA %in% nim.data$RodentIndex)){
+    Inits_RodentIndex <- rep(NA, length(RodentIndex))
+    Inits_RodentIndex[which(is.na(nim.data$RodentIndex))] <- RodentIndex[which(is.na(nim.data$RodentIndex))]
+    InitVals$RodentIndex <- Inits_RodentIndex
+  }
+  if(!rCov.idx & (NA %in% nim.data$RodentAbundance)){
+    Inits_RodentAbundance <- rep(NA, length(RodentAbundance))
+    Inits_RodentAbundance[which(is.na(nim.data$RodentAbundance))] <- RodentAbundance[which(is.na(nim.data$RodentAbundance))]
+    InitVals$RodentAbundance <- Inits_RodentAbundance
   }
   
-  
-  if(fitCov.rho){
-    if(rCov.idx & (NA %in% nim.data$RodentIndex)){
-      Inits_RodentIndex <- rep(NA, length(RodentIndex))
-      Inits_RodentIndex[which(is.na(nim.data$RodentIndex))] <- RodentIndex[which(is.na(nim.data$RodentIndex))]
-      InitVals$RodentIndex <- Inits_RodentIndex
-    }
-    if(!rCov.idx & (NA %in% nim.data$RodentAbundance)){
-      Inits_RodentAbundance <- rep(NA, length(RodentAbundance))
-      Inits_RodentAbundance[which(is.na(nim.data$RodentAbundance))] <- RodentAbundance[which(is.na(nim.data$RodentAbundance))]
-      InitVals$RodentAbundance <- Inits_RodentAbundance
-    }
+  if(rCov.idx & (NA %in% nim.data$RodentIndex2)){
+    Inits_RodentIndex2 <- rep(NA, length(RodentIndex2))
+    Inits_RodentIndex2[which(is.na(nim.data$RodentIndex2))] <- RodentIndex2[which(is.na(nim.data$RodentIndex2))]
+    InitVals$RodentIndex2 <- Inits_RodentIndex2
+  }
+  if(!rCov.idx & (NA %in% nim.data$RodentAbundance2)){
+    Inits_RodentAbundance2 <- rep(NA, length(RodentAbundance2))
+    Inits_RodentAbundance2[which(is.na(nim.data$RodentAbundance2))] <- RodentAbundance2[which(is.na(nim.data$RodentAbundance2))]
+    InitVals$RodentAbundance2 <- Inits_RodentAbundance2
   }
   
-  if(fitCov.immR | fitCov.Psi | fitCov.rho){
-    if(rCov.idx & (NA %in% nim.data$RodentIndex2)){
-      Inits_RodentIndex2 <- rep(NA, length(RodentIndex2))
-      Inits_RodentIndex2[which(is.na(nim.data$RodentIndex2))] <- RodentIndex2[which(is.na(nim.data$RodentIndex2))]
-      InitVals$RodentIndex2 <- Inits_RodentIndex2
-    }
-    if(!rCov.idx & (NA %in% nim.data$RodentAbundance2)){
-      Inits_RodentAbundance2 <- rep(NA, length(RodentAbundance2))
-      Inits_RodentAbundance2[which(is.na(nim.data$RodentAbundance2))] <- RodentAbundance2[which(is.na(nim.data$RodentAbundance2))]
-      InitVals$RodentAbundance2 <- Inits_RodentAbundance2
-    }
-    
-    if(indLikelihood.genData & rCov.idx & !poolYrs.genData){
-      InitVals$RodentIndex2_pre <- sample(0:nim.constants$nLevels.rCov, size = nim.constants$Tmax_Gen_pre, replace = TRUE)
-    }
-    
-    if(!rCov.idx & !poolYrs.genData){
-      InitVals$RodentAbundance2_pre <- rnorm(nim.constants$Tmax_Gen_pre, mean = 0, sd = 1)
-    }
-    
-    
+  if(indLikelihood.genData & rCov.idx & !poolYrs.genData){
+    InitVals$RodentIndex2_pre <- sample(0:nim.constants$nLevels.rCov, size = nim.constants$Tmax_Gen_pre, replace = TRUE)
   }
-
+  if(!rCov.idx & !poolYrs.genData){
+    InitVals$RodentAbundance2_pre <- rnorm(nim.constants$Tmax_Gen_pre, mean = 0, sd = 1)
+  }
+    
   if(NA %in% nim.data$Reindeer){
     Inits_Reindeer <- rep(NA, length(Reindeer))
     Inits_Reindeer[which(is.na(nim.data$Reindeer))] <- Reindeer[which(is.na(nim.data$Reindeer))]
     InitVals$Reindeer <- Inits_Reindeer
   }
+  
+  ## Add perturbed covariate values
+  InitVals$RodentAbundance_pert <- RodentAbundance_pert
+  InitVals$RodentAbundance2_pert <- RodentAbundance2_pert
+
+  ## Add initial values for rodent model parameters
+  InitVals$beta.RodMod <- runif(3, -1, 1)
+  InitVals$beta.RodCorr <- runif(1, 0, 1)
+  InitVals$sigmaT.RodAbun <- runif(1, 0, 0.2)
+  InitVals$sigmaT.RodAbun2 <- runif(1, 0, 0.2)
   
   ## Return initial values
   return(InitVals)

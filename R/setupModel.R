@@ -67,7 +67,8 @@ setupModel <- function(modelCode,
               "initN",
               "N.tot", "B.tot", "R.tot", 
               "N", "octN", "B", "L", "R", "Imm", "immR",
-              "RodentAbundance", "pertFac.mH.flex")
+              "beta.RodMod", "beta.RodCorr", "sigmaT.RodAbun", "sigmaT.RodAbun2",
+              "RodentAbundance", "RodentAbundance2", "pertFac.mH.flex")
   
   ## Add additional parameters to monitor depending on model version
   if(HoeningPrior){
