@@ -166,7 +166,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
     ggplot(aes(x = Year)) + 
     geom_line(aes(y = median), color = "#4D004B") + 
     geom_ribbon(aes(ymin = lCI, ymax = uCI), fill = "#4D004B", alpha = 0.5) + 
-    scale_x_continuous(limits = c(minYear, NA), breaks = c(minYear:(minYear+Tmax-1)), labels = c(minYear:(minYear+Tmax-1))) + 
+    scale_x_continuous(limits = c(minYear, minYear+Tmax), breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
     ylab("Population size (females)") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
   
@@ -174,14 +174,16 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
   p.H_time <- data.frame(Hcount = c(colSums(nim.data$C_w)/nim.data$pData_w, colSums(nim.data$C_s)/nim.data$pData_s), 
                          Year = c(as.numeric(colnames(nim.data$C_w)), as.numeric(colnames(nim.data$C_s))),
                          Period = c(rep("Oct-May", ncol(nim.data$C_w)), rep("Jul-Sep", ncol(nim.data$C_s)))) %>%
-    ggplot(aes(x = Year, y = Hcount, group = Period)) +
+    dplyr::mutate(Year_offset = Year + 0.5) %>% 
+    ggplot(aes(x = Year_offset, y = Hcount, group = Period)) +
     geom_bar(aes(fill = Period), stat = "identity", position = "dodge") + 
-    scale_x_continuous(breaks = c(minYear:(minYear+Tmax-1)), labels = c(minYear:(minYear+Tmax-1))) + 
+    scale_x_continuous(breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
     scale_fill_manual(values = c("#BED68AFF", "#005F94FF")) + 
     ylab("# shot (females)") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 
                        axis.text.x = element_blank(), axis.title.x = element_blank(),
                        legend.position = c(0.1, 0.7))
+  
   
   # Combined panel
   pdf("Plots/ParamTime_PopSize.pdf", width = 9, height = 7)
