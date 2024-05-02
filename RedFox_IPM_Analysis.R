@@ -252,6 +252,7 @@ survPriorType <- definePriorType_AnnSurv(HoeningPrior = HoeningPrior,
 #----------------------#
 
 redfox.code <- writeCode_redfoxIPM(indLikelihood.genData = indLikelihood.genData)
+#redfox.code <- writeCode_redfoxIndepMod(indLikelihood.genData = indLikelihood.genData)
 
 
 # 3b) Assemble IPM input data #
@@ -303,6 +304,8 @@ model.setup <- setupModel(modelCode = redfox.code,
                           )
 
 
+#model.setup$modelParams <- model.setup$modelParams[which(!(model.setup$modelParams %in% c("initN", "N.tot", "B.tot", "R.tot", "N", "octN", "B", "L", "R")))]
+
 ####################
 # 4) MODEL FITTING #
 ####################
@@ -322,7 +325,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds") # --> Done
@@ -332,6 +335,7 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds") # --> Done
+saveRDS(IPM.out, file = "RedFoxIndepModels.rds") # --> Done
 
 
 #MCMCvis::MCMCtrace(IPM.out)
