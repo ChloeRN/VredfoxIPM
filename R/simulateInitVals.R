@@ -429,9 +429,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     h = h, 
     Psi = Psi, 
     rho = rho,
-    S0 = S0,
+    S0 = S0
     
-    meanLS = c(0, (colSums(R[2:Amax,2:(Tmax+1)])*2)/colSums(B[2:Amax,2:(Tmax+1)]))
+    #meanLS = c(0, (colSums(R[2:Amax,2:(Tmax+1)])*2)/colSums(B[2:Amax,2:(Tmax+1)]))
     
     #Mu.Imm = Mu.Imm,
     #sigma.Imm = sigma.Imm
