@@ -8,6 +8,7 @@ library(purrr)
 library(dplyr)
 library(metafor)
 library(patchwork)
+library(coda)
 
 #**********#
 # 0) SETUP #
@@ -468,4 +469,11 @@ plotLTRE_fixedDesign(LTRE_results = fixedLTRE,
                      HazardRates = HazardRates, 
                      PopStructure = PopStructure)
   
+## Plot decomposition of mO into covariates and random effect
+plotVariance_comp_mO(MCMC.samples = IPM.out, 
+                     Tmax = Tmax,
+                     minYear = minYear)
 
+# Calculate post-hoc parameter correlations to check for signs of density dependence
+calculate_p.hoc_param.corr(MCMC.samples = IPM.out, 
+                           Tmax=Tmax)
