@@ -1,18 +1,3 @@
-#To check myself before making function: ------------------------
-
-library(coda)
-setwd("C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\VredfoxIPM\\Data")
-mcmc.out <- readRDS("RedfoxIPM_ModelRun.rds")
-#mcmc.out <- readRDS("RedFoxIPM_main.rds")
-Tmax<-18
-
-## Convert posterior samples to matrix format
-out.mat <- as.matrix(mcmc.out)
-
-
-#--------------------------------------------------------------
-
-
 #' Calculate posterior summaries of parameter correlations with density
 #'
 #' @param MCMC.samples an mcmc list containing posterior samples from a model run.
@@ -133,17 +118,14 @@ calculate_p.hoc_param.corr <- function(MCMC.samples,
                                        sign(`25%`) == sign(`75%`) ~ "*",
                                        TRUE ~ "-"))
   
+## Save results as RDS and csv
+  saveRDS(corr_data, file = "Data/p.hoc_param.corr.rds")
+  write.csv(corr_data, "Data/p.hoc_param.corr.csv", row.names = FALSE)
 
-  
-  
-  
-  #DD_corrs <- rbind(DD_corrs, corr_data)
-}
-
-## Save results as RDS
-# saveRDS(DD_corrs, file = "DD_corrCoef.rds")
-# write.csv(DD_corrs, "DD_corrCoef.csv", row.names = FALSE)
 
 ## Return filepaths
-# filepaths <- c("DD_corrCoef.rds", "DD_corrCoef.csv")
-#}
+filepaths <- c("Data/p.hoc_param.corr.rds", "Data/p.hoc_param.corr.csv")
+
+return(filepaths)
+}
+
