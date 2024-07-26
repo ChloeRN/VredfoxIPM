@@ -337,7 +337,7 @@ Sys.time() - t1
 #saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds") # --> Done
-saveRDS(IPM.out, file = "RedFoxIndepModels.rds") # --> Done
+#saveRDS(IPM.out, file = "RedFoxIndepModels.rds") # --> Done
 
 
 #MCMCvis::MCMCtrace(IPM.out)
@@ -408,7 +408,8 @@ compareModels(Amax = Amax,
 # 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
 ###########################################
 
-IPM.out <- readRDS("RedFoxIPM_main.rds")
+IPM.out <- readRDS("RedfoxIPM_main.rds")
+#IPM.out <- readRDS("RedfoxIPM_ModelRun.rds")
 
 
 ## Plot basic IPM outputs (vital rate & population size estimates)
@@ -474,6 +475,6 @@ plotVariance_comp_mO(MCMC.samples = IPM.out,
                      Tmax = Tmax,
                      minYear = minYear)
 
-# Calculate post-hoc parameter correlations to check for signs of density dependence
+## Calculate post-hoc parameter correlations to check for signs of density dependence
 calculate_p.hoc_param.corr(MCMC.samples = IPM.out, 
-                           Tmax=Tmax)
+                           Tmax = Tmax)
