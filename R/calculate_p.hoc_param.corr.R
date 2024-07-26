@@ -109,14 +109,14 @@ calculate_p.hoc_param.corr <- function(MCMC.samples,
                      quantile(corr_mO.immR, probs = c(0.5, 0.025, 0.25, 0.75, 0.975)),
                      quantile(corr_mH.rep, probs = c(0.5, 0.025, 0.25, 0.75, 0.975)),
                      quantile(corr_mO.rep, probs = c(0.5, 0.025, 0.25, 0.75, 0.975))) %>%
-    as_tibble() %>%
+    tibble::as_tibble() %>%
     dplyr::mutate(Parameter = c("Lambda~N", "Harvest~N", "Nat.mort~N", "Immigration~N", "Breeding~N", "Litter~N", 
                                 "Harvest~Nat.mort", "Harvest~Imm", "Harvest~Imm[t+1]", "Harvest~Nat.mort[t+1]", "Nat.mort~Imm", "Harvest~Reproduction", "Nat.mort~Reproduction"),
                   N_years = length(yearIdxs),
                   .before = `50%`) %>%
-    dplyr::mutate(Evidence = case_when(sign(`2.5%`) == sign(`97.5%`) ~ "**",
-                                       sign(`25%`) == sign(`75%`) ~ "*",
-                                       TRUE ~ "-"))
+    dplyr::mutate(Evidence = dplyr::case_when(sign(`2.5%`) == sign(`97.5%`) ~ "**",
+                                              sign(`25%`) == sign(`75%`) ~ "*",
+                                              TRUE ~ "-"))
   
 ## Save results as RDS and csv
   saveRDS(corr_data, file = "Data/p.hoc_param.corr.rds")
