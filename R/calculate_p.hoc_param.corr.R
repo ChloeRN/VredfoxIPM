@@ -3,7 +3,7 @@
 #' @param MCMC.samples an mcmc list containing posterior samples from a model run.
 #' @param Tmax integer. Number of years to consider in the analysis
 #'
-#' @return a vector of pdf plot names. The plots can be found in Plots/TimeSeries.
+#' @return a vector of file names. The files are saved to the root directory. 
 #' @export
 #'
 #' @examples
@@ -119,12 +119,12 @@ calculate_p.hoc_param.corr <- function(MCMC.samples,
                                               TRUE ~ "-"))
   
 ## Save results as RDS and csv
-  saveRDS(corr_data, file = "Data/p.hoc_param.corr.rds")
-  write.csv(corr_data, "Data/p.hoc_param.corr.csv", row.names = FALSE)
+  saveRDS(corr_data, file = "p.hoc_param.corr.rds")
+  write.csv(corr_data, "p.hoc_param.corr.csv", row.names = FALSE)
 
 
 ## Return filepaths
-filepaths <- c("Data/p.hoc_param.corr.rds", "Data/p.hoc_param.corr.csv")
+filepaths <- c("p.hoc_param.corr.rds", "p.hoc_param.corr.csv")
 
 return(filepaths)
 }
