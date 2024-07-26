@@ -51,13 +51,17 @@ sam.mat <- as.matrix(MCMC.samples)
   #This saves your results in a dataframe from which you can then make the comparison. You can, for example, use density plots (or ridgeplots, ggridges is great). 
 
   testData.mO$Year <- testData.mO$Year+minYear-1 #paste0(testData.mO$Year+minYear-1,"-", testData.mO$Year+minYear)
-p.mO.decomp<- 
-    ggplot(testData.mO) + 
+  
+  plot.cols <- paletteer::paletteer_c("grDevices::Temps", length(unique(testData.mO$Component)))
+  
+  p.mO.decomp <- ggplot(testData.mO) + 
     geom_density(aes(x = Value, color = Component, fill = Component), alpha = 0.5) + 
-    facet_wrap(~Year)+
-    ylim(0, 3)+
-    xlim(-3,3)+
-    labs(title= "Decomposition of natural mortality (mO) estimates into covariates and random effect")
+    scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
+    theme_bw() + theme(panel.grid = element_blank()) + 
+    facet_wrap(~Year, scales = "free_y", ncol = 3)+
+    #ylim(0, 3)+
+    xlim(-3, 3)+
+    labs(title= "Decomposition of natural mortality (mO) estimates into covariate and random effect")
   
   #Instead of a graphical calculation, you could of course also do a numerical calculation. For that, you'd want to summarize your data frame across samples, and then compare the median [95% CI]. 
   
