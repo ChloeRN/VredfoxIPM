@@ -21,7 +21,7 @@ plotVariance_comp_mO <- function(MCMC.samples, Tmax, minYear){
 
   #Within a t loop to match with the right rodent and reindeer abundance
   
-  for(t in 1:(Tmax-1)){
+  for(t in 1:Tmax){
     
     #Posterior of parameter rodent effect on natural mortality
     betaR.mO <- sam.mat[ , "betaR.mO"]
