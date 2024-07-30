@@ -7,9 +7,11 @@
 
 # RDS files
 *.rds
+!Data/*.rds
 
 # txt files
 *.txt
+!HoenigMod_Posteriors_fromTomPorteus.txt
 
 # pdf files
 *.pdf
@@ -56,5 +58,6 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# Summary of posterior correlations
+# Specific files
 p.hoc_param.corr.csv
+Data/weighted_MA.rds
