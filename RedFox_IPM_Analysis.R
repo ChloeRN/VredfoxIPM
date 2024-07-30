@@ -424,9 +424,9 @@ plotIPM_covariateEffects(MCMC.samples = IPM.out,
                         reindeerMIN = -1.5, reindeerMAX = 1.5,
                         AgeClass = 1) 
 
-########################
-# 7) POST-HOC ANALYSES #
-########################
+#########################
+# 7) FOLLOW-UP ANALYSES #
+#########################
 
 ## Extract parameter samples
 paramSamples <- extractParamSamples(MCMC.samples = IPM.out,
