@@ -182,10 +182,10 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
       #Mu.mH[1:Amax] <- Mu.mH.all
       
       # Median other (natural) cause mortality hazard rates
-      #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE / HOENING MODEL CALCULATION
+      #* INFORMATIVE PRIOR REQUIRED: LITERATURE VALUE / HOENIG MODEL CALCULATION
       
-      if(HoeningPrior){
-        # Using prior distributions calculated with Hoening model
+      if(HoenigPrior){
+        # Using prior distributions calculated with Hoenig model
         Mu.mO.ad ~ dlnorm(mnat.logmean, sdlog = mnat.logsd)
         Mu.mO[2:5] <- Mu.mO.ad
         Mu.mO[1] <- Mu.mO.ad*JuvAdRatio #* NOTE: Can be provided as constant or distribution

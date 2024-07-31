@@ -22,8 +22,8 @@
 #' abundance covariate.
 #' @param mO.varT logical. If TRUE, simulates initial values for a model with 
 #' time variation in natural mortality.
-#' @param HoeningPrior logical. If TRUE, simulates initial values for a model 
-#' using informative natural mortality priors based on the Hoening model. If 
+#' @param HoenigPrior logical. If TRUE, simulates initial values for a model 
+#' using informative natural mortality priors based on the Hoenig model. If 
 #' FALSE, simulates initial values for a model using informative survival priors
 #' based on literature. 
 #' @param imm.asRate logical. If TRUE, returns initial values associated with 
@@ -43,7 +43,7 @@
 
 simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxImm, 
                              fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
-                             mO.varT, HoeningPrior, imm.asRate, Mu.mO_fixInits = TRUE){
+                             mO.varT, HoenigPrior, imm.asRate, Mu.mO_fixInits = TRUE){
   
   Amax <- nim.constants$Amax
   Tmax <- nim.constants$Tmax
@@ -97,7 +97,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   if(Mu.mO_fixInits){
     
-    if(HoeningPrior){
+    if(HoenigPrior){
       
       Mu.mO.ad <- -log(mean(c(0.71, 0.5, 0.59, 0.59)))
       Mu.mO <- c(-log(0.33), rep(Mu.mO.ad, Amax-1))
@@ -111,7 +111,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     
   }else{
     
-    if(HoeningPrior){
+    if(HoenigPrior){
       
       JuvAdRatio <- exp(nim.constants$ratioJA.logmean)
       Mu.mO.ad <- exp(nim.constants$mnat.logmean)
@@ -438,7 +438,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   )
   
   ## Add initial values for parameters specific to survival prior model versions
-  if(HoeningPrior){
+  if(HoenigPrior){
     InitVals$JuvAdRatio <- JuvAdRatio
     InitVals$Mu.mO.ad <- Mu.mO.ad
   }else{

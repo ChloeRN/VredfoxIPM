@@ -3,10 +3,10 @@
 #' @param meta.datafile character string. Path file name for file containing literature data extracted from Devenish-Nelson et al. 2012
 #' @param simulateSD logical. If TRUE (default), missing standard deviations for literature data are simulated using truncated normal distributions (with sd = 1).
 #' If FALSE, missing standard deviations are instead calculated as within-age-class variation in raw literature data.
-#' @param hoening.datafile character string. Path/file name for file containing posterior
-#' samples from Tom Porteus' run of the phylogenetic Hoening model. Used by the
-#' dependency function predict_mO_HoeningMod().
-#' @param mu.t.max  numeric. Offset parameter for maximum age in the Hoening 
+#' @param hoenig.datafile character string. Path/file name for file containing posterior
+#' samples from Tom Porteus' run of the phylogenetic Hoenig model. Used by the
+#' dependency function predict_mO_HoenigMod().
+#' @param mu.t.max  numeric. Offset parameter for maximum age in the Hoenig 
 #' model (= 22.61062). Provided by Tom Porteus. 
 #' @param maxAge integer. Maximum recorded age of harvested foxes. 
 #' @param nsim integer. Number of simulation replicates for each posterior sample.
@@ -23,14 +23,14 @@
 #'
 #' @examples
 
-collate_priorInfo <- function(meta.datafile, simulateSD = TRUE, hoening.datafile, mu.t.max, maxAge, nsim, S0.mean.offset = 0, S0.sd.factor = 1){
+collate_priorInfo <- function(meta.datafile, simulateSD = TRUE, hoenig.datafile, mu.t.max, maxAge, nsim, S0.mean.offset = 0, S0.sd.factor = 1){
   
   
-  ## Simulate / load prior distribution parameters from Hoening model
+  ## Simulate / load prior distribution parameters from Hoenig model
   if(file.exists("mO_prior_Parameters.rds")){
     mO.prior <- readRDS("mO_prior_Parameters.rds")
   }else{
-    mO.prior <- predict_mO_HoeningMod(hoening.datafile, mu.t.max, maxAge, nsim = nsim, plot = FALSE)
+    mO.prior <- predict_mO_HoenigMod(hoenig.datafile, mu.t.max, maxAge, nsim = nsim, plot = FALSE)
   }
   
   ## Simulate prior distribution parameters via meta-analysis
@@ -78,7 +78,7 @@ collate_priorInfo <- function(meta.datafile, simulateSD = TRUE, hoening.datafile
     ),
     
     
-    # Natural mortality (Base parameters from Hoening model, ratio from arctic fox IPM)
+    # Natural mortality (Base parameters from Hoenig model, ratio from arctic fox IPM)
     natMort = list(
       mnat.logmean = mO.prior$mnat.logmean,
       mnat.logsd = mO.prior$mnat.logsd,

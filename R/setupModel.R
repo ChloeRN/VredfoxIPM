@@ -26,8 +26,8 @@
 #' abundance covariate.
 #' @param mO.varT logical. If TRUE, sets up model with time variation in 
 #' natural mortality. 
-#' @param HoeningPrior logical. If TRUE, sets up a model using informative natural 
-#' mortality priors based on the Hoening model. If FALSE, sets up a model using 
+#' @param HoenigPrior logical. If TRUE, sets up a model using informative natural 
+#' mortality priors based on the Hoenig model. If FALSE, sets up a model using 
 #' informative survival priors based on literature. 
 #' @param imm.asRate logical. If TRUE, sets up a model that estimates immigration
 #' as a rate. 
@@ -55,7 +55,7 @@ setupModel <- function(modelCode,
                        nim.data, nim.constants,
                        minN1, maxN1, minImm, maxImm,
                        fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
-                       mO.varT, HoeningPrior, imm.asRate, Mu.mO_fixInits = TRUE,
+                       mO.varT, HoenigPrior, imm.asRate, Mu.mO_fixInits = TRUE,
                        niter = 100000, nthin = 8, nburn = 37500, nchains = 3,
                        testRun = FALSE, initVals.seed){
   
@@ -71,7 +71,7 @@ setupModel <- function(modelCode,
               "RodentAbundance")
   
   ## Add additional parameters to monitor depending on model version
-  if(HoeningPrior){
+  if(HoenigPrior){
     params <- c(params, "JuvAdRatio", "Mu.mO.ad")
   }else{
    params <- c(params, "Mu.Snat")
@@ -122,7 +122,7 @@ setupModel <- function(modelCode,
                                       fitCov.immR = fitCov.immR,
                                       rCov.idx = rCov.idx, 
                                       mO.varT = mO.varT,
-                                      HoeningPrior = HoeningPrior,
+                                      HoenigPrior = HoenigPrior,
                                       imm.asRate = imm.asRate,
                                       Mu.mO_fixInits = Mu.mO_fixInits)
   }

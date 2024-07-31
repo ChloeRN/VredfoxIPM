@@ -1,9 +1,9 @@
 #' Predict parameters for prior distribution of adult natural mortality using 
-#' the Hoening model
+#' the Hoenig model
 #'
 #' Tom Porteus et al. developed an approach to generate informative priors for
 #' natural mortality based on maximum (observed) age. It involves a predictive
-#' model called the "Hoening model", the parameters of which were estimated for
+#' model called the "Hoenig model", the parameters of which were estimated for
 #' a range of families using a phylogenetic meta-analysis. 
 #' We received the posterior samples from Tom Porteus' published model run upon
 #' request.
@@ -20,7 +20,7 @@
 #' @param maxAge integer. Maximum recorded age of harvested animals. 
 #' @param nsim integer. Number of simulation replicates for each posterior sample. 
 #' @param plot logical. If TRUE, plots predicted prior distributions for natural
-#' mortality using the exact posterior samples for Hoening model parameters vs. 
+#' mortality using the exact posterior samples for Hoenig model parameters vs. 
 #' de novo simulation from extracted log-mean and log-sd. 
 #'
 #' @return a list containing the log mean and log sd of a prior distribution
@@ -29,10 +29,10 @@
 #'
 #' @examples
 
-predict_mO_HoeningMod <- function(datafile, mu.t.max, maxAge, nsim, plot){
+predict_mO_HoenigMod <- function(datafile, mu.t.max, maxAge, nsim, plot){
   
   
-  ## Load posterior samples from Hoening model
+  ## Load posterior samples from Hoenig model
   postSamples <- read.table(datafile, header = T)
   
   ## Extract posterior samples for relevant parameters
