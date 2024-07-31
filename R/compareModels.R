@@ -1,5 +1,8 @@
 
-compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.names, censusCollapse, plotFolder){
+compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE, 
+                          post.filepaths, post.list, 
+                          model.names, censusCollapse, 
+                          plotFolder, returnSumData = FALSE){
   
   ## Check models are specified correctly
   if((missing(post.filepaths) & missing(post.list)) |
@@ -19,6 +22,11 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   ## Make censusCollapse object if not provided
   if(missing(censusCollapse)){
     censusCollapse <- rep(TRUE, nModels)
+  }
+  
+  ## Set maxYear if not provided
+  if(missing(maxYear)){
+    maxYear <- minYear + Tmax - 1
   }
   
   ## Reformat posterior samples
@@ -118,15 +126,37 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   )
   
   ## Set parameters plotting time series of posterior summaries
-  plotTS.params <- list(
-    ParamNames = c("N.tot", "B.tot", "R.tot", "Imm",
-                   "mO", "S", #"S0",
-                   "mH", "mHs", "Psi", "rho", "immR"),
-    ParamLabels = c("Female population size", "# breeding females", "# female recruits", "# female immigrants",
-                    "Natural mortality", "Survival", #"Early survival",
-                    "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female", "Immigration rate")
+  plotTS.paramsAge <- list(
+    ParamNames = c("mO", "S", "mH", "mHs", "Psi", "rho", "immR"),
+    ParamLabels = c("Natural mortality", "Survival", 
+                    "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female")
   )
 
+  plotTS.params <- list(
+    ParamNames = c("N.tot", "B.tot", "R.tot", "Imm", "immR"),
+    ParamLabels = c("Female population size", "# breeding females", "# female recruits", 
+                    "# female immigrants", "Immigration rate")
+  )
+  
+  ## Optional: convert population size estimates to log scale
+  if(logN){
+  
+    ## Entire posterior samples
+    popN.params <- c(plot.params$Imm, plot.params$Ntot, plot.params$Btot, plot.params$Rtot)
+    
+    for(i in 1:length(popN.params)){
+      post.data$Value[which(post.data$Parameter == popN.params[i])] <- log(post.data$Value[which(post.data$Parameter == popN.params[i])])
+    }
+    post.data$Value[which(post.data$Value == -Inf)] <- 0
+    
+    ## Summaries
+    popN.rows <- which(sum.data$ParamName %in% c("Imm", "N", "N.tot", "B", "B.tot", "R", "R.tot"))
+    sum.data$median[popN.rows] <- ifelse(sum.data$median[popN.rows] == 0, 0, log(sum.data$median[popN.rows]))
+    sum.data$lCI[popN.rows] <- ifelse(sum.data$lCI[popN.rows] == 0, 0, log(sum.data$lCI[popN.rows]))
+    sum.data$uCI[popN.rows] <- ifelse(sum.data$uCI[popN.rows] == 0, 0, log(sum.data$uCI[popN.rows]))
+  }
+  
+  
   ## Set plotting colors
   plot.cols <- paletteer::paletteer_c("grDevices::Temps", length(model.names))
 
@@ -145,39 +175,47 @@ compareModels <- function(Amax, Tmax, minYear, post.filepaths, post.list, model.
   }
   dev.off()
   
-  ## Plot posterior summary time series
-  pdf(paste0(plotFolder, "/PosteriorSummaries_TimeSeries.pdf"), width = 8, height = 8)
-  for(x in 1:length(plotTS.params$ParamNames)){
-    
-    #sum.data.sub <- subset(sum.data, ParamName == plotTS.params$ParamNames[x])
+  ## Plot posterior summary time series for age-specific parameters
+  pdf(paste0(plotFolder, "/PosteriorSummaries_TimeSeriesAge.pdf"), width = 8, height = 8)
+  for(x in 1:length(plotTS.paramsAge$ParamNames)){
     
     print(
-      ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x]), aes(group = Model)) + 
+      ggplot(subset(sum.data, ParamName == plotTS.paramsAge$ParamNames[x] & Year <= maxYear), aes(group = Model)) + 
         geom_line(aes(x = Year, y = median, color = Model)) + 
         geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
-        #scale_fill_viridis_d() + scale_color_viridis_d() + 
         scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
+        scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
         facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
-        ggtitle(plotTS.params$ParamLabels[x]) +  
-        theme_bw() + theme(panel.grid = element_blank())
+        ggtitle(plotTS.paramsAge$ParamLabels[x]) +  
+        theme_bw() + theme(panel.grid.minor = element_blank(), 
+                           panel.grid.major.y = element_blank(), 
+                           axis.text.x = element_text(angle = 45, vjust = 0.5))
     )
     
-    if(plotTS.params$ParamNames[x] %in% c("Imm", "immR")){
-      
-      subset.years <- (min(sum.data$Year, na.rm = TRUE) + 1):(max(sum.data$Year, na.rm = TRUE) - 1)
-      print(
-        ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x] & Year %in% subset.years), aes(group = Model)) + 
-          geom_line(aes(x = Year, y = median, color = Model)) + 
-          geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
-          #scale_fill_viridis_d() + scale_color_viridis_d() + 
-          scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
-          facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
-          ggtitle(paste0(plotTS.params$ParamLabels[x], " (without first/last year)")) +  
-          theme_bw() + theme(panel.grid = element_blank())
-      )
-      
-    }
   }
   dev.off()
   
+  ## Plot posterior summary time series for age-specific parameters
+  pdf(paste0(plotFolder, "/PosteriorSummaries_TimeSeries.pdf"), width = 8, height = 4)
+  for(x in 1:length(plotTS.params$ParamNames)){
+    
+    print(
+      ggplot(subset(sum.data, ParamName == plotTS.params$ParamNames[x] & Year > minYear & Year <= maxYear), aes(group = Model)) + 
+        geom_line(aes(x = Year, y = median, color = Model)) + 
+        geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
+        scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
+        scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
+        ggtitle(plotTS.params$ParamLabels[x]) +  
+        theme_bw() + theme(panel.grid.minor = element_blank(), 
+                           panel.grid.major.y = element_blank(), 
+                           axis.text.x = element_text(angle = 45, vjust = 0.5))
+    )
+    
+  }
+  dev.off()
+  
+  ## Optional: return summary data
+  if(returnSumData){
+    return(sum.data)
+  }
 }
