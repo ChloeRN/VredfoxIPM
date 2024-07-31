@@ -12,7 +12,7 @@ The workflow is available as both a manual implementation ("RedFox_IPM_Analysis.
 - Follow-up analyses (incl. vizualizations)
 
 A schematic overview of the workflow and its parts is shown below: 
-![](Diagrams/RedFox_targets_dark.png)
+![](Diagrams/RedFox_targets_light.png)
 
 The workflow is fully function-based, and each function is documented in its respective script within the folder "R".
 The folder "vignettes" contains a richly documented "walkthrough" of the manual workflow ("workflow_walkthrough.Rmd"), including instructions for installing necessary dependencies and accessing all requisite data. 
