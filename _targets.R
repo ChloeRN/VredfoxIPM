@@ -53,7 +53,7 @@ pups.datapath <- "Data/Rfox_early_litter_sizes.csv"
 
 meta.datafile <- "Data/RedFox_LiteratureData.csv"
 
-hoening.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
+hoenig.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
 
 
 ## Credentials for accessing the COAT database
@@ -90,7 +90,7 @@ add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individua
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
-HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
+HoenigPrior <- FALSE # Use prior on natural mortality derived from Hoenig model
 #sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
 #sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
 sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
@@ -243,7 +243,7 @@ list(
     surv.priors,
     collate_priorInfo(meta.datafile = meta.datafile,
                       simulateSD = TRUE,
-                      hoening.datafile = hoening.datafile, 
+                      hoenig.datafile = hoenig.datafile, 
                       nsim = 30, 
                       mu.t.max = 22.61062, 
                       maxAge = maxAge_yrs)
@@ -252,7 +252,7 @@ list(
   # Define type of prior to use in analyses
   tar_target(
     survPriorType,
-    definePriorType_AnnSurv(HoeningPrior = HoeningPrior, 
+    definePriorType_AnnSurv(HoenigPrior = HoenigPrior, 
                             sPriorSource = sPriorSource)
   ),
   
@@ -304,7 +304,7 @@ list(
                fitCov.immR = fitCov.immR,
                rCov.idx = rCov.idx,
                mO.varT = mO.varT,
-               HoeningPrior = HoeningPrior,
+               HoenigPrior = HoenigPrior,
                imm.asRate = imm.asRate,
                testRun = testRun,
                initVals.seed = mySeed

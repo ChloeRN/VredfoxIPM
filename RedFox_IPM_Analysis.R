@@ -79,7 +79,7 @@ add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individua
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
-HoeningPrior <- FALSE # Use prior on natural mortality derived from Hoening model
+HoenigPrior <- FALSE # Use prior on natural mortality derived from Hoenig model
 #sPriorSource <- "Bristol" # Base survival prior on data from Bristol (not hunted)
 #sPriorSource <- "NSweden" # Base survival prior on data from North Sweden (lightly hunted)
 sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all populations
@@ -226,15 +226,15 @@ YearInfo <- collate_yearInfo(minYear = minYear,
 meta.datafile <- "Data/RedFox_LiteratureData.csv"
 simulateSD <- TRUE
 
-## Parameters/paths for making informative priors for natural mortality using Tom Porteus' Hoening model approach
+## Parameters/paths for making informative priors for natural mortality using Tom Porteus' Hoenig model approach
 mu.t.max <- 22.61062
-hoening.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
+hoenig.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
 nsim <- 30
 
 ## Collate all prior information
 surv.priors <- collate_priorInfo(meta.datafile = meta.datafile,
                                  simulateSD = simulateSD,
-                                 hoening.datafile = hoening.datafile, 
+                                 hoenig.datafile = hoenig.datafile, 
                                  nsim = nsim, 
                                  mu.t.max = mu.t.max, 
                                  maxAge = maxAge_yrs,
@@ -242,7 +242,7 @@ surv.priors <- collate_priorInfo(meta.datafile = meta.datafile,
                                  S0.sd.factor = S0.sd.factor)
 
 ## Define type of prior to use for annual survival
-survPriorType <- definePriorType_AnnSurv(HoeningPrior = HoeningPrior, 
+survPriorType <- definePriorType_AnnSurv(HoenigPrior = HoenigPrior, 
                                          sPriorSource = sPriorSource)
 
 #****************#
@@ -298,7 +298,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           fitCov.immR = fitCov.immR,
                           rCov.idx = rCov.idx,
                           mO.varT = mO.varT,
-                          HoeningPrior = HoeningPrior,
+                          HoenigPrior = HoenigPrior,
                           imm.asRate = imm.asRate,
                           testRun = FALSE,
                           initVals.seed = mySeed
@@ -369,7 +369,7 @@ compareModels(Amax = Amax,
                                  "RedFoxIPM_survPrior2.rds",
                                  "RedFoxIPM_survPrior3.rds"), 
               model.names = c("Meta-analysis", 
-                              "Hoening model",
+                              "Hoenig model",
                               "North Sweden",
                               "Bristol"), 
               plotFolder = "Plots/CompFinal_SurvPriors")

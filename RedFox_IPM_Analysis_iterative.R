@@ -4,7 +4,7 @@ library(tidyverse)
 
 ## Set toggle combos for models to run
 prior_toggles <- list(
-  HoeningPrior = c(TRUE, rep(FALSE, 4), rep(c(TRUE, FALSE), each = 4)),
+  HoenigPrior = c(TRUE, rep(FALSE, 4), rep(c(TRUE, FALSE), each = 4)),
   sPriorSource = c(NA, "Bristol", "NSweden", "metaAll", "metaSub", rep(c(NA, "NSweden"), each = 4))
 )
 
@@ -16,15 +16,15 @@ cov_toggles <- list(
 )
 
 ## List model names
-model_names <- c("Hoening",
+model_names <- c("Hoenig",
                  "Bristol",
                  "NSweden",
                  "metaAll", 
                  "metaSub",
-                 "Hoening-hunters",
-                 "Hoening-rodCont",
-                 "Hoening-rodIdx2",
-                 "Hoening-rodIdx3",
+                 "Hoenig-hunters",
+                 "Hoenig-rodCont",
+                 "Hoenig-rodIdx2",
+                 "Hoenig-rodIdx3",
                  "NSweden-hunters",
                  "NSweden-rodCont",
                  "NSweden-rodIdx2",
@@ -66,7 +66,7 @@ for(i in 1:13){
   nLevels.rCov <- cov_toggles$nLevels.rCov[i]
   
   # Annual survival prior type toggles
-  HoeningPrior <- prior_toggles$HoeningPrior[i]
+  HoenigPrior <- prior_toggles$HoenigPrior[i]
   sPriorSource <- prior_toggles$sPriorSource[i]
   
   #*********************#
@@ -123,20 +123,20 @@ for(i in 1:13){
   # 2) PRIOR INFORMATION #
   #**********************#
   
-  ## Make informative priors for natural mortality using Tom Porteus' Hoening model approach
+  ## Make informative priors for natural mortality using Tom Porteus' Hoenig model approach
   mu.t.max <- 22.61062
-  hoening.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
+  hoenig.datafile <- "Data/HoenigMod_Posteriors_fromTomPorteus.txt"
   nsim <- 30
   
   
   ## Collate all prior information
-  surv.priors <- collate_priorInfo(datafile = hoening.datafile, 
+  surv.priors <- collate_priorInfo(datafile = hoenig.datafile, 
                                    nsim = nsim, 
                                    mu.t.max = mu.t.max, 
                                    maxAge = maxAge_yrs)
   
   ## Define type of prior to use for annual survival
-  survPriorType <- definePriorType_AnnSurv(HoeningPrior = HoeningPrior, 
+  survPriorType <- definePriorType_AnnSurv(HoenigPrior = HoenigPrior, 
                                            sPriorSource = sPriorSource)
   
   #****************#
@@ -180,7 +180,7 @@ for(i in 1:13){
                             fitCov.mH = fitCov.mH, 
                             fitCov.Psi = fitCov.Psi, 
                             rCov.idx = rCov.idx, 
-                            HoeningPrior = HoeningPrior,
+                            HoenigPrior = HoenigPrior,
                             testRun = TRUE,
                             initVals.seed = mySeed)
   
@@ -227,7 +227,7 @@ plotFolder <- c(
   "Plots/Comp_Base",
   "Plots/Comp_BaseSurv",
   "Plots/Comp_SwedenCov",
-  "Plots/Comp_HoeningCov"
+  "Plots/Comp_HoenigCov"
 )
 
 for(n in 1:length(model.names)){
