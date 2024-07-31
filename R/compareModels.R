@@ -1,4 +1,37 @@
-
+#' Compare a number of different models
+#'
+#' @param Amax integer. Number of age classes to consider in analyses.
+#' @param Tmax integer. The number of years to consider in analyses.
+#' @param minYear integer. First year to consider in analyses.
+#' @param maxYear integer. Last year to display in the time series plots. If not 
+#' provided, defaults to minYear+Tmax-1.
+#' @param logN logical. If TRUE, plots population size at the log scale. If 
+#' FALSE (default), plots population size on the natural scale. 
+#' @param post.filepaths character vectors containing paths to .rds files 
+#' containing posterior samples from models to compare. Can be provided instead
+#' of post.list. 
+#' @param post.list list containing posterior samples from models to compare
+#' in mcmc.list format. Can be procided instead of post.filepaths. 
+#' @param model.names character vector with user-defined names for models to 
+#' compare. 
+#' @param censusCollapse logical vector. Determines for each model whether June 
+#' or October should be used as the population census in comparisons. This was
+#' necessary for comparing earlier model versions without summer harvest (and hence
+#' no October census) to models with summer harvest. In the majority of cases,
+#' this will not be relevant any longer and can be ignored (if not provided, it
+#' will automatically default to plot the June census population size).
+#' @param plotFolder character string containing the path to the folder in which
+#' to store comparison plots.  
+#' @param returnSumData logical. If TRUE, returns a data frame containing 
+#' posterior samples for all compared model as an object into the R workspace. 
+#' If FALSE (default), no data is returned.
+#'
+#' @return a dataframe of posterior samples from all compared models, provided
+#' thata returnSumData is set to TRUE. 
+#' @export
+#'
+#' @examples
+#' 
 compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE, 
                           post.filepaths, post.list, 
                           model.names, censusCollapse, 
