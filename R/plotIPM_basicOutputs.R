@@ -5,14 +5,17 @@
 #' @param Amax integer. Number of age classes. 
 #' @param Tmax integer. Number of years in the analysis.
 #' @param minYear integer. First year in the analysis. 
+#' @param logN logical. If TRUE, plots population-level quantities (total and
+#' breeding population sizes, numbers of local recruits and immigrants) on the
+#' log- instead of natural scale. This makes sense with simulated scenarios. 
 #'
-#' @return a character vector of plot names. The plots themselves are saved
+#' @returna character vector of plot names. The plots themselves are saved
 #' as pdf's in the subfolder "Plots".
 #' @export
 #'
 #' @examples
 
-plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
+plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, logN = FALSE){
   
   #-------------------#
   # Data reformatting #
@@ -89,6 +92,22 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear){
                      uCI = quantile(prop, probs = 0.975, na.rm = TRUE),
                      .groups = "keep") %>%
     dplyr::ungroup()
+  
+  ## Optional: convert population-level quantities to log scale
+  if(logN){
+    suppressWarnings(
+      results.sum <- results.sum %>%
+        dplyr::mutate(median = dplyr::case_when(!(ParamName %in% c("N.tot", "B.tot", "R.tot", "Imm")) ~ median,
+                                                 median > 0 ~ log(median),
+                                                 TRUE ~ 0),
+                      lCI = dplyr::case_when(!(ParamName %in% c("N.tot", "B.tot", "R.tot", "Imm")) ~ lCI,
+                                              lCI > 0 ~ log(lCI),
+                                              TRUE ~ 0),
+                      uCI = dplyr::case_when(!(ParamName %in% c("N.tot", "B.tot", "R.tot", "Imm")) ~ uCI,
+                                              uCI > 0 ~ log(uCI),
+                                              TRUE ~ 0))
+    )
+  }
   
   ## Define plot colors
   plot.colors.param <- c("#047993FF", "#005F94FF", paletteer::paletteer_c("grDevices::Temps", 6))

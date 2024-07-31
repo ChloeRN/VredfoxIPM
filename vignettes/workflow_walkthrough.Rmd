@@ -559,9 +559,87 @@ calculate_p.hoc_param.corr(MCMC.samples = IPM.out,
 We do note that this approach to testing for density-dependence and demographic compensation is not ideal; while practical and straightforward to implement, correlations made based on posterior samples will always be a mixture of true "process correlation" and MCMC sampling correlations. This should always be considered when interpreding results. 
 
 ### Population viability analyses
-Our study also included Population Viability Analyses (PVAs), which are forward-projections of the population model beyond the duration of the study period. We implemented the PVAs as fully integrated, i.e. PVA are performed as the models are fitted. As such, fitting the models used for PVA was done using alternative code that can be found on another branch of the repository called "PVA_basicSetup" (<https://github.com/ChloeRN/VredfoxIPM/tree/PVA_basicSetup>). 
-In essence, the PVA version of the workflow includes a variable `Tmax_sim`, which determines how many years beyond the study period the model should run, as well as a range of "perturbation factors" for vital rates. The perturbation factors can be set to reflect potential management scenarios that the user envisions. Our current implementation supports both direct a-priori manipulaiton of annual perturbation factors and perturbation factors that respond dynamically to predicted small rodent abundances.
+Our study also included Population Viability Analyses (PVAs), which are forward-projections of the population model beyond the duration of the study period. We implemented the PVAs as fully integrated, i.e. PVA are performed as the models are fitted. As such, fitting the models used for PVA was done using alternative code also included in this repository. The "master script" for running the IPM-PVA analysis can be found in "RedFox_IPM_Analysis_PVA.R" and is largely equivalent to the workflow we have presented above. The main differences for running the joint IPM-PVA workflow relative to the main workflow documented above are:
 
-As of yet, the PVA analyses are not fully integrated into the targets workflow.
+- Inclusion of a variable `Tmax_sim`, which determines how many years beyond the study period the model should run (= length of the simulation period)
+- Definitions and use of a range of "perturbation factors" for vital rates that can be set to reflect potential management scenarios that the user envisions (see details below).
+- Use of a couple of alternative functions that take into account simulation period and perturbation factors (`assemble_inputData_PVA()`, `simulate_initVals_PVA()`, `writeCode_redfoxIPM_PVA()`, `setupModel_PVA()`). 
+
+The perturbation factors are a set of extra variables that are multiplied with vital rates or added to covariate estimates to simulate increases or decreases in the quantity of interest during the simulation period. 
+Our current implementation supports both direct a-priori manipulation of annual perturbation factors and perturbation factors that respond dynamically to predicted small rodent abundances.
+
+The a-priori set perturbation factors are defined in the following part of the script: 
+```{r, eval = FALSE}
+pert.mH <- TRUE
+pert.mO <- FALSE
+pert.S0 <- FALSE
+pert.immR <- FALSE
+pert.rodent <- FALSE
+pert.reindeer <- FALSE
+
+factor.mH <- 1.5
+factor.mO <- 1
+factor.S0 <- 1
+factor.immR <- 1
+factor.rodent <- 1
+factor.reindeer <- 1
+
+if(pert.mH & factor.mH == 0){
+  pert.mHs <- TRUE
+  factor.mHs <- 0
+}else{
+  pert.mHs <- FALSE
+  factor.mHs <- 1
+}
+
+perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
+                                    pert.mH = pert.mH, factor.mH = factor.mH,
+                                    pert.mO = pert.mO, factor.mO = factor.mO,
+                                    pert.S0 = pert.S0, factor.S0 = factor.S0,
+                                    pert.mHs = pert.mHs, factor.mHs = factor.mHs,
+                                    pert.immR = pert.immR, factor.immR = factor.immR,
+                                    pert.rodent = pert.rodent, factor.rodent = factor.rodent,
+                                    pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
+```
+First, we define a set of logical variables that determine whether any perturbation is applied (`pert.[parameter]` variables). In the example above, we opt to perturb harvest mortality (`mH`), so `pert.mH <- TRUE`. Next, we define the magnitude of the perturbation via the `factor.[parameter]` variables. The default (= no perturbation) is 1. For increasing harvest mortality by e.g. 50 %, we set `factor.mH <- 1.5`. 
+While it is technically possible to have separate manipulation of summer harvest mortality (`mHs`), the pipeline is currently setup to not manipulate this parameter except for the scenario where there is no harvest at all (`pert.mH & factor.mH == 0`). 
+The function `setupPerturbVecs_PVA()`then takes the information on perturbation provided by the user, and makes a set of perturbation vectors that have one entry per year in the population model / simulation. 
+
+In addition to the a-priori set perturbation factors, our setup also supports dynamic perturbation factors, i.e. perturbations that happen in response to specific conditions encountered during the simulation. We illustrate this with an example of perturbation of harvest mortality in response to small rodent abundance. Rodent abundance is used as a covariate in the model, and during simulation, a new value is predicted each year based on a second-order autoregressive model (see Nimble code in "R/writeCode_redfoxIPM_PVA.R") and we use a custom NimbleFunction to set the year-specific perturbation factor based on the newly drawn rodent covariate value: 
+```{r, eval = FALSE}
+## Set up perturbation parameters for running rodent-dependent harvest scenarios
+factor.mH.rodent <- 1.5
+threshold.rodent.mH <- 0
+thresholdAbove <- FALSE
+
+
+## Nimble function for determining perturbation factor based on covariate value
+calculate_pertFac <- nimbleFunction(
+  
+  run = function(pertFactor = double(0),
+                 covThreshold = double(0),
+                 thresholdAbove = logical(0),
+                 covValue = double(0)) {
+    
+    # Set conditional perturbation factor
+    if((thresholdAbove & covValue > covThreshold) | (!thresholdAbove & covValue < covThreshold)){
+      pertFac <- pertFactor
+    }else{
+      pertFac <- 1
+    }
+    
+    # Return perturbation factor
+    return(pertFac)
+    returnType(double(0))
+  }
+)
+```
+Besides the simulated covariate value (`covValue`), the function requires a perturbation factor (`pertFactor = factor.mH.rodent`) that determines the strength of the perturbation if conditions are met, a covariate value threshold above/below which to apply the perturbation (`covThreshold = threshold.rodent.mH`), and information on whether the perturbation should be applied if the covariate value is above or below the threshold (`thresholdAbove`). The NimbleFunction `calculate_pertFac()` is called from within the model code while fitting the model. 
+
+The PVAs themselves is often presented as a (graphical) comparison between forecasts from different models, and the function `compareModels()` is suitable for making such comparisons. Depending on the population trajectory, it may be useful to set the optional argument `logN` to TRUE to plot population size on the log scale instead of the natural scale. 
+
+For more details on the implementation of the PVAs, refer to "RedFox_IPM_Analysis_PVA.R". 
+
+Note that ss of yet, the PVAs are not integrated into the targets workflow.
 
 

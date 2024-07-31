@@ -8,7 +8,6 @@ library(purrr)
 library(dplyr)
 library(metafor)
 library(patchwork)
-library(coda)
 
 #**********#
 # 0) SETUP #
@@ -20,6 +19,7 @@ mySeed <- 10
 ## Set general parameters
 Amax <- 5 # Number of age classes
 Tmax <- 18  # Number of years
+Tmax_sim <- 10
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9)    #removal of summer months: numerical months to be removed from winter age at harvest data
@@ -106,6 +106,66 @@ useInfPrior.S0 <- FALSE
 S0.mean.offset <- 0
 S0.sd.factor <- 1
 
+## Set up perturbation parameters for running standard scenarios
+pert.mH <- FALSE
+pert.mO <- FALSE
+pert.S0 <- FALSE
+pert.immR <- FALSE
+pert.rodent <- FALSE
+pert.reindeer <- FALSE
+
+factor.mH <- 1
+factor.mO <- 1
+factor.S0 <- 1
+factor.immR <- 1
+factor.rodent <- 1
+factor.reindeer <- 1
+
+if(pert.mH & factor.mH == 0){
+  pert.mHs <- TRUE
+  factor.mHs <- 0
+}else{
+  pert.mHs <- FALSE
+  factor.mHs <- 1
+}
+
+perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
+                                    pert.mH = pert.mH, factor.mH = factor.mH,
+                                    pert.mO = pert.mO, factor.mO = factor.mO,
+                                    pert.S0 = pert.S0, factor.S0 = factor.S0,
+                                    pert.mHs = pert.mHs, factor.mHs = factor.mHs,
+                                    pert.immR = pert.immR, factor.immR = factor.immR,
+                                    pert.rodent = pert.rodent, factor.rodent = factor.rodent,
+                                    pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
+
+## Set up perturbation parameters for running rodent-dependent harvest scenarios
+factor.mH.rodent <- 1.5
+threshold.rodent.mH <- 0
+thresholdAbove <- FALSE
+
+
+## Nimble function for determining perturbation factor based on covariate value
+calculate_pertFac <- nimbleFunction(
+  
+  run = function(pertFactor = double(0),
+                 covThreshold = double(0),
+                 thresholdAbove = logical(0),
+                 covValue = double(0)) {
+    
+    # Set conditional perturbation factor
+    if((thresholdAbove & covValue > covThreshold) | (!thresholdAbove & covValue < covThreshold)){
+      pertFac <- pertFactor
+    }else{
+      pertFac <- 1
+    }
+    
+    # Return perturbation factor
+    return(pertFac)
+    returnType(double(0))
+  }
+)
+
+
 #*********************#
 # 1) DATA PREPARATION #
 #*********************#
@@ -163,7 +223,6 @@ rep.data <- wrangleData_rep(P1.datafile = P1.datafile,
 
 ## Set data paths
 genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
-#genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities_LvarLother.txt"
 
 ## Prepare genetic data
 gen.data <- wrangleData_gen(datapath = genetics.datapath,
@@ -252,61 +311,61 @@ survPriorType <- definePriorType_AnnSurv(HoenigPrior = HoenigPrior,
 # 3a) Write model code #
 #----------------------#
 
-redfox.code <- writeCode_redfoxIPM(indLikelihood.genData = indLikelihood.genData)
-#redfox.code <- writeCode_redfoxIndepMod(indLikelihood.genData = indLikelihood.genData)
+redfox.code <- writeCode_redfoxIPM_PVA(indLikelihood.genData = indLikelihood.genData)
 
 
 # 3b) Assemble IPM input data #
 #-----------------------------#
 
-input.data <- assemble_inputData(Amax = Amax, 
-                                 Tmax = Tmax, 
-                                 minYear = minYear,
-                                 maxPups = 14,
-                                 uLim.N = 800,
-                                 uLim.Imm = 3000,
-                                 nLevels.rCov = nLevels.rCov,
-                                 standSpec.rCov = standSpec.rCov,
-                                 poolYrs.genData = poolYrs.genData,
-                                 pImm.type = pImm.type,
-                                 wAaH.data = wAaH.data, 
-                                 sAaH.data = sAaH.data,
-                                 rep.data = rep.data, 
-                                 gen.data = gen.data,
-                                 pup.data = pup.data,
-                                 rodent.data = rodent.data, 
-                                 reindeer.data = reindeer.data,
-                                 hunter.data = hunter.data, 
-                                 surv.priors = surv.priors,
-                                 survPriorType = survPriorType)
+input.data <- assemble_inputData_PVA(Amax = Amax, 
+                                     Tmax = Tmax, 
+                                     Tmax_sim = Tmax_sim,
+                                     minYear = minYear,
+                                     maxPups = 14,
+                                     uLim.N = 800,
+                                     uLim.Imm = 3000,
+                                     nLevels.rCov = nLevels.rCov,
+                                     standSpec.rCov = standSpec.rCov,
+                                     poolYrs.genData = poolYrs.genData,
+                                     pImm.type = pImm.type,
+                                     wAaH.data = wAaH.data, 
+                                     sAaH.data = sAaH.data,
+                                     rep.data = rep.data, 
+                                     gen.data = gen.data,
+                                     pup.data = pup.data,
+                                     rodent.data = rodent.data, 
+                                     reindeer.data = reindeer.data,
+                                     hunter.data = hunter.data, 
+                                     surv.priors = surv.priors,
+                                     survPriorType = survPriorType,
+                                     perturbVecs = perturbVecs,
+                                     factor.mH.rodent = factor.mH.rodent,
+                                     threshold.rodent.mH = threshold.rodent.mH,
+                                     thresholdAbove = thresholdAbove)
 
 
 # 3c) Set up for model run (incl. simulating initial values) #
 #------------------------------------------------------------#
 
-model.setup <- setupModel(modelCode = redfox.code, 
-                          nim.data = input.data$nim.data, 
-                          nim.constants = input.data$nim.constants, 
-                          minN1 = c(600, 50, 50, 50, 50), 
-                          maxN1 = c(800, 400, 400, 400, 400), 
-                          minImm = 50, 
-                          maxImm = 600,
-                          fitCov.mH = fitCov.mH, 
-                          fitCov.mO = fitCov.mO,
-                          fitCov.Psi = fitCov.Psi, 
-                          fitCov.rho = fitCov.rho,
-                          fitCov.immR = fitCov.immR,
-                          rCov.idx = rCov.idx,
-                          mO.varT = mO.varT,
-                          HoenigPrior = HoenigPrior,
-                          imm.asRate = imm.asRate,
-                          testRun = FALSE,
-                          initVals.seed = mySeed
-                          )
+model.setup <- setupModel_PVA(modelCode = redfox.code, 
+                              nim.data = input.data$nim.data, 
+                              nim.constants = input.data$nim.constants, 
+                              minN1 = c(600, 50, 50, 50, 50), 
+                              maxN1 = c(800, 400, 400, 400, 400), 
+                              minImm = 50, 
+                              maxImm = 600,
+                              fitCov.mH = fitCov.mH, 
+                              fitCov.mO = fitCov.mO,
+                              fitCov.Psi = fitCov.Psi, 
+                              fitCov.rho = fitCov.rho,
+                              fitCov.immR = fitCov.immR,
+                              rCov.idx = rCov.idx,
+                              mO.varT = mO.varT,
+                              HoenigPrior = HoenigPrior,
+                              imm.asRate = imm.asRate,
+                              testRun = FALSE,
+                              initVals.seed = mySeed)
 
-
-#model.setup$modelParams <- model.setup$modelParams[which(!(model.setup$modelParams %in% c("initN", "N.tot", "B.tot", "R.tot", "N", "octN", "B", "L", "R")))]
-#model.setup$modelParams <- c(model.setup$modelParams, "meanLS")
 
 ####################
 # 4) MODEL FITTING #
@@ -326,19 +385,13 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-
-saveRDS(IPM.out, file = "RedFoxIPM_main.rds") 
-#saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds") 
-#saveRDS(IPM.out, file = "RedFoxIPM_survPrior3.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst1.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds")
-#saveRDS(IPM.out, file = "RedFoxIndepModels.rds")
-
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds") # No perturbation
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestMatch_th0_fac1.50.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestDelay_th0_fac1.50.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestDelay_th0_fac1.50.rds")
 
 #MCMCvis::MCMCtrace(IPM.out)
 
@@ -347,134 +400,95 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds")
 # 5) MODEL COMPARISONS #
 ########################
 
-## Genetic data likelihoods
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds",
-                                 "RedFoxIPM_genData1.rds",
-                                 "RedFoxIPM_genData2.rds"), 
-              model.names = c("sum. likelihood (th = 0.05)", 
-                              "sum. likelihood (th = 0.2)",
-                              "ind. likelihood (rescaled p)"), 
-              plotFolder = "Plots/CompFinal_GenData")
+## Baseline vs. no harvest
+PVA1_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              "RedFoxIPM_sim_noHarvest.rds",
+                                              "RedFoxIPM_sim_higherHarvest_fac1.5.rds"), 
+                           model.names = c("Baseline", 
+                                           "No harvest",
+                                           "50% higher harvest"), 
+                           plotFolder = "Plots/ScenarioComp_PVA1_RodDyn",
+                           returnSumData = TRUE)
+
+# Extra plot for manuscript: 
+maxYear <- 2030
+pdf("Plots/ScenarioComp_PVA1_RodDyn/PosteriorSummaries_TimeSeries_Ntot.pdf", width = 8, height = 4)
+print(
+  PVA1_comp %>%
+    dplyr::mutate(Action = dplyr::case_when(Model == "Baseline" ~ "None",
+                                            Model == "50% higher harvest" ~ "+50% harvest",
+                                            Model == "No harvest" ~ "Stop harvest")) %>%
+    dplyr::filter(ParamName == "N.tot" & Year > minYear & Year <= maxYear) %>%
+    ggplot(aes(x = Year, group = Model)) + 
+    geom_line(aes(y = median, color = Action)) + 
+    geom_ribbon(aes(ymin = lCI, ymax = uCI, fill = Action), alpha = 0.2) + 
+    scale_fill_manual(values = c("#087792", "grey70", "#E3416F")) + 
+    scale_color_manual(values =  c("#087792", "grey70", "#E3416F")) + 
+    scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
+    ylab("Log population size") +
+    ggtitle("Female population size") +  
+    theme_bw() + theme(panel.grid.minor = element_blank(), 
+                       panel.grid.major.y = element_blank(), 
+                       axis.text.x = element_text(angle = 45, vjust = 0.5))
+)
+dev.off()
 
 
-## Survival priors
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_survPrior1.rds",
-                                 "RedFoxIPM_survPrior2.rds",
-                                 "RedFoxIPM_survPrior3.rds"), 
-              model.names = c("Meta-analysis", 
-                              "Hoenig model",
-                              "North Sweden",
-                              "Bristol"), 
-              plotFolder = "Plots/CompFinal_SurvPriors")
+## Different harvest scenario types
+PVA2_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              #"RedFoxIPM_sim_incHarvest_fac1.50.rds",
+                                              "RedFoxIPM_sim_highRodentHarvestMatch_th0_fac1.50.rds",
+                                              "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds",
+                                              "RedFoxIPM_sim_highRodentHarvestDelay_th0_fac1.50.rds",
+                                              "RedFoxIPM_sim_lowRodentHarvestDelay_th0_fac1.50.rds"#,
+                           ), 
+                           model.names = c("Baseline projection", 
+                                           #"50% harvest increase",
+                                           "Higher rodent +50% harvest, match",
+                                           "Lower rodent +50% harvest, match",
+                                           "Higher rodent +50% harvest, delay",
+                                           "Lower rodent +50% harvest, delay"
+                           ), 
+                           plotFolder = "Plots/ScenarioComp_PVA2_RodDyn",
+                           returnSumData = TRUE)
 
+# Extra plot for manuscript: 
+maxYear <- 2030
+scenInfo <- data.frame(Action = c("None", 
+                                  rep("High rodent +50% harvest", 2),
+                                  rep("Low rodent +50% harvest", 2)), 
+                       Timing = c("matched", 
+                                  rep(c("delayed", "matched"), 2)),
+                       Model = unique(PVA3_comp$Model))
+scenInfo$Action <- factor(scenInfo$Action, levels = c("None", "High rodent +50% harvest", "Low rodent +50% harvest"))
+scenInfo$Timing <- factor(scenInfo$Timing, levels = c("matched", "delayed"))
 
-## Rodent covariate type
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_noSppWeigth.rds"), 
-              model.names = c("species weights", 
-                              "no weights"), 
-              plotFolder = "Plots/CompFinal_RodentCovType")
-
-
-## Immigration models
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds",
-                                 "RedFoxIPM_immEst1.rds",
-                                 "RedFoxIPM_immEst2.rds",
-                                 "RedFoxIPM_immEst3.rds"), 
-              model.names = c("Imm. rate, pooled gen. data", 
-                              "Imm. rate, yearly gen. data",
-                              "Imm. rate, naive",
-                              "Imm. numbers (logNorm)"), 
-              plotFolder = "Plots/CompFinal_ImmModels")
-
-
-
-
-
-###########################################
-# 6) IPM RESULTS - STUDY PERIOD ESTIMATES #
-###########################################
-
-IPM.out <- readRDS("RedfoxIPM_main.rds")
-#IPM.out <- readRDS("RedfoxIPM_ModelRun.rds")
-
-
-## Plot basic IPM outputs (vital rate & population size estimates)
-plotIPM_basicOutputs(MCMC.samples = IPM.out,
-                     nim.data = input.data$nim.data,
-                     Amax = Amax, Tmax = Tmax, minYear = minYear)
-
-## Plot covariate relationships
-plotIPM_covariateEffects(MCMC.samples = IPM.out,
-                        rCov.idx = rCov.idx,
-                        rodentMIN = -1.75, rodentMAX = 4,
-                        reindeerMIN = -1.5, reindeerMAX = 1.5,
-                        AgeClass = 1) 
-
-#########################
-# 7) FOLLOW-UP ANALYSES #
-#########################
-
-## Extract parameter samples
-paramSamples <- extractParamSamples(MCMC.samples = IPM.out,
-                                    Amax = Amax, Tmax = Tmax)
-
-## Calculate sensitivities and elasticities
-sensitivities <- calculateSensitivities(paramSamples = paramSamples,
-                                        Amax = Amax)
-
-## Plot sensitivities
-plotSensitivities(sensitivities = sensitivities,
-                  Amax = Amax)
-
-
-## Set LTRE options
-HazardRates <- TRUE
-PopStructure <- TRUE
-
-## Run random design LTRE
-randomLTRE <- runLTRE_randomDesign(paramSamples = paramSamples, 
-                                   sensitivities = sensitivities, 
-                                   Amax = Amax, Tmax = Tmax, 
-                                   HazardRates = HazardRates, 
-                                   PopStructure = PopStructure)
-
-## Plot results from random design LTRE
-plotLTRE_randomDesign(LTRE_results = randomLTRE,
-                      Amax = Amax,
-                      HazardRates = HazardRates,
-                      PopStructure = PopStructure)
-
-## Run fixed design LTRE
-fixedLTRE <- runLTRE_fixedDesign_allYears(paramSamples = paramSamples, 
-                                          Amax = Amax, Tmax = Tmax, 
-                                          HazardRates = HazardRates, 
-                                          PopStructure = PopStructure)
-
-## Plot results from fixed design LTRE
-plotLTRE_fixedDesign(LTRE_results = fixedLTRE, 
-                     Amax = Amax, Tmax = Tmax, minYear = minYear, 
-                     HazardRates = HazardRates, 
-                     PopStructure = PopStructure)
-  
-## Plot decomposition of mO into covariates and random effect
-plotVariance_comp_mO(MCMC.samples = IPM.out, 
-                     Tmax = Tmax,
-                     minYear = minYear)
-
-## Calculate post-hoc parameter correlations to check for signs of density dependence
-calculate_p.hoc_param.corr(MCMC.samples = IPM.out, 
-                           Tmax = Tmax)
+pdf("Plots/ScenarioComp_PVA2_RodDyn/PosteriorSummaries_TimeSeries_Ntot.pdf", width = 8, height = 4)
+  print(
+    PVA2_comp %>%
+      dplyr::filter(ParamName == "N.tot" & Year > minYear & Year <= maxYear) %>%
+      dplyr::left_join(scenInfo, by = "Model") %>%
+      ggplot(aes(x = Year, group = Model)) + 
+      geom_line(aes(y = median, color = Action, linetype = Timing)) + 
+      geom_ribbon(aes(ymin = lCI, ymax = uCI, fill = Action), alpha = 0.1) + 
+      scale_fill_manual(values = c("grey70", "#089392FF", "#E3756FFF")) + 
+      scale_color_manual(values =  c("grey70", "#089392FF", "#E3756FFF")) + 
+      scale_linetype_manual(values = c("solid", "dashed")) +
+      scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
+      ylab("Log population size") + 
+      ggtitle("Female population size") +  
+      theme_bw() + theme(panel.grid.minor = element_blank(), 
+                         panel.grid.major.y = element_blank(), 
+                         axis.text.x = element_text(angle = 45, vjust = 0.5))
+  )
+dev.off()
