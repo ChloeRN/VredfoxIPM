@@ -277,7 +277,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   pdf("Plots/ParamTime_PopSize.pdf", width = 9, height = 8)
   print(p.H_time / p.N_time / p.E_time + plot_layout(heights = c(0.4, 1, 0.4))) 
   dev.off()
-  
+
   
   ## Population structure (entire vs. breeding only)
   
