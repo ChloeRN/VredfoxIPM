@@ -14,7 +14,7 @@ library(patchwork)
 #**********#
 
 ## Set seed
-mySeed <- 10
+mySeed <- 188
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -326,11 +326,11 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       nburnin = model.setup$mcmcParams$nburn, 
                       thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
-                      setSeed = 0)
+                      setSeed = mySeed)
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_Hcounts.rds") # --> Done
+saveRDS(IPM.out, file = "RedFoxIPM_main_Hcounts2.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds") # --> Done
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds") # --> Done
@@ -422,9 +422,11 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_main.rds",
-                                 "RedFoxIPM_main_Hcounts.rds"), 
+                                 "RedFoxIPM_main_Hcounts.rds",
+                                 "RedFoxIPM_main_Hcounts2.rds"), 
               model.names = c("05-12 AaH only", 
-                              "05-12 AaH + 13-21 counts"), 
+                              "05-12 AaH + 13-21 counts (1)",
+                              "05-12 AaH + 13-21 counts (2)"), 
               plotFolder = "Plots/CompFinal_SummerHarvest")
 
 ###########################################
