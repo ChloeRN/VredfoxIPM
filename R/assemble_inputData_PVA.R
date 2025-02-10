@@ -154,8 +154,7 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
     pertFac.mHs = perturbVecs$pertFac.mHs,
     pertFac.immR = perturbVecs$pertFac.immR,
     pertFac.rodent = perturbVecs$pertFac.rodent,
-    pertFac.reindeer = perturbVecs$pertFac.reindeer,
-    
+
     factor.mH.rodent = factor.mH.rodent,
     threshold.rodent.mH = threshold.rodent.mH,
     thresholdAbove = thresholdAbove

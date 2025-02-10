@@ -397,6 +397,20 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_noReindeer.rds") # No perturbati
 # 5) MODEL COMPARISONS #
 ########################
 
+## Models with/without reindeer covariate
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              "RedFoxIPM_sim_baseline_noReindeer.rds"), 
+                           model.names = c("Original", 
+                                           "Without reindeer"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_ReindeerCov",
+                           returnSumData = TRUE)
+
+
 ## Baseline vs. no harvest
 PVA1_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
