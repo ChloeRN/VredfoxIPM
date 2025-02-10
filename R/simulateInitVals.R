@@ -79,12 +79,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   if(NA %in% RodentIndex2){
     RodentIndex2[which(is.na(RodentIndex2))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex2))))
   }
-  
-  ## Reindeer carcass abundance
-  Reindeer <- nim.data$Reindeer
-  if(NA %in% Reindeer){
-    Reindeer[which(is.na(Reindeer))] <- mean(Reindeer, na.rm = TRUE)
-  }
+
   
   #---------------------------------------------------#
   # Set initial values for vital rate base parameters #
@@ -178,12 +173,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # Rodent abundance and reindeer carcasses on mO
   if(fitCov.mO){
     betaR.mO <- runif(1, -0.2, 0)
-    betaRd.mO <- runif(1, -0.2, 0)
-    betaRxRd.mO <- runif(1, 0, 0.2)
   }else{
     betaR.mO <- 0
-    betaRd.mO <- 0
-    betaRxRd.mO <- 0
   }
   
   # Rodent abundance on Psi
@@ -253,7 +244,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance[t+1]*Reindeer[t] + epsilon.mO[t])
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t])
     }
     
     ## Pregnancy rate
@@ -451,9 +442,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   if(fitCov.mO){
-    InitVals$betaRd.mO <- betaRd.mO
     InitVals$betaR.mO <- betaR.mO
-    InitVals$betaRxRd.mO <- betaRxRd.mO
   }
   
   if(fitCov.Psi){
@@ -557,12 +546,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     }
     
     
-  }
-
-  if(NA %in% nim.data$Reindeer){
-    Inits_Reindeer <- rep(NA, length(Reindeer))
-    Inits_Reindeer[which(is.na(nim.data$Reindeer))] <- Reindeer[which(is.na(nim.data$Reindeer))]
-    InitVals$Reindeer <- Inits_Reindeer
   }
   
   ## Return initial values

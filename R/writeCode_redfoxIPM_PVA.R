@@ -299,7 +299,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance_pert[t+1] + betaRxRd.mO*Reindeer[t]*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
+          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
         }else{
           mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + epsilon.mO[t])*pertFac.mO[t]
         }
@@ -354,9 +354,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
-        betaRd.mO ~ dunif(-5, 0) # Effect of reindeer carcasses on mO
         betaR.mO ~ dunif(-5, 0) # Effect of rodent abundance on mO
-        betaRxRd.mO ~ dunif(-5, 5) # Interactive effect of reindeer x rodent on mO
       }
       
       
@@ -585,11 +583,6 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         for(t in 1:(Tmax+Tmax_sim)){
           HarvestEffort[t] ~ dnorm(0, sd = 1)
         }
-      }
-      
-      ## Missing covariate values in reindeer information
-      for(t in 1:(Tmax+Tmax_sim+1)){
-        Reindeer[t] ~ dnorm(0 + (1-pertFac.reindeer[t]), sd = 1)
       }
       
       ## Missing covariate value(s) in rodent abundance
@@ -914,7 +907,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaRd.mO*Reindeer[t] + betaR.mO*RodentAbundance_pert[t+1] + betaRxRd.mO*Reindeer[t]*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
+          mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
         }else{
           mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + epsilon.mO[t])*pertFac.mO[t]
         }
@@ -969,9 +962,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
-        betaRd.mO ~ dunif(-5, 0) # Effect of reindeer carcasses on mO
         betaR.mO ~ dunif(-5, 0) # Effect of rodent abundance on mO
-        betaRxRd.mO ~ dunif(-5, 5) # Interactive effect of reindeer x rodent on mO
       }
       
       
@@ -1206,11 +1197,6 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         for(t in 1:(Tmax+Tmax_sim)){
           HarvestEffort[t] ~ dnorm(0, sd = 1)
         }
-      }
-      
-      ## Missing covariate values in reindeer information
-      for(t in 1:(Tmax+Tmax_sim+1)){
-        Reindeer[t] ~ dnorm(0 + (1-pertFac.reindeer[t]), sd = 1)
       }
       
       ## Missing covariate value(s) in rodent abundance

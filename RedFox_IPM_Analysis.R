@@ -61,7 +61,7 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
-fitCov.mO <- TRUE # Fit covariates on mO (rodent abundance x reindeer carcasses)
+fitCov.mO <- TRUE # Fit covariates on mO (rodent abundance)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
 fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate

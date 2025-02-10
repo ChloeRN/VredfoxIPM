@@ -82,7 +82,7 @@ setupModel <- function(modelCode,
   }
   
   if(fitCov.mO){
-    params <- c(params, "betaRd.mO", "betaR.mO", "betaRxRd.mO", "Reindeer")
+    params <- c(params, "betaR.mO")
   }
   
   if(fitCov.Psi){
