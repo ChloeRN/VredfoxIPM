@@ -139,7 +139,7 @@ perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
 
 ## Set up perturbation parameters for running rodent-dependent harvest scenarios
-factor.mH.rodent <- 1.5
+factor.mH.rodent <- 1
 threshold.rodent.mH <- 0
 thresholdAbove <- FALSE
 
