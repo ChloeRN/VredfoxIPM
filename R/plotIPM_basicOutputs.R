@@ -59,7 +59,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   results <- results %>%
     dplyr::left_join(idx.data, by = "Parameter")
   
-
+  
   ## Make dataframe of posterior summaries
   results.sum <- results %>%
     dplyr::group_by(Parameter, Year, Age, ParamName) %>%
@@ -98,14 +98,14 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     suppressWarnings(
       results.sum <- results.sum %>%
         dplyr::mutate(median = dplyr::case_when(!(ParamName %in% c("N.tot", "B.tot", "R.tot", "Imm")) ~ median,
-                                                 median > 0 ~ log(median),
-                                                 TRUE ~ 0),
+                                                median > 0 ~ log(median),
+                                                TRUE ~ 0),
                       lCI = dplyr::case_when(!(ParamName %in% c("N.tot", "B.tot", "R.tot", "Imm")) ~ lCI,
-                                              lCI > 0 ~ log(lCI),
-                                              TRUE ~ 0),
+                                             lCI > 0 ~ log(lCI),
+                                             TRUE ~ 0),
                       uCI = dplyr::case_when(!(ParamName %in% c("N.tot", "B.tot", "R.tot", "Imm")) ~ uCI,
-                                              uCI > 0 ~ log(uCI),
-                                              TRUE ~ 0))
+                                             uCI > 0 ~ log(uCI),
+                                             TRUE ~ 0))
     )
   }
   
@@ -119,7 +119,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   #-------------------------------------------#
   
   ## Age-specific survival and mortality
-
+  
   # Survival panel
   S.labs <- c("Annual survival (Oct-Jun)", "Summer survival (Jul-Sep)")
   names(S.labs) <- c("Mu.S", "Mu.Ss")
@@ -185,9 +185,13 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     ggplot(aes(x = Year)) + 
     geom_line(aes(y = median), color = "#4D004B") + 
     geom_ribbon(aes(ymin = lCI, ymax = uCI), fill = "#4D004B", alpha = 0.5) + 
+    geom_label(label="Period                               ", x=2006.1,y=800,label.padding = unit(0.55, "lines"), # Rectangle size around label
+               label.size = NA, color = "black",fill="white", size = 4)+
+    geom_label(label="June (post-breeding census)", x=2006.1,y=740,label.padding = unit(0.55, "lines"), # Rectangle size around label
+               label.size = NA, color = "black",fill="white", size = 3.5)+
     scale_x_continuous(limits = c(minYear, minYear+Tmax), breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
     ylab("Population size (females)") + 
-    theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
+    theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), axis.text.x = element_blank(), axis.title.x = element_blank())
   
   # Harvest count panel
   p.H_time <- data.frame(Hcount = c(colSums(nim.data$C_w)/nim.data$pData_w, colSums(nim.data$C_s)/nim.data$pData_s), 
@@ -198,17 +202,82 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     geom_bar(aes(fill = Period), stat = "identity", position = "dodge") + 
     scale_x_continuous(breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
     scale_fill_manual(values = c("#BED68AFF", "#005F94FF")) + 
-    ylab("# shot (females)") + 
+    ylab("# Harvested (females)") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 
                        axis.text.x = element_blank(), axis.title.x = element_blank(),
                        legend.position = c(0.1, 0.7))
   
+  # Environmental covariates panel (Not very pretty coding but it works..)
+  #  making a dataframe of what I want to plot, I have to add time manually because its not in input.data
+  forplot <- data.frame(
+    rodent_wint       = nim.data$RodentAbundance[2:length(nim.data$RodentAbundance)], #because the first year is 2004 winter, which is NA, remove it so they are all the same length (19 rows).
+    rodent_wint_time  = seq(as.Date(paste0(minYear,"-07-01")), as.Date(paste0(minYear+Tmax,"-07-01")), by="+1 year"), #because no rodent yearinfo in input data i had to do this manually...
+    rodent_fall       = nim.data$RodentAbundance2,                                        # specific dates make sure that the bars and point arrive in approximately the right time in the year, because the year line is defined as june in the pop size plot
+    rodent_fall_time  = seq(as.Date(paste0(minYear,"-04-15")), as.Date(paste0(minYear+Tmax,"-04-15")), by="+1 year"),
+    reindeer          = nim.data$Reindeer,
+    reindeer_time     = seq(as.Date(paste0(minYear,"-07-01")), as.Date(paste0(minYear+Tmax,"-07-01")), by="+1 year")
+  )
+  
+  
+  #I had trouble making a legend so i found this workaround to make a manual one
+  dummy_guide <- function(
+    labels = NULL,  
+    ..., 
+    title = NULL, 
+    key   = draw_key_point,
+    guide_args = list()
+  ) {
+    # Capture arguments
+    aesthetics <- list(...)
+    n <- max(lengths(aesthetics), 0)
+    labels <- labels %||%  seq_len(n)
+    
+    # Overrule the alpha = 0 that we use to hide the points
+    aesthetics$alpha <- aesthetics$alpha %||% rep(1, n)
+    
+    # Construct guide
+    guide_args$override.aes <- guide_args$override.aes %||% aesthetics
+    guide <- do.call(guide_legend, guide_args)
+    
+    # Allow dummy aesthetic
+    update_geom_defaults("point", list(dummy = "x"))
+    
+    dummy_geom <- geom_point(
+      data = data.frame(x = as.Date(rep(Inf, n)), y = rep(Inf, n), #here I added as.Date because our x axis is a date... otherwise error
+                        dummy = factor(labels)),
+      aes(x, y, dummy = dummy), alpha = 0, key_glyph = key
+    )
+    dummy_scale <- discrete_scale(
+      "dummy", "dummy_scale", palette = scales::identity_pal(), name = title,
+      guide = guide
+    )
+    list(dummy_geom, dummy_scale)
+  }
+  
+  
+  p.E_time <- ggplot(forplot)  +  
+    geom_bar(aes(x=reindeer_time, y=reindeer),stat="identity", fill="grey70",colour="grey70", width=250)+ 
+    geom_line(aes(x=rodent_wint_time, y=rodent_wint),stat="identity",color="#005F94FF", linewidth=1)+
+    geom_line(aes(x=rodent_fall_time, y=rodent_fall),stat="identity",color="#CF597EFF", linewidth=1)+
+    labs(x="Year",y="Environmental covariates (scaled)")+ 
+    scale_x_date(date_breaks = "1 year", date_labels = "%Y", minor_breaks =NULL, limits = c(as.Date(paste0(minYear-1,"-12-31")), as.Date(paste0(minYear+Tmax-1,"-12-01"))))+ #Here you would also have to edit the date range manually..
+    geom_hline(yintercept = 0, color = "grey70")+
+    dummy_guide(
+      labels = c("Reindeer carcasses (November-June)", "Rodent abundance autumn larger scale","Rodent abundance winter Varanger"), 
+      fill   = c("grey70", "#CF597EFF", "#005F94FF"),
+      colour = NA,
+      key = draw_key_polygon) +
+    theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 
+                       axis.text.x = element_text(angle = 45, vjust = 0.5),
+                       legend.position = c(0.83, 0.78),
+                       legend.key.size = unit(0.35, 'cm'))
+  
   
   # Combined panel
-  pdf("Plots/ParamTime_PopSize.pdf", width = 9, height = 7)
-  print(p.H_time / p.N_time + plot_layout(heights = c(0.4, 1))) 
+  pdf("Plots/ParamTime_PopSize.pdf", width = 9, height = 8)
+  print(p.H_time / p.N_time / p.E_time + plot_layout(heights = c(0.4, 1, 0.4))) 
   dev.off()
-  
+
   
   ## Population structure (entire vs. breeding only)
   
