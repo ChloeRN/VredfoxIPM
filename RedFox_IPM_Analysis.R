@@ -61,7 +61,7 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
-fitCov.mO <- TRUE # Fit covariates on mO (rodent abundance x reindeer carcasses)
+fitCov.mO <- TRUE # Fit covariates on mO (rodent abundance)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
 fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
@@ -419,10 +419,9 @@ plotIPM_basicOutputs(MCMC.samples = IPM.out,
 
 ## Plot covariate relationships
 plotIPM_covariateEffects(MCMC.samples = IPM.out,
-                        rCov.idx = rCov.idx,
-                        rodentMIN = -1.75, rodentMAX = 4,
-                        reindeerMIN = -1.5, reindeerMAX = 1.5,
-                        AgeClass = 1) 
+                         rCov.idx = rCov.idx,
+                         rodentMIN = -1.75, rodentMAX = 4,
+                         AgeClass = 1) 
 
 #########################
 # 7) FOLLOW-UP ANALYSES #

@@ -82,7 +82,7 @@ setupModel_PVA <- function(modelCode,
   }
   
   if(fitCov.mO){
-    params <- c(params, "betaRd.mO", "betaR.mO", "betaRxRd.mO")
+    params <- c(params, "betaR.mO")
   }
   
   if(fitCov.Psi){
