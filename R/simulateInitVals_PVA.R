@@ -53,11 +53,10 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   pertFac.S0 <- nim.data$pertFac.S0
   pertFac.mHs <- nim.data$pertFac.mHs
   pertFac.immR <- nim.data$pertFac.immR
-  pertFac.reindeer <- nim.data$pertFac.reindeer
   pertFac.rodent <- nim.data$pertFac.rodent
   
-  if(any(c(pertFac.reindeer, pertFac.rodent) != 1)){
-    warning("Initial value simulation for scenarios with perturbations to covariates (rodents, reindeer) have not been tested throroughly yet and may not be implemented correctly.")
+  if(any(c(pertFac.rodent) != 1)){
+    warning("Initial value simulation for scenarios with perturbations to covariates (rodents) have not been tested throroughly yet and may not be implemented correctly.")
   }
   
   #-------------------------------------------------#
@@ -80,14 +79,6 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   if(NA %in% RodentIndex2){
     RodentIndex2[which(is.na(RodentIndex2))] <- sample(1:nLevels.rCov, length(which(is.na(RodentIndex2))), replace = TRUE)
   }
-  
-  ## Reindeer carcass abundance
-  Reindeer <- nim.data$Reindeer
-  if(NA %in% Reindeer){
-    #Reindeer[which(is.na(Reindeer))] <- mean(Reindeer, na.rm = TRUE)
-    Reindeer[which(is.na(Reindeer))] <- 0
-  }
-  Reindeer_pert <- Reindeer + (1-pertFac.reindeer)
   
   ## Rodent abundance (continuous)
   RodentAbundance <- nim.data$RodentAbundance
@@ -208,15 +199,11 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     betaHE.mH <- 0
   }
   
-  # Rodent abundance and reindeer carcasses on mO
+  # Rodent abundance on mO
   if(fitCov.mO){
     betaR.mO <- runif(1, -0.2, 0)
-    betaRd.mO <- runif(1, -0.2, 0)
-    betaRxRd.mO <- runif(1, 0, 0.2)
   }else{
     betaR.mO <- 0
-    betaRd.mO <- 0
-    betaRxRd.mO <- 0
   }
   
   # Rodent abundance on Psi
@@ -287,7 +274,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance_pert[t+1] + betaRd.mO*Reindeer[t] + betaRxRd.mO*RodentAbundance_pert[t+1]*Reindeer[t] + epsilon.mO[t])*pertFac.mO[t]
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
     }
     
     ## Pregnancy rate
@@ -485,9 +472,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   }
   
   if(fitCov.mO){
-    InitVals$betaRd.mO <- betaRd.mO
     InitVals$betaR.mO <- betaR.mO
-    InitVals$betaRxRd.mO <- betaRxRd.mO
   }
   
   if(fitCov.Psi){
@@ -570,12 +555,6 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   }
   if(!rCov.idx & !poolYrs.genData){
     InitVals$RodentAbundance2_pre <- rnorm(nim.constants$Tmax_Gen_pre, mean = 0, sd = 1)
-  }
-  
-  if(NA %in% nim.data$Reindeer){
-    Inits_Reindeer <- rep(NA, length(Reindeer))
-    Inits_Reindeer[which(is.na(nim.data$Reindeer))] <- Reindeer[which(is.na(nim.data$Reindeer))]
-    InitVals$Reindeer <- Inits_Reindeer
   }
   
   ## Add perturbed covariate values

@@ -47,10 +47,6 @@
 #' Default = FALSE. 
 #' @param factor.rodent numeric. Change to standardized rodent covariate 
 #' mean to apply. 1 = no change (default). < 1 = decrease. > 1 = increase. 
-#' @param pert.reindeer logical. Whether to apply a perturbation to reindeer 
-#' covariate. Default = FALSE. 
-#' @param factor.reindeer numeric. Change to standardized reindeer 
-#' covariate mean to apply. 1 = no change (default). < 1 = decrease. > 1 = increase. 
 #'
 #' @return
 #' @export
@@ -63,16 +59,15 @@ setupPerturbVecs_PVA <- function(Tmax, Tmax_sim,
                                  pert.S0 = FALSE, factor.S0 = 1,
                                  pert.mHs = FALSE, factor.mHs = 1,
                                  pert.immR = FALSE, factor.immR = 1,
-                                 pert.rodent = FALSE,  factor.rodent = 1,
-                                 pert.reindeer = FALSE, factor.reindeer = 1){
+                                 pert.rodent = FALSE,  factor.rodent = 1){
   
   ## Check that there are no invalid perturbation factors
-  if(any(c(factor.mH, factor.mO, factor.S0, factor.mHs, factor.immR, factor.rodent, factor.reindeer) < 0)){
+  if(any(c(factor.mH, factor.mO, factor.S0, factor.mHs, factor.immR, factor.rodent) < 0)){
     stop("Invalid perturbation factor provided. Perturbation factors have to be
          numerical values >= 0.")
   }
   
-  if(any(!is.numeric(c(factor.mH, factor.mO, factor.S0, factor.mHs, factor.immR, factor.rodent, factor.reindeer)))){
+  if(any(!is.numeric(c(factor.mH, factor.mO, factor.S0, factor.mHs, factor.immR, factor.rodent)))){
     stop("Invalid perturbation factor provided. Perturbation factors have to be
          numerical values >= 0.")
   }
@@ -80,7 +75,7 @@ setupPerturbVecs_PVA <- function(Tmax, Tmax_sim,
   ## Set up basics perturbation vectors during study/data period
   pertFac.mH <- pertFac.mO <- pertFac.mHs <- pertFac.immR <- rep(1, Tmax)
   pertFac.S0 <- rep(1, Tmax+1)
-  pertFac.rodent <- pertFac.reindeer <- rep(1, Tmax+1)
+  pertFac.rodent <- rep(1, Tmax+1)
   
   ## Add factors for perturbation period
   if(Tmax_sim > 0){
@@ -90,13 +85,12 @@ setupPerturbVecs_PVA <- function(Tmax, Tmax_sim,
     pertFac.mHs <- c(pertFac.mHs, rep(ifelse(pert.mHs, factor.mHs, 1), Tmax_sim))
     pertFac.immR <- c(pertFac.immR, rep(ifelse(pert.immR, factor.immR, 1), Tmax_sim))
     pertFac.rodent <- c(pertFac.rodent, rep(ifelse(pert.rodent, factor.rodent, 1), Tmax_sim))
-    pertFac.reindeer <- c(pertFac.reindeer, rep(ifelse(pert.reindeer, factor.reindeer, 1), Tmax_sim))
   }
   
   ## List and return perturbation vectors
   pertVecs <- list(pertFac.mH = pertFac.mH, pertFac.mO = pertFac.mO, 
                    pertFac.S0 = pertFac.S0, pertFac.mHs = pertFac.mHs, 
                    pertFac.immR = pertFac.immR,
-                   pertFac.rodent = pertFac.rodent, pertFac.reindeer = pertFac.reindeer)
+                   pertFac.rodent = pertFac.rodent)
   return(pertVecs)
 }

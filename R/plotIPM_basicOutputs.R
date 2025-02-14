@@ -213,9 +213,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     rodent_wint       = nim.data$RodentAbundance[2:length(nim.data$RodentAbundance)], #because the first year is 2004 winter, which is NA, remove it so they are all the same length (19 rows).
     rodent_wint_time  = seq(as.Date(paste0(minYear,"-07-01")), as.Date(paste0(minYear+Tmax,"-07-01")), by="+1 year"), #because no rodent yearinfo in input data i had to do this manually...
     rodent_fall       = nim.data$RodentAbundance2,                                        # specific dates make sure that the bars and point arrive in approximately the right time in the year, because the year line is defined as june in the pop size plot
-    rodent_fall_time  = seq(as.Date(paste0(minYear,"-04-15")), as.Date(paste0(minYear+Tmax,"-04-15")), by="+1 year"),
-    reindeer          = nim.data$Reindeer,
-    reindeer_time     = seq(as.Date(paste0(minYear,"-07-01")), as.Date(paste0(minYear+Tmax,"-07-01")), by="+1 year")
+    rodent_fall_time  = seq(as.Date(paste0(minYear,"-04-15")), as.Date(paste0(minYear+Tmax,"-04-15")), by="+1 year")
   )
   
   
@@ -256,15 +254,14 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   
   
   p.E_time <- ggplot(forplot)  +  
-    geom_bar(aes(x=reindeer_time, y=reindeer),stat="identity", fill="grey70",colour="grey70", width=250)+ 
     geom_line(aes(x=rodent_wint_time, y=rodent_wint),stat="identity",color="#005F94FF", linewidth=1)+
     geom_line(aes(x=rodent_fall_time, y=rodent_fall),stat="identity",color="#CF597EFF", linewidth=1)+
     labs(x="Year",y="Environmental covariates (scaled)")+ 
     scale_x_date(date_breaks = "1 year", date_labels = "%Y", minor_breaks =NULL, limits = c(as.Date(paste0(minYear-1,"-12-31")), as.Date(paste0(minYear+Tmax-1,"-12-01"))))+ #Here you would also have to edit the date range manually..
     geom_hline(yintercept = 0, color = "grey70")+
     dummy_guide(
-      labels = c("Reindeer carcasses (November-June)", "Rodent abundance autumn larger scale","Rodent abundance winter Varanger"), 
-      fill   = c("grey70", "#CF597EFF", "#005F94FF"),
+      labels = c("Rodent abundance autumn larger scale","Rodent abundance winter Varanger"), 
+      fill   = c("#CF597EFF", "#005F94FF"),
       colour = NA,
       key = draw_key_polygon) +
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 

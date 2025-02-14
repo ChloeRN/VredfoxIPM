@@ -61,7 +61,7 @@ sourceDir('R')
 
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
-fitCov.mO <- TRUE # Fit covariates on mO (rodent abundance x reindeer carcasses)
+fitCov.mO <- TRUE # Fit covariates on mO (rodent abundance)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
 fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
@@ -112,14 +112,12 @@ pert.mO <- FALSE
 pert.S0 <- FALSE
 pert.immR <- FALSE
 pert.rodent <- FALSE
-pert.reindeer <- FALSE
 
 factor.mH <- 1
 factor.mO <- 1
 factor.S0 <- 1
 factor.immR <- 1
 factor.rodent <- 1
-factor.reindeer <- 1
 
 if(pert.mH & factor.mH == 0){
   pert.mHs <- TRUE
@@ -135,8 +133,7 @@ perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.S0 = pert.S0, factor.S0 = factor.S0,
                                     pert.mHs = pert.mHs, factor.mHs = factor.mHs,
                                     pert.immR = pert.immR, factor.immR = factor.immR,
-                                    pert.rodent = pert.rodent, factor.rodent = factor.rodent,
-                                    pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
+                                    pert.rodent = pert.rodent, factor.rodent = factor.rodent)
 
 ## Set up perturbation parameters for running rodent-dependent harvest scenarios
 factor.mH.rodent <- 1
@@ -385,7 +382,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_noReindeer2.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -399,6 +396,22 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds") # No perturbation
 ########################
 # 5) MODEL COMPARISONS #
 ########################
+
+## Models with/without reindeer covariate
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              "RedFoxIPM_sim_baseline_noReindeer.rds",
+                                              "RedFoxIPM_sim_baseline_noReindeer2.rds"), 
+                           model.names = c("Original", 
+                                           "Without reindeer, constrained",
+                                           "Without reindeer, unconstrained"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_ReindeerCov",
+                           returnSumData = TRUE)
+
 
 ## Baseline vs. no harvest
 PVA1_comp <- compareModels(Amax = Amax, 
