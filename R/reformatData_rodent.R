@@ -116,14 +116,14 @@ agstor_fall$cat2 <- ifelse(agstor_fall$st.tot>0.25, 1,0)
 return(list(cont.wintvar          =   agvar_winter$st.tot,      #winter varanger continuous, only standardised for seasons
             cont.wintvar.stsp     =   agvar_winter$st.lemvole,  #winter varanger continuous, standardised for seasons and species
             cat2.wintvar          =   agvar_winter$cat2 + 1,    #winter varanger 2 categories
-            cont.wintvar.lem      =   agvar_winter$Llem,
-            cont.wintvar.vole     =   agvar_winter$vole,
+            cont.wintvar.lem      =   agvar_winter$st.lem,
+            cont.wintvar.vole     =   agvar_winter$st.vole,
             
             cont.fallstor         =   agstor_fall$st.tot,     #fall storskala continuous
             cont.fallstor.stsp    =   agstor_fall$st.lemvole, #fall storskala continuous, standardised for species
             cat2.fallstor         =   agstor_fall$cat2 + 1,   #fall storskala 2 factors
-            cont.fallstor.lem     =   agstor_fall$Llem,
-            cont.fallstor.vole    =   agstor_fall$vole,
+            cont.fallstor.lem     =   agstor_fall$st.lem,
+            cont.fallstor.vole    =   agstor_fall$st.vole,
             
             YearInfo.wint         =   paste0("fall ", agvar_winter$start_hunting_year, " - spring ", agvar_winter$start_hunting_year + 1),
             YearInfo.fall         =   paste0("fall ", agstor_fall$start_hunting_year)))
