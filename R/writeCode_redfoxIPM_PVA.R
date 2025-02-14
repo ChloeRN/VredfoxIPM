@@ -354,7 +354,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
-        betaR.mO ~ dunif(-5, 0) # Effect of rodent abundance on mO
+        betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
       }
       
       
@@ -962,7 +962,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
-        betaR.mO ~ dunif(-5, 0) # Effect of rodent abundance on mO
+        betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
       }
       
       

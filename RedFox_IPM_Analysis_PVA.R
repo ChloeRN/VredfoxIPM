@@ -382,7 +382,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_noReindeer.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_noReindeer2.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -404,9 +404,11 @@ PVA0_comp <- compareModels(Amax = Amax,
                            maxYear = 2030,
                            logN = TRUE,
                            post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
-                                              "RedFoxIPM_sim_baseline_noReindeer.rds"), 
+                                              "RedFoxIPM_sim_baseline_noReindeer.rds",
+                                              "RedFoxIPM_sim_baseline_noReindeer2.rds"), 
                            model.names = c("Original", 
-                                           "Without reindeer"), 
+                                           "Without reindeer, constrained",
+                                           "Without reindeer, unconstrained"), 
                            plotFolder = "Plots/ScenarioComp_PVA0_ReindeerCov",
                            returnSumData = TRUE)
 
