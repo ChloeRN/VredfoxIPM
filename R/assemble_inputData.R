@@ -84,15 +84,15 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   
   ## Select relevant continuous rodent covariate
   if(standSpec.rCov){
-    RodentAbundance <- rodent.data$cont.wintvar.stsp
+    RodentAbundance <- rodent.data$cont.wintvar.lem
   }else{
-    RodentAbundance <- rodent.data$cont.wintvar
+    RodentAbundance <- rodent.data$cont.wintvar.lem
   }
   
   if(standSpec.rCov){
-    RodentAbundance2 <- rodent.data$cont.fallstor.stsp
+    RodentAbundance2 <- rodent.data$cont.fallstor.lem
   }else{
-    RodentAbundance2 <- rodent.data$cont.fallstor
+    RodentAbundance2 <- rodent.data$cont.fallstor.lem
   }
   
   ## Select relevant reindeer covariates
