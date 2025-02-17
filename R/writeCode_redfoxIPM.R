@@ -60,7 +60,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         N[Amax, t+1] ~ dbin(S[Amax, t], octN[Amax-1, t] + octN[Amax, t])
       }
       
-        
+      
       #--------------------#
       # JUN - OCT (SUMMER) #
       #--------------------#
@@ -143,7 +143,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       #===============================================================================================
-
+      
       
       
       ######################################
@@ -298,7 +298,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaV.mO*VoleAbundance[t+1] + betaL.mO*LemmingAbundance[t+1] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -353,7 +353,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
-        betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
+        betaV.mO ~ dunif(-5, 5) # Effect of vole abundance on mO
+        betaL.mO ~ dunif(-5, 5) # Effect of lemming abundance on mO
       }
       
       
@@ -369,7 +370,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           if(rCov.idx){
             logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t] 
           }else{
-            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
+            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaV.Psi*VoleAbundance[t] + betaL.Psi*LemmingAbundance[t] + epsilon.Psi[t]
           }
         }else{
           logit(Psi[2:Amax, t]) <- logit(Mu.Psi[2:Amax]) + epsilon.Psi[t]
@@ -388,7 +389,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             betaR.Psi[x] ~ dunif(-5, 5)
           }
         }else{
-          betaR.Psi ~ dunif(-5, 5)
+          betaV.Psi ~ dunif(-5, 5)
+          betaL.Psi ~ dunif(-5, 5)
         }
       }
       
@@ -406,7 +408,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           if(rCov.idx){
             log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t]
           }else{
-            log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t]
+            log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaV.rho*VoleAbundance[t] + betaL.rho*LemmingAbundance[t] + epsilon.rho[t]
           }
         }else{
           log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]
@@ -425,7 +427,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             betaR.rho[x] ~ dunif(-5, 5)
           }
         }else{
-          betaR.rho ~ dunif(-5, 5)
+          betaV.rho ~ dunif(-5, 5)
+          betaL.rho ~ dunif(-5, 5)
         }
       }
       
@@ -433,7 +436,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Denning survival
-
+      
       for(t in 1:(Tmax+1)){ 
         S0[t] <- Mu.S0
         #S0[t] <- exp(-m0[t])
@@ -473,7 +476,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
                 log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
               }
             }else{
-              log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+              log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaV.immR*VoleAbundance2[1:(Tmax+1)] + betaL.immR*LemmingAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
             }
           }else{
             log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
@@ -512,7 +515,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             betaR.immR[x] ~ dunif(-5, 5)
           }
         }else{
-          betaR.immR ~ dunif(-5, 5)
+          betaV.immR ~ dunif(-5, 5)
+          betaL.immR ~ dunif(-5, 5)
         }
       }
       
@@ -592,8 +596,11 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }else{
         
         for(t in 1:Tmax+1){
-          RodentAbundance[t] ~ dnorm(0, sd = 1)
-          RodentAbundance2[t] ~ dnorm(0, sd = 1)
+          VoleAbundance[t] ~ dnorm(0, sd = 1)
+          VoleAbundance2[t] ~ dnorm(0, sd = 1)
+          
+          LemmingAbundance[t] ~ dnorm(0, sd = 1)
+          LemmingAbundance2[t] ~ dnorm(0, sd = 1)
         }
       }
       
@@ -829,7 +836,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           meanLS[t] <- (sum(R[2:Amax, t])*2)/sum(B[2:Amax, t])
         }
       }
-
+      
       
       #===============================================================================================
       
@@ -854,7 +861,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaV.mO*VoleAbundance[t+1] + betaL.mO*LemmingAbundance[t+1] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -909,7 +916,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
-        betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
+        betaV.mO ~ dunif(-5, 5) # Effect of vole abundance on mO
+        betaL.mO ~ dunif(-5, 5) # Effect of lemming abundance on mO
       }
       
       
@@ -925,7 +933,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           if(rCov.idx){
             logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t]
           }else{
-            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t]
+            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaV.Psi*VoleAbundance[t] + betaL.Psi*LemmingAbundance[t] + epsilon.Psi[t]
           }
         }else{
           logit(Psi[2:Amax, t]) <- logit(Mu.Psi[2:Amax]) + epsilon.Psi[t]
@@ -944,7 +952,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             betaR.Psi[x] ~ dunif(-5, 5)
           }
         }else{
-          betaR.Psi ~ dunif(-5, 5)
+          betaV.Psi ~ dunif(-5, 5)
+          betaL.Psi ~ dunif(-5, 5)
         }
       }
       
@@ -962,7 +971,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           if(rCov.idx){
             log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t]
           }else{
-            log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t]
+            log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + betaV.rho*VoleAbundance[t] + betaL.rho*LemmingAbundance[t] + epsilon.rho[t]
           }
         }else{
           log(rho[2:Amax, t]) <- log(Mu.rho[2:Amax]) + epsilon.rho[t]
@@ -981,7 +990,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             betaR.rho[x] ~ dunif(-5, 5)
           }
         }else{
-          betaR.rho ~ dunif(-5, 5)
+          betaV.rho ~ dunif(-5, 5)
+          betaL.rho ~ dunif(-5, 5)
         }
       }
       
@@ -989,7 +999,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Denning survival
-
+      
       for(t in 1:(Tmax+1)){ 
         S0[t] <- Mu.S0
         #S0[t] <- exp(-m0[t])
@@ -1008,20 +1018,20 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ## Immigration (within the study period)
       
       if(imm.asRate){
-          
+        
         if(fitCov.immR){
           if(rCov.idx){
             for(t in 1:(Tmax+1)){
               log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
             }
           }else{
-            log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+            log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaV.immR*VoleAbundance2[1:(Tmax+1)] + betaL.immR*LemmingAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
           }
         }else{
           log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
         }
         
-  
+        
         for(t in 1:Tmax){ 
           Imm[t] ~ dpois(survN1[t]*immR[t])
         }
@@ -1056,7 +1066,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             betaR.immR[x] ~ dunif(-5, 5)
           }
         }else{
-          betaR.immR ~ dunif(-5, 5)
+          betaV.immR ~ dunif(-5, 5)
+          betaL.immR ~ dunif(-5, 5)
         }
       }
       
@@ -1161,20 +1172,25 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }else{
         
         for(t in 1:Tmax+1){
-          RodentAbundance[t] ~ dnorm(0, sd = 1)
-          RodentAbundance2[t] ~ dnorm(0, sd = 1)
+          VoleAbundance[t] ~ dnorm(0, sd = 1)
+          VoleAbundance2[t] ~ dnorm(0, sd = 1)
+          
+          LemmingAbundance[t] ~ dnorm(0, sd = 1)
+          LemmingAbundance2[t] ~ dnorm(0, sd = 1)
         }
         
         if(imm.asRate & fitCov.immR & !poolYrs.genData){
           for(t in 1:Tmax_Gen_pre){
-            RodentAbundance2_pre[t] ~ dnorm(0, sd = 1) 
+            VoleAbundance2_pre[t] ~ dnorm(0, sd = 1)
+            
+            LemmingAbundance2_pre[t] ~ dnorm(0, sd = 1) 
           }
         }
       }
-
+      
     })
   }
-
+  
   
   return(redfox.code)
 }

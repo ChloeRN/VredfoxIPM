@@ -68,7 +68,7 @@ setupModel <- function(modelCode,
               "initN",
               "N.tot", "B.tot", "R.tot", 
               "N", "octN", "B", "L", "R", "Imm", "immR",
-              "RodentAbundance")
+              "VoleAbundance", "LemmingAbundance")
   
   ## Add additional parameters to monitor depending on model version
   if(HoenigPrior){
@@ -82,15 +82,15 @@ setupModel <- function(modelCode,
   }
   
   if(fitCov.mO){
-    params <- c(params, "betaR.mO")
+    params <- c(params, "betaV.mO", "betaL.mO")
   }
   
   if(fitCov.Psi){
-    params <- c(params, "betaR.Psi")
+    params <- c(params, "betaV.Psi", "betaL.Psi")
   }
   
   if(fitCov.rho){
-    params <- c(params, "betaR.rho")
+    params <- c(params, "betaV.rho", "betaL.rho")
   }
   
   if(imm.asRate){
@@ -104,7 +104,7 @@ setupModel <- function(modelCode,
   } 
   
   if(fitCov.immR){
-    params <- c(params, "betaR.immR", "RodentAbundance2")
+    params <- c(params, "betaV.immR", "betaL.immR", "VoleAbundance2", "LemmingAbundance2")
   }
   
   ## Simulate initial values

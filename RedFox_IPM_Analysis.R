@@ -327,7 +327,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_vole.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_vole&lemming.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -346,6 +346,27 @@ saveRDS(IPM.out, file = "RedFoxIPM_main_vole.rds")
 ########################
 # 5) MODEL COMPARISONS #
 ########################
+
+## Rodent species covariates
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_main_lemming.rds",
+                                 "RedFoxIPM_main_vole.rds"), 
+              model.names = c("Combined", 
+                              "Lemmings only",
+                              "Voles only"), 
+              plotFolder = "Plots/Comp_RodentSpp")
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_main_vole&lemming.rds"), 
+              model.names = c("Combined", 
+                              "Separate"), 
+              plotFolder = "Plots/Comp_RodentSpp2")
 
 ## Genetic data likelihoods
 compareModels(Amax = Amax, 

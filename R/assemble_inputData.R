@@ -84,15 +84,23 @@ assemble_inputData <- function(Amax, Tmax, minYear,
   
   ## Select relevant continuous rodent covariate
   if(standSpec.rCov){
-    RodentAbundance <- rodent.data$cont.wintvar.vole
+    VoleAbundance <- rodent.data$cont.wintvar.vole
+    LemmingAbundance <- rodent.data$cont.wintvar.lem
+    
   }else{
-    RodentAbundance <- rodent.data$cont.wintvar.vole
+    VoleAbundance <- rodent.data$cont.wintvar.vole
+    LemmingAbundance <- rodent.data$cont.wintvar.lem
+    
   }
   
   if(standSpec.rCov){
-    RodentAbundance2 <- rodent.data$cont.fallstor.vole
+    VoleAbundance2 <- rodent.data$cont.fallstor.vole
+    LemmingAbundance2 <- rodent.data$cont.fallstor.lem
+    
   }else{
-    RodentAbundance2 <- rodent.data$cont.fallstor.vole
+    VoleAbundance2 <- rodent.data$cont.fallstor.vole
+    LemmingAbundance2 <- rodent.data$cont.fallstor.lem
+    
   }
   
   ## Select relevant reindeer covariates
@@ -114,8 +122,10 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     NoPups = pup.data$NoPups,
     
     HarvestEffort = hunter.data$NHunters_std,
-    RodentAbundance = RodentAbundance,
-    RodentAbundance2 = RodentAbundance2,
+    VoleAbundance = VoleAbundance,
+    VoleAbundance2 = VoleAbundance2,
+    LemmingAbundance = LemmingAbundance,
+    LemmingAbundance2 = LemmingAbundance2,
     RodentIndex = RodentIndex,
     RodentIndex2 = RodentIndex2,
     Reindeer = Reindeer

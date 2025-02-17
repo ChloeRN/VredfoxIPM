@@ -59,14 +59,24 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   ## Rodent abundance (continuous)
-  RodentAbundance <- nim.data$RodentAbundance
-  if(NA %in% RodentAbundance){
-    RodentAbundance[which(is.na(RodentAbundance))] <- mean(RodentAbundance, na.rm = TRUE)
+  VoleAbundance <- nim.data$VoleAbundance
+  if(NA %in% VoleAbundance){
+    VoleAbundance[which(is.na(VoleAbundance))] <- mean(VoleAbundance, na.rm = TRUE)
   }
   
-  RodentAbundance2 <- nim.data$RodentAbundance2
-  if(NA %in% RodentAbundance2){
-    RodentAbundance2[which(is.na(RodentAbundance2))] <- mean(RodentAbundance2, na.rm = TRUE)
+  VoleAbundance2 <- nim.data$VoleAbundance2
+  if(NA %in% VoleAbundance2){
+    VoleAbundance2[which(is.na(VoleAbundance2))] <- mean(VoleAbundance2, na.rm = TRUE)
+  }
+  
+  LemmingAbundance <- nim.data$LemmingAbundance
+  if(NA %in% LemmingAbundance){
+    LemmingAbundance[which(is.na(LemmingAbundance))] <- mean(LemmingAbundance, na.rm = TRUE)
+  }
+  
+  LemmingAbundance2 <- nim.data$LemmingAbundance2
+  if(NA %in% LemmingAbundance2){
+    LemmingAbundance2[which(is.na(LemmingAbundance2))] <- mean(LemmingAbundance2, na.rm = TRUE)
   }
   
   ## Rodent abundance (categorical)
@@ -172,9 +182,11 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   # Rodent abundance and reindeer carcasses on mO
   if(fitCov.mO){
-    betaR.mO <- runif(1, -0.2, 0)
+    betaV.mO <- runif(1, -0.2, 0)
+    betaL.mO <- runif(1, -0.2, 0)
   }else{
-    betaR.mO <- 0
+    betaV.mO <- 0
+    betaL.mO <- 0
   }
   
   # Rodent abundance on Psi
@@ -185,14 +197,16 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
         betaR.Psi[x] <- runif(1, 0, 2)
       }
     }else{
-      betaR.Psi <- runif(1, 0, 0.2)
+      betaV.Psi <- runif(1, 0, 0.2)
+      betaL.Psi <- runif(1, 0, 0.2)
     }
   }else{
     
     if(rCov.idx){
       betaR.Psi <- rep(0, nLevels.rCov)
     }else{
-      betaR.Psi <- 0
+      betaV.Psi <- 0
+      betaL.Psi <- 0
     }
   }
   
@@ -205,7 +219,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
         betaR.rho[x] <- runif(1, 0, 2)
       }
     }else{
-      betaR.rho <- runif(1, 0, 0.2)
+      betaV.rho <- runif(1, 0, 0.2)
+      betaL.rho <- runif(1, 0, 0.2)
     }
     
   }else{
@@ -213,7 +228,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(rCov.idx){
       betaR.rho <- rep(0, nLevels.rCov)
     }else{
-      betaR.rho <- 0
+      betaV.rho <- 0
+      betaL.rho <- 0
     }
   }
   
@@ -222,7 +238,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(rCov.idx){
       betaR.immR <- rep(0, nLevels.rCov)
     }else{
-      betaR.immR <- 0
+      betaV.immR <- 0
+      betaL.immR <- 0
     }
   }
   
@@ -244,7 +261,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
       
       ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t])
+      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaV.mO*VoleAbundance[t+1] + betaL.mO*LemmingAbundance[t+1] + epsilon.mO[t])
     }
     
     ## Pregnancy rate
@@ -253,7 +270,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(fitCov.Psi & rCov.idx){
       Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t])
     }else{
-      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance[t] + epsilon.Psi[t])
+      Psi[2:Amax, t] <- plogis(qlogis(Mu.Psi[2:Amax]) + betaV.Psi*VoleAbundance[t] + betaL.Psi*LemmingAbundance[t] + epsilon.Psi[t])
     }
 
     ## Placental scars
@@ -261,7 +278,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     if(fitCov.Psi & rCov.idx){
       rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaR.rho[RodentIndex[t]] + epsilon.rho[t])
     }else{
-      rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaR.rho*RodentAbundance[t] + epsilon.rho[t])
+      rho[2:Amax, t] <- exp(log(Mu.rho[2:Amax]) + betaV.rho*VoleAbundance[t] + betaL.rho*LemmingAbundance[t] + epsilon.rho[t])
     }
     
     ## Early survival
@@ -442,19 +459,23 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   if(fitCov.mO){
-    InitVals$betaR.mO <- betaR.mO
+    InitVals$betaV.mO <- betaV.mO
+    InitVals$betaL.mO <- betaL.mO
   }
   
   if(fitCov.Psi){
-    InitVals$betaR.Psi <- betaR.Psi
+    InitVals$betaV.Psi <- betaV.Psi
+    InitVals$betaL.Psi <- betaL.Psi
   }
   
   if(fitCov.rho){
-    InitVals$betaR.rho <- betaR.rho
+    InitVals$betaV.rho <- betaV.rho
+    InitVals$betaL.rho <- betaL.rho
   }
   
   if(fitCov.immR){
-    InitVals$betaR.immR <- betaR.immR
+    InitVals$betaV.immR <- betaV.immR
+    InitVals$betaL.immR <- betaL.immR
   }
   
   ## Add initial values specific to immigration model versions
@@ -504,10 +525,15 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       Inits_RodentIndex[which(is.na(nim.data$RodentIndex))] <- RodentIndex[which(is.na(nim.data$RodentIndex))]
       InitVals$RodentIndex <- Inits_RodentIndex
     }
-    if(!rCov.idx & (NA %in% nim.data$RodentAbundance)){
-      Inits_RodentAbundance <- rep(NA, length(RodentAbundance))
-      Inits_RodentAbundance[which(is.na(nim.data$RodentAbundance))] <- RodentAbundance[which(is.na(nim.data$RodentAbundance))]
-      InitVals$RodentAbundance <- Inits_RodentAbundance
+    if(!rCov.idx & (NA %in% nim.data$VoleAbundance)){
+      Inits_VoleAbundance <- rep(NA, length(VoleAbundance))
+      Inits_VoleAbundance[which(is.na(nim.data$VoleAbundance))] <- VoleAbundance[which(is.na(nim.data$VoleAbundance))]
+      InitVals$VoleAbundance <- Inits_VoleAbundance
+    }
+    if(!rCov.idx & (NA %in% nim.data$LemmingAbundance)){
+      Inits_LemmingAbundance <- rep(NA, length(LemmingAbundance))
+      Inits_LemmingAbundance[which(is.na(nim.data$LemmingAbundance))] <- LemmingAbundance[which(is.na(nim.data$LemmingAbundance))]
+      InitVals$LemmingAbundance <- Inits_LemmingAbundance
     }
   }
   
@@ -518,10 +544,15 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       Inits_RodentIndex[which(is.na(nim.data$RodentIndex))] <- RodentIndex[which(is.na(nim.data$RodentIndex))]
       InitVals$RodentIndex <- Inits_RodentIndex
     }
-    if(!rCov.idx & (NA %in% nim.data$RodentAbundance)){
-      Inits_RodentAbundance <- rep(NA, length(RodentAbundance))
-      Inits_RodentAbundance[which(is.na(nim.data$RodentAbundance))] <- RodentAbundance[which(is.na(nim.data$RodentAbundance))]
-      InitVals$RodentAbundance <- Inits_RodentAbundance
+    if(!rCov.idx & (NA %in% nim.data$VoleAbundance)){
+      Inits_VoleAbundance <- rep(NA, length(VoleAbundance))
+      Inits_VoleAbundance[which(is.na(nim.data$VoleAbundance))] <- VoleAbundance[which(is.na(nim.data$VoleAbundance))]
+      InitVals$VoleAbundance <- Inits_VoleAbundance
+    }
+    if(!rCov.idx & (NA %in% nim.data$LemmingAbundance)){
+      Inits_LemmingAbundance <- rep(NA, length(LemmingAbundance))
+      Inits_LemmingAbundance[which(is.na(nim.data$LemmingAbundance))] <- LemmingAbundance[which(is.na(nim.data$LemmingAbundance))]
+      InitVals$LemmingAbundance <- Inits_LemmingAbundance
     }
   }
   
@@ -531,10 +562,15 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
       Inits_RodentIndex2[which(is.na(nim.data$RodentIndex2))] <- RodentIndex2[which(is.na(nim.data$RodentIndex2))]
       InitVals$RodentIndex2 <- Inits_RodentIndex2
     }
-    if(!rCov.idx & (NA %in% nim.data$RodentAbundance2)){
-      Inits_RodentAbundance2 <- rep(NA, length(RodentAbundance2))
-      Inits_RodentAbundance2[which(is.na(nim.data$RodentAbundance2))] <- RodentAbundance2[which(is.na(nim.data$RodentAbundance2))]
-      InitVals$RodentAbundance2 <- Inits_RodentAbundance2
+    if(!rCov.idx & (NA %in% nim.data$VoleAbundance2)){
+      Inits_VoleAbundance2 <- rep(NA, length(VoleAbundance2))
+      Inits_VoleAbundance2[which(is.na(nim.data$VoleAbundance2))] <- VoleAbundance2[which(is.na(nim.data$VoleAbundance2))]
+      InitVals$VoleAbundance2 <- Inits_VoleAbundance2
+    }
+    if(!rCov.idx & (NA %in% nim.data$LemmingAbundance2)){
+      Inits_LemmingAbundance2 <- rep(NA, length(LemmingAbundance2))
+      Inits_LemmingAbundance2[which(is.na(nim.data$LemmingAbundance2))] <- LemmingAbundance2[which(is.na(nim.data$LemmingAbundance2))]
+      InitVals$LemmingAbundance2 <- Inits_LemmingAbundance2
     }
     
     if(indLikelihood.genData & rCov.idx & !poolYrs.genData){
@@ -542,10 +578,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     }
     
     if(!rCov.idx & !poolYrs.genData){
-      InitVals$RodentAbundance2_pre <- rnorm(nim.constants$Tmax_Gen_pre, mean = 0, sd = 1)
+      InitVals$VoleAbundance2_pre <- rnorm(nim.constants$Tmax_Gen_pre, mean = 0, sd = 1)
     }
     
-    
+    if(!rCov.idx & !poolYrs.genData){
+      InitVals$LemmingAbundance2_pre <- rnorm(nim.constants$Tmax_Gen_pre, mean = 0, sd = 1)
+    }
   }
   
   ## Return initial values
