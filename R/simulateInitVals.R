@@ -230,7 +230,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # Calculate year-specific vital rates #
   #-------------------------------------#
   
-  mHs <- mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
+  mHs <- mH <- mO <- S <- alpha <- h <- hs <- matrix(NA, nrow = Amax, ncol = Tmax)
   Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
   S0 <- rep(NA, Tmax + 1)
   
@@ -269,13 +269,31 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
 
   ## Survival probability
-  S <- exp(-(mH + mO))
+  
+  # Age class 1
+  S[1,] <- exp(-(mH[1,] + (8/12)*mO[1,]))
+  
+  # Age class 2+
+  S[2:Amax,] <- exp(-(mH[2:Amax,] + mO[2:Amax,]))
   
   ## Proportion harvest mortality
-  alpha <- mH/(mH + mO)
+  
+  # Age class 1
+  alpha[1,] <- mH[1,]/(mH[1,] + (8/12)*mO[1,])
+  
+  # Age class 2+
+  alpha[2:Amax,] <- mH[2:Amax,]/(mH[2:Amax,] + mO[2:Amax,])
   
   ## Harvest rate
   h <- (1 - S)*alpha
+  
+  ## Summer harvest rate
+  
+  # Age class 1
+  hs[1,] <- (1 - exp(-(mHs[1,] + (4/12)*mO[1,])))*(mHs[1,]/(mHs[1,] + (4/12)*mO[1,]))
+    
+  # Age class 2+
+  hs[2:Amax,] <- 1 - exp(-mHs[2:Amax,])
 
   ## Immigrant numbers
   Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))
@@ -310,7 +328,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     
     if(t > 1){
       ## Summer: Age class 0 (index = 1): local pups surviving summer harvest & immigrants
-      survN1[t] <- rbinom(1, size = N[1, t], prob = exp(-mHs[1, t]))
+      survN1[t] <- rbinom(1, size = N[1, t], prob = exp(-(mHs[1, t] + (4/12)*mO[1, t])))
       octN[1, t] <- survN1[t] + Imm[t+1]     
       
       ## Summer: Age classes 1 to 4+ (indices = 2:5)
@@ -417,7 +435,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     mO = mO, 
     S = S,
     alpha = alpha, 
-    h = h, 
+    h = h,
+    hs = hs,
     Psi = Psi, 
     rho = rho,
     S0 = S0

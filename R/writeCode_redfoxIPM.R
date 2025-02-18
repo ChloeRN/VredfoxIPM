@@ -68,7 +68,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       for(t in 2:Tmax){
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
         octN[1, t] <- survN1[t] + Imm[t]     
-        survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
+        survN1[t] ~ dbin(exp(-(mHs[1, t] + (4/12)*mO[1, t])), N[1, t])
         
         # Age classes 1 to 4+ (indices = 2:5)
         for(a in 2:Amax){
@@ -162,7 +162,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       for(x in 1:XsH){
         for(a in 1:Amax){
-          C_s[a, x] ~ dbin((1-exp(-mHs[a, sH_year[x]]))*pData_s[x], N[a, sH_year[x]])
+          C_s[a, x] ~ dbin(hs[a, sH_year[x]]*pData_s[x], N[a, sH_year[x]])
         }
       }
       
@@ -303,15 +303,26 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
         
-        # Survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
+        # Survival probability (age class 1)
+        S[1, t] <- exp(-(mH[1, t] + (8/12)*mO[1,t]))
         
-        # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
+        # Survival probability (ages classes 2+)
+        S[2:Amax, t] <- exp(-(mH[2:Amax, t] + mO[2:Amax,t]))
+        
+        # Proportion winter harvest mortality (age class 1)
+        alpha[1, t] <- mH[1, t]/(mH[1, t] + (8/12)*mO[1, t])
+        
+        # Proportion winter harvest mortality (age classes 2+)
+        alpha[2:Amax, t] <- mH[2:Amax, t]/(mH[2:Amax, t] + mO[2:Amax, t])
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
         
+        # Summer harvest rate (age class 1)
+        hs[1, t] <- (1-exp(-(mHs[1, t] + (4/12)*mO[1, t])))*(mHs[1, t]/(mHs[1, t] + (4/12)*mO[1, t]))
+        
+        # Summer harvest rate (age classes 2+)
+        hs[2:Amax, t] <- 1-exp(-mHs[2:Amax, t])
       }
       
       # Median harvest mortality hazard rates
@@ -643,7 +654,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       for(t in 2:Tmax){
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
         octN[1, t] <- survN1[t] + Imm[t]     
-        survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
+        survN1[t] ~ dbin(exp(-(mHs[1, t] + (4/12)*mO[1, t])), N[1, t])
         
         # Age classes 1 to 4+ (indices = 2:5)
         for(a in 2:Amax){
@@ -737,7 +748,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       for(x in 1:XsH){
         for(a in 1:Amax){
-          C_s[a, x] ~ dbin((1-exp(-mHs[a, sH_year[x]]))*pData_s[x], N[a, sH_year[x]])
+          C_s[a, x] ~ dbin(hs[a, sH_year[x]]*pData_s[x], N[a, sH_year[x]])
         }
       }
       
@@ -859,14 +870,26 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
         
-        # Survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
+        # Survival probability (age class 1)
+        S[1, t] <- exp(-(mH[1, t] + (8/12)*mO[1,t]))
         
-        # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
+        # Survival probability (ages classes 2+)
+        S[2:Amax, t] <- exp(-(mH[2:Amax, t] + mO[2:Amax,t]))
+        
+        # Proportion winter harvest mortality (age class 1)
+        alpha[1, t] <- mH[1, t]/(mH[1, t] + (8/12)*mO[1, t])
+        
+        # Proportion winter harvest mortality (age classes 2+)
+        alpha[2:Amax, t] <- mH[2:Amax, t]/(mH[2:Amax, t] + mO[2:Amax, t])
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
+        
+        # Summer harvest rate (age class 1)
+        hs[1, t] <- (1-exp(-(mHs[1, t] + (4/12)*mO[1, t])))*(mHs[1, t]/(mHs[1, t] + (4/12)*mO[1, t]))
+        
+        # Summer harvest rate (age classes 2+)
+        hs[2:Amax, t] <- 1-exp(-mHs[2:Amax, t])
         
       }
       

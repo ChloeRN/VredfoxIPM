@@ -327,7 +327,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_summerNatMort.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -346,6 +346,17 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds")
 ########################
 # 5) MODEL COMPARISONS #
 ########################
+
+## Summer natural mortality (age class 1)
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_main_summerNatMort.rds"), 
+              model.names = c("No summer mO", 
+                              "Summer mO for age class 1"), 
+              plotFolder = "Plots/Comp_summer_mO")
+
 
 ## Genetic data likelihoods
 compareModels(Amax = Amax, 
