@@ -75,7 +75,7 @@ reinCov.VarTana <- TRUE # Calculate the reindeer carcass data count covariate us
 mO.varT <- TRUE
 
 # Age-at-harvest data toggles
-add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
+add.sumr.unaged <- TRUE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
@@ -324,7 +324,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_splitHarvest.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_combHarvest.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -349,9 +349,11 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_main_singleCensus_splitHarvest.rds"), 
+                                 "RedFoxIPM_main_singleCensus_splitHarvest.rds",
+                                 "RedFoxIPM_main_singleCensus_combHarvest.rds"), 
               model.names = c("Two census (original)", 
-                              "One census, split harvest"), 
+                              "One census, split harvest",
+                              "One census, combined harvest"), 
               plotFolder = "Plots/Comp_SimplifiedCensus")
 
 
