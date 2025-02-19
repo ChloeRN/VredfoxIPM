@@ -86,8 +86,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   #---------------------------------------------------#
   
   ## Harvest and natural mortality
-  Mu.mHs <- runif(Amax, 0.01, 0.1)
-  
   Mu.mH <- runif(Amax, 0.05, 0.2)
   
   if(Mu.mO_fixInits){
@@ -124,7 +122,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
 
   
   ## Annual survival
-  Mu.S <- exp(-(Mu.mHs + Mu.mH + Mu.mO))
+  Mu.S <- exp(-(Mu.mH + Mu.mO))
   
   ## Pregnancy rate
   Mu.Psi <- c(0, runif(Amax-1, 0.2, 0.8))
@@ -143,7 +141,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   
   ## Random effect standard deviations
-  sigma.mHs <- runif(1, 0.05, 0.5)
   sigma.mH <- runif(1, 0.05, 0.5)
   sigma.Psi <- runif(1, 0.05, 0.5)
   sigma.rho <- runif(1, 0.05, 0.5)
@@ -155,7 +152,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   ## Random effects (initialize at to 0)
-  epsilon.mHs <- rep(0, Tmax)
   epsilon.mH <- rep(0, Tmax)
   epsilon.mO <- rep(0, Tmax)
   epsilon.Psi <- rep(0, Tmax+1)
@@ -230,16 +226,13 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # Calculate year-specific vital rates #
   #-------------------------------------#
   
-  mHs <- mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
+  mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
   Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
   S0 <- rep(NA, Tmax + 1)
   
   for(t in 1:(Tmax+1)){
     
     if(t <= Tmax){
-      ## Summer harvest mortality hazard rate
-      mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])
-      
       ## Winter harvest mortality hazard rate
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
       
@@ -269,15 +262,13 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
 
   ## Survival probability
-  S <- exp(-(mHs + mH + mO))
+  S <- exp(-(mH + mO))
   
   ## Proportion harvest mortality
-  alpha <- mH/(mHs + mH + mO)
-  alpha_s <- mHs/(mHs + mH + mO)
-  
+  alpha <- mH/(mH + mO)
+
   ## Harvest rate
   h <- (1 - S)*alpha
-  hs <- (1 - S)*alpha_s
 
   ## Immigrant numbers
   Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))
@@ -347,10 +338,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     stop('Simulation resulted in less alive than harvested (winter). Retry.')
   }
   
-  if(any(nim.data$C_s > N[, nim.constants$sH_year])){
-    stop('Simulation resulted in less alive than harvested (summer). Retry.')
-  }
-  
   
   # e) Assemble and return list of initial values
   #----------------------------------------------  
@@ -378,33 +365,27 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     R = R,
     Imm = Imm,
     
-    Mu.mHs = Mu.mHs,
     Mu.mH = Mu.mH,
     Mu.mO = Mu.mO,
     Mu.Psi = Mu.Psi,
     Mu.rho = Mu.rho,
     Mu.S0 = Mu.S0,
     
-    sigma.mHs = sigma.mHs,
     sigma.mH = sigma.mH,
     sigma.mO = sigma.mO,
     sigma.Psi = sigma.Psi,
     sigma.rho = sigma.rho,
     
-    epsilon.mHs = epsilon.mHs,
     epsilon.mH = epsilon.mH,
     epsilon.mO = epsilon.mO,
     epsilon.Psi = epsilon.Psi,
     epsilon.rho = epsilon.Psi,
     
-    mHs = mHs,
     mH = mH,
     mO = mO, 
     S = S,
     alpha = alpha,
-    alpha_s = alpha_s,
     h = h, 
-    hs = hs,
     Psi = Psi, 
     rho = rho,
     S0 = S0

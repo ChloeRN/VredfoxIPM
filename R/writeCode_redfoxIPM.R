@@ -126,30 +126,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
 
       
       
-      ######################################
-      #### SUMMER AGE-AT-HARVEST MODULE ####
-      ######################################
-      
-      ### Parameters:
-      # N = number of individuals in a given age class at a given time (start of June)
-      # hs = age- and time-dependent probability of dying from summer hunting
-      
-      ### Data:
-      # C = age-at-harvest matrix
-      # pData = annual proportion of harvests with (complete) carcass data
-      
-      ### Likelihood
-      
-      for(x in 1:XsH){
-        for(a in 1:Amax){
-          C_s[a, x] ~ dbin(hs[a, sH_year[x]]*pData_s[x], N[a, sH_year[x]])
-        }
-      }
-      
-      #===============================================================================================
-      
-      
-      
       ###############################
       #### PLACENTAL SCAR MODULE ####
       ###############################
@@ -266,9 +242,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       for(t in 1:Tmax){ 
         
-        # Summer harvest mortality hazard rate
-        log(mHs[1:Amax, t]) <- log(Mu.mHs[1:Amax]) + epsilon.mHs[t]
-        
         # Winter harvest mortality hazard rate
         if(fitCov.mH){
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
@@ -284,20 +257,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
         
         # Survival probability
-        S[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mH[1:Amax, t] + mO[1:Amax,t]))
+        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
         
         # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mHs[1:Amax, t] + mH[1:Amax, t] + mO[1:Amax, t])
-        
-        # Proportion summer harvest mortality
-        alpha_s[1:Amax, t] <- mHs[1:Amax, t]/(mHs[1:Amax, t] + mH[1:Amax, t] + mO[1:Amax, t])
+        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
-        
-        # Summer harvest rate
-        hs[1:Amax, t] <- (1-S[1:Amax, t])*alpha_s[1:Amax, t]
-        
       }
       
       # Median harvest mortality hazard rates
@@ -305,7 +271,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       # Age-dependent
       for(a in 1:Amax){
         Mu.mH[a] ~ dunif(0, 5)
-        Mu.mHs[a] ~ dunif(0, 5)
       }
       
       # Age-independent   
@@ -519,7 +484,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Random year variation
       for(t in 1:Tmax){  
-        epsilon.mHs[t] ~ dnorm(0, sd = sigma.mHs)
         epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
         epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
       }
@@ -530,7 +494,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
       }
       
-      sigma.mHs ~ dunif(0, 5)
       sigma.mH ~ dunif(0, 5)
       sigma.Psi ~ dunif(0, 5)
       sigma.rho ~ dunif(0, 5)
@@ -685,30 +648,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       
-      ######################################
-      #### SUMMER AGE-AT-HARVEST MODULE ####
-      ######################################
-      
-      ### Parameters:
-      # N = number of individuals in a given age class at a given time (start of June)
-      # hs = age- and time-dependent probability of dying from summer hunting
-      
-      ### Data:
-      # C = age-at-harvest matrix
-      # pData = annual proportion of harvests with (complete) carcass data
-      
-      ### Likelihood
-      
-      for(x in 1:XsH){
-        for(a in 1:Amax){
-          C_s[a, x] ~ dbin(hs[a, sH_year[x]]*pData_s[x], N[a, sH_year[x]])
-        }
-      }
-      
-      #===============================================================================================
-      
-      
-      
       ###############################
       #### PLACENTAL SCAR MODULE ####
       ###############################
@@ -806,9 +745,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       for(t in 1:Tmax){ 
         
-        # Summer harvest mortality hazard rate
-        log(mHs[1:Amax, t]) <- log(Mu.mHs[1:Amax]) + epsilon.mHs[t]
-        
         # Winter harvest mortality hazard rate
         if(fitCov.mH){
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
@@ -824,19 +760,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
         
         # Survival probability
-        S[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mH[1:Amax, t] + mO[1:Amax,t]))
+        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
         
         # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mHs[1:Amax, t] + mH[1:Amax, t] + mO[1:Amax, t])
-        
-        # Proportion summer harvest mortality
-        alpha_s[1:Amax, t] <- mHs[1:Amax, t]/(mHs[1:Amax, t] + mH[1:Amax, t] + mO[1:Amax, t])
+        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
-        
-        # Summer harvest rate
-        hs[1:Amax, t] <- (1-S[1:Amax, t])*alpha_s[1:Amax, t]
       }
       
       # Median harvest mortality hazard rates
@@ -844,7 +774,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       # Age-dependent
       for(a in 1:Amax){
         Mu.mH[a] ~ dunif(0, 5)
-        Mu.mHs[a] ~ dunif(0, 5)
       }
       
       # Age-independent   
@@ -1064,7 +993,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Random year variation
       for(t in 1:Tmax){  
-        epsilon.mHs[t] ~ dnorm(0, sd = sigma.mHs)
         epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
         epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
       }
@@ -1075,7 +1003,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
       }
       
-      sigma.mHs ~ dunif(0, 5)
       sigma.mH ~ dunif(0, 5)
       sigma.Psi ~ dunif(0, 5)
       sigma.rho ~ dunif(0, 5)
