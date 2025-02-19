@@ -824,10 +824,10 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
         
         # Survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
+        S[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mH[1:Amax, t] + mO[1:Amax,t]))
         
         # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
+        alpha[1:Amax, t] <- mH[1:Amax, t]/(mHs[1:Amax, t] + mH[1:Amax, t] + mO[1:Amax, t])
         
         # Proportion summer harvest mortality
         alpha_s[1:Amax, t] <- mHs[1:Amax, t]/(mHs[1:Amax, t] + mH[1:Amax, t] + mO[1:Amax, t])

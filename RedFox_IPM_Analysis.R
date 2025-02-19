@@ -305,9 +305,6 @@ model.setup <- setupModel(modelCode = redfox.code,
                           )
 
 
-#model.setup$modelParams <- model.setup$modelParams[which(!(model.setup$modelParams %in% c("initN", "N.tot", "B.tot", "R.tot", "N", "octN", "B", "L", "R")))]
-#model.setup$modelParams <- c(model.setup$modelParams, "meanLS")
-
 ####################
 # 4) MODEL FITTING #
 ####################
