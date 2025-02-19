@@ -124,7 +124,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
 
   
   ## Annual survival
-  Mu.S <- exp(-(Mu.mH + Mu.mO))
+  Mu.S <- exp(-(Mu.mHs + Mu.mH + Mu.mO))
   
   ## Pregnancy rate
   Mu.Psi <- c(0, runif(Amax-1, 0.2, 0.8))
@@ -269,13 +269,15 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
 
   ## Survival probability
-  S <- exp(-(mH + mO))
+  S <- exp(-(mHs + mH + mO))
   
   ## Proportion harvest mortality
-  alpha <- mH/(mH + mO)
+  alpha <- mH/(mHs + mH + mO)
+  alpha_s <- mHs/(mHs + mH + mO)
   
   ## Harvest rate
   h <- (1 - S)*alpha
+  hs <- (1 - S)*alpha_s
 
   ## Immigrant numbers
   Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))
@@ -288,12 +290,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   ## Prepare empty vectors and matrices
   H <- N <- B <- L <- R <- matrix(NA, nrow = Amax, ncol = Tmax+1)
-  sH <- octN <- matrix(NA, nrow = Amax, ncol = Tmax)
-  survN1 <- rep(NA, Tmax)
-  
+
   ## Set initial population sizes
   for(a in 1:Amax){
-    octN[a, 1] <- round(runif(1, minN1[a], maxN1[a]))
+    N[a, 1] <- round(runif(1, minN1[a], maxN1[a]))
   }
   
   ## Set age class 0 reproductive contributions to 0
@@ -308,24 +308,13 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     # a) Project local survivors to the next year
     #---------------------------------------------
     
-    if(t > 1){
-      ## Summer: Age class 0 (index = 1): local pups surviving summer harvest & immigrants
-      survN1[t] <- rbinom(1, size = N[1, t], prob = exp(-mHs[1, t]))
-      octN[1, t] <- survN1[t] + Imm[t+1]     
-      
-      ## Summer: Age classes 1 to 4+ (indices = 2:5)
-      for(a in 2:Amax){
-        octN[a, t] <- rbinom(1, size = N[a, t], prob = exp(-mHs[a, t]))
-      }
-    }
-    
-    ## Autumn-Spring: Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
+    ## Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
     for(a in 1:(Amax-2)){
-      N[a+1, t+1] <- rbinom(1, size = octN[a, t], prob = S[a, t])
+      N[a+1, t+1] <- rbinom(1, size = N[a, t], prob = S[a, t])
     }			
       
-    ## Autumn-Spring: Age class 4+ (index = 5): age class 3 and 4+ survivors
-    N[Amax, t+1] <- rbinom(1, size = octN[Amax-1, t] + octN[Amax, t], prob = S[Amax, t])
+    ## Age class 4+ (index = 5): age class 3 and 4+ survivors
+    N[Amax, t+1] <- rbinom(1, size = N[Amax-1, t] + N[Amax, t], prob = S[Amax, t])
       
       
     # b) Sample through reproductive season 
@@ -347,14 +336,14 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     # c) Add new recruits and immigrants
     #------------------------------------
       
-    N[1, t+1] <- sum(R[1:Amax, t+1])
+    N[1, t+1] <- sum(R[1:Amax, t+1]) + Imm[t+1]
  }
   
   
   # d) Check for years with more harvests than alive individuals
   #-------------------------------------------------------------
   
-  if(any(nim.data$C_w > octN[, 1:Tmax])){
+  if(any(nim.data$C_w > N[, 1:Tmax])){
     stop('Simulation resulted in less alive than harvested (winter). Retry.')
   }
   
@@ -366,9 +355,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # e) Assemble and return list of initial values
   #----------------------------------------------  
   
-  ## Fill out NA values in N, survN1, B, L, and R
+  ## Fill out NA values in B, L, and R
   for (a in 2:Amax){
-    N[a, 1] <- 0
     #B[a,1] <- rbinom(1, size = N[a, 1], prob = Psi[a, 1])
     #L[a,1] <- rpois(1, lambda = B[a, 1] * rho[a, 1] * 0.5)
     #R[a,1] <- rbinom(1, size = L[a, 1], prob = S0[t])
@@ -376,8 +364,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     L[a, 1] <- 0
     R[a, 1] <- 0
   }
-  survN1[1] <- 0
-  
+
   # NOTE: These nodes do not appear in the model and it therefore does not 
   #       matter what numbers they contain. Filling them in prevents a warning
   #       about NA nodes when building the model. 
@@ -385,9 +372,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   ## List all initial values
   InitVals <- list(
     N = N,
-    initN = octN[, 1],
-    octN = octN,
-    survN1 = survN1,
+    initN = N[, 1],
     B = B, 
     L = L,
     R = R,
@@ -416,8 +401,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     mH = mH,
     mO = mO, 
     S = S,
-    alpha = alpha, 
+    alpha = alpha,
+    alpha_s = alpha_s,
     h = h, 
+    hs = hs,
     Psi = Psi, 
     rho = rho,
     S0 = S0

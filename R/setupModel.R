@@ -67,7 +67,7 @@ setupModel <- function(modelCode,
               "Psi", "rho", "mHs", "mH", "mO", "S",
               "initN",
               "N.tot", "B.tot", "R.tot", 
-              "N", "octN", "B", "L", "R", "Imm", "immR",
+              "N", "B", "L", "R", "Imm", "immR",
               "RodentAbundance")
   
   ## Add additional parameters to monitor depending on model version
