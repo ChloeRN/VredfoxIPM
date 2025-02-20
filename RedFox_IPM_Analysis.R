@@ -324,7 +324,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_combHarvest.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_combHarvest2.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -356,6 +356,16 @@ compareModels(Amax = Amax,
                               "One census, combined harvest"), 
               plotFolder = "Plots/Comp_SimplifiedCensus")
 
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_main_singleCensus_combHarvest.rds",
+                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
+              model.names = c("Two census (original)", 
+                              "One census",
+                              "One census, equal adult harvest"), 
+              plotFolder = "Plots/Comp_SimplifiedCensus2")
 
 ## Genetic data likelihoods
 compareModels(Amax = Amax, 
