@@ -75,7 +75,7 @@ reinCov.VarTana <- TRUE # Calculate the reindeer carcass data count covariate us
 mO.varT <- TRUE
 
 # Age-at-harvest data toggles
-add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
+add.sumr.unaged <- TRUE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
@@ -119,19 +119,10 @@ factor.S0 <- 1
 factor.immR <- 1
 factor.rodent <- 1
 
-if(pert.mH & factor.mH == 0){
-  pert.mHs <- TRUE
-  factor.mHs <- 0
-}else{
-  pert.mHs <- FALSE
-  factor.mHs <- 1
-}
-
 perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.mH = pert.mH, factor.mH = factor.mH,
                                     pert.mO = pert.mO, factor.mO = factor.mO,
                                     pert.S0 = pert.S0, factor.S0 = factor.S0,
-                                    pert.mHs = pert.mHs, factor.mHs = factor.mHs,
                                     pert.immR = pert.immR, factor.immR = factor.immR,
                                     pert.rodent = pert.rodent, factor.rodent = factor.rodent)
 
@@ -382,7 +373,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_noReindeer2.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -396,6 +387,20 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_noReindeer2.rds") # No perturbat
 ########################
 # 5) MODEL COMPARISONS #
 ########################
+
+## Models with/without second census
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              "RedFoxIPM_sim_baseline_singleCensus.rds"), 
+                           model.names = c("2-census, original", 
+                                           "1-census, constrained mH"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_CensusNumber",
+                           returnSumData = TRUE)
+
 
 ## Models with/without reindeer covariate
 PVA0_comp <- compareModels(Amax = Amax, 

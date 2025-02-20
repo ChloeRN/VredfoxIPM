@@ -51,7 +51,6 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   pertFac.mH <- nim.data$pertFac.mH
   pertFac.mO <- nim.data$pertFac.mO
   pertFac.S0 <- nim.data$pertFac.S0
-  pertFac.mHs <- nim.data$pertFac.mHs
   pertFac.immR <- nim.data$pertFac.immR
   pertFac.rodent <- nim.data$pertFac.rodent
   
@@ -115,9 +114,10 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   #---------------------------------------------------#
   
   ## Harvest and natural mortality
-  Mu.mHs <- runif(Amax, 0.01, 0.1)
+  Mu.mH.juv <- runif(1, 0.05, 0.2)
+  Mu.mH.ad <- runif(1, 0.05, 0.2)
   
-  Mu.mH <- runif(Amax, 0.05, 0.2)
+  Mu.mH <- c(Mu.mH.juv, rep(Mu.mH.ad, length(2:Amax)))
   
   if(Mu.mO_fixInits){
     
@@ -172,7 +172,6 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   
   
   ## Random effect standard deviations
-  sigma.mHs <- runif(1, 0.05, 0.5)
   sigma.mH <- runif(1, 0.05, 0.5)
   sigma.Psi <- runif(1, 0.05, 0.5)
   sigma.rho <- runif(1, 0.05, 0.5)
@@ -184,7 +183,6 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   }
   
   ## Random effects (initialize at to 0)
-  epsilon.mHs <- rep(0, Tmax)
   epsilon.mH <- rep(0, Tmax)
   epsilon.mO <- rep(0, Tmax)
   epsilon.Psi <- rep(0, Tmax+1)
@@ -259,16 +257,13 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   # Calculate year-specific vital rates #
   #-------------------------------------#
   
-  mHs <- mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
+  mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
   Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
   S0 <- rep(NA, Tmax + 1)
   
   for(t in 1:(Tmax+1)){
     
     if(t <= Tmax){
-      
-      ## Summer harvest mortality hazard rate
-      mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])*pertFac.mHs[t]
       
       ## Winter harvest mortality hazard rate
       mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
@@ -308,7 +303,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   h <- (1 - S)*alpha
   
   ## Immigrant numbers
-  Imm <- round(truncnorm::rtruncnorm(Tmax, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))*pertFac.immR
+  Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))*pertFac.immR
   Imm[1] <- 0
   
   
@@ -318,12 +313,10 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   
   ## Prepare empty vectors and matrices
   H <- N <- B <- L <- R <- matrix(NA, nrow = Amax, ncol = Tmax+1)
-  sH <- octN <- matrix(NA, nrow = Amax, ncol = Tmax)
-  survN1 <- rep(NA, Tmax)
   
   ## Set initial population sizes
   for(a in 1:Amax){
-    octN[a, 1] <- round(runif(1, minN1[a], maxN1[a]))
+    N[a, 1] <- round(runif(1, minN1[a], maxN1[a]))
   }
   
   ## Set age class 0 reproductive contributions to 0
@@ -338,24 +331,13 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     # a) Project local survivors to the next year
     #---------------------------------------------
     
-    if(t > 1){
-      ## Summer: Age class 0 (index = 1): local pups surviving summer harvest & immigrants
-      survN1[t] <- rbinom(1, size = N[1, t], prob = exp(-mHs[1, t]))
-      octN[1, t] <- survN1[t] + Imm[t]     
-      
-      ## Summer: Age classes 1 to 4+ (indices = 2:5)
-      for(a in 2:Amax){
-        octN[a, t] <- rbinom(1, size = N[a, t], prob = exp(-mHs[a, t]))
-      }
-    }
-    
-    ## Autumn-Spring: Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
+    ## Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
     for(a in 1:(Amax-2)){
-      N[a+1, t+1] <- rbinom(1, size = octN[a, t], prob = S[a, t])
+      N[a+1, t+1] <- rbinom(1, size = N[a, t], prob = S[a, t])
     }			
     
-    ## Autumn-Spring: Age class 4+ (index = 5): age class 3 and 4+ survivors
-    N[Amax, t+1] <- rbinom(1, size = octN[Amax-1, t] + octN[Amax, t], prob = S[Amax, t])
+    ## Age class 4+ (index = 5): age class 3 and 4+ survivors
+    N[Amax, t+1] <- rbinom(1, size = N[Amax-1, t] + N[Amax, t], prob = S[Amax, t])
     
     
     # b) Sample through reproductive season 
@@ -377,19 +359,15 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     # c) Add new recruits and immigrants
     #------------------------------------
     
-    N[1, t+1] <- sum(R[1:Amax, t+1])
+    N[1, t+1] <- sum(R[1:Amax, t+1]) + Imm[t+1]
   }
   
   
   # d) Check for years with more harvests than alive individuals
   #-------------------------------------------------------------
   
-  if(any(nim.data$C_w[,1:nim.constants$Tmax] > octN[, 1:nim.constants$Tmax])){
+  if(any(nim.data$C_w[,1:nim.constants$Tmax] > N[, 1:nim.constants$Tmax])){
     stop('Simulation resulted in less alive than harvested (winter). Retry.')
-  }
-  
-  if(any(nim.data$C_s > N[, nim.constants$sH_year])){
-    stop('Simulation resulted in less alive than harvested (summer). Retry.')
   }
   
   
@@ -398,7 +376,6 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   
   ## Fill out NA values in N, survN1, B, L, and R
   for (a in 2:Amax){
-    N[a, 1] <- 0
     #B[a,1] <- rbinom(1, size = N[a, 1], prob = Psi[a, 1])
     #L[a,1] <- rpois(1, lambda = B[a, 1] * rho[a, 1] * 0.5)
     #R[a,1] <- rbinom(1, size = L[a, 1], prob = S0[t])
@@ -406,8 +383,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     L[a, 1] <- 0
     R[a, 1] <- 0
   }
-  survN1[1] <- 0
-  
+
   # NOTE: These nodes do not appear in the model and it therefore does not 
   #       matter what numbers they contain. Filling them in prevents a warning
   #       about NA nodes when building the model. 
@@ -415,34 +391,28 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   ## List all initial values
   InitVals <- list(
     N = N,
-    initN = octN[, 1],
-    octN = octN,
-    survN1 = survN1,
+    initN = N[, 1],
     B = B, 
     L = L,
     R = R,
     Imm = Imm,
     
-    Mu.mHs = Mu.mHs,
     Mu.mH = Mu.mH,
     Mu.mO = Mu.mO,
     Mu.Psi = Mu.Psi,
     Mu.rho = Mu.rho,
     Mu.S0 = Mu.S0,
     
-    sigma.mHs = sigma.mHs,
     sigma.mH = sigma.mH,
     sigma.mO = sigma.mO,
     sigma.Psi = sigma.Psi,
     sigma.rho = sigma.rho,
     
-    epsilon.mHs = epsilon.mHs,
     epsilon.mH = epsilon.mH,
     epsilon.mO = epsilon.mO,
     epsilon.Psi = epsilon.Psi,
     epsilon.rho = epsilon.Psi,
     
-    mHs = mHs,
     mH = mH,
     mO = mO, 
     S = S,

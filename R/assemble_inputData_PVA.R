@@ -151,7 +151,6 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
     pertFac.mH = perturbVecs$pertFac.mH,
     pertFac.mO = perturbVecs$pertFac.mO,
     pertFac.S0 = perturbVecs$pertFac.S0,
-    pertFac.mHs = perturbVecs$pertFac.mHs,
     pertFac.immR = perturbVecs$pertFac.immR,
     pertFac.rodent = perturbVecs$pertFac.rodent,
 
