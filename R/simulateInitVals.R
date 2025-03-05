@@ -331,7 +331,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     #------------------------------------
       
     N[1, t+1] <- sum(R[1:Amax, t+1]) + Imm[t+1]
- }
+  }
   
   
   # d) Check for years with more harvests than alive individuals
@@ -414,6 +414,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   if(fitCov.mO){
     InitVals$betaR.mO <- betaR.mO
+    InitVals$betaD.mO <- 0
   }
   
   if(fitCov.Psi){
@@ -426,6 +427,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   if(fitCov.immR){
     InitVals$betaR.immR <- betaR.immR
+    InitVals$betaD.immR <- 0
   }
   
   ## Add initial values specific to immigration model versions

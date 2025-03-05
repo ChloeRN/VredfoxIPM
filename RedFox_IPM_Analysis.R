@@ -31,6 +31,9 @@ plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
+# Normalizing value for population size when modelling density-dependence
+normN <- 400 # Based on mean/median of estimated N.tot-Imm 
+
 ## set dataset names, versions, and directories, and access
 carcass.dataset.name <- "v_redfox_carcass_examination_v3"
 carcass.dataset.version <- 3
@@ -265,6 +268,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  maxPups = 14,
                                  uLim.N = 800,
                                  uLim.Imm = 3000,
+                                 normN = normN,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
                                  poolYrs.genData = poolYrs.genData,
@@ -324,7 +328,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_combHarvest2.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_DD1.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")

@@ -30,7 +30,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
     warning("Attempting to fit a model containing environmental covariates but no random year variation for natural mortality. This is not recommended as it may result in inflated effect size/precision due to due to pseudo-replication.")
   }
   
-  ## Write model code (individua-level likelihood for genetic data)
+  ## Write model code (individual-level likelihood for genetic data)
   if(indLikelihood.genData){
     redfox.code <- nimbleCode({
       
@@ -96,6 +96,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         N.tot[t] <- sum(N[1:Amax, t])
         R.tot[t] <- sum(R[1:Amax, t])		
         B.tot[t] <- sum(B[1:Amax, t])
+        
+        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t])
       }
       
       #===============================================================================================
@@ -251,7 +253,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(localN.tot[t]-normN) + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -307,6 +309,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
+        betaD.mO ~ dunif(-5, 5) # Density-dependence
       }
       
       
@@ -426,6 +429,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
                 log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
               }
             }else{
+              #log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + betaD.immR*(localN.tot[1:(Tmax+1)]-normN) + epsilon.immR[1:(Tmax+1)]
               log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
             }
           }else{
@@ -457,7 +461,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
       }
       
-      ## Prior for rodent effect
+      ## Priors for covariate effects
       if(fitCov.immR){
         if(rCov.idx){
           betaR.immR[1] <- 0 # --> Lowest level corresponds to intercept
@@ -466,6 +470,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
         }else{
           betaR.immR ~ dunif(-5, 5)
+          betaD.immR ~ dunif(-5, 5)
         }
       }
       
@@ -620,6 +625,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         N.tot[t] <- sum(N[1:Amax, t])
         R.tot[t] <- sum(R[1:Amax, t])		
         B.tot[t] <- sum(B[1:Amax, t])
+        
+        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t])
       }
       
       #===============================================================================================
@@ -756,7 +763,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(localN.tot[t]-normN) + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -812,6 +819,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
+        betaD.mO ~ dunif(-5, 5) # Density-dependence
       }
       
       
@@ -917,7 +925,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
               log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
             }
           }else{
-            log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+            #log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + betaD.immR*(localN.tot[1:(Tmax+1)]-normN) + epsilon.immR[1:(Tmax+1)]
+            #log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+            
+            for(t in 1:(Tmax+1)){
+              log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + betaD.immR*(localN.tot[t]-normN) + epsilon.immR[t]
+              #log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + epsilon.immR[t]
+            }
           }
         }else{
           log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
@@ -959,6 +973,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
         }else{
           betaR.immR ~ dunif(-5, 5)
+          betaD.immR ~ dunif(-5, 5)
         }
       }
       
