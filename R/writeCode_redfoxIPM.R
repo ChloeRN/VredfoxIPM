@@ -253,7 +253,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
+          log(mO[1, t]) <- log(Mu.mO[1]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
+          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -765,7 +766,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
+          log(mO[1, t]) <- log(Mu.mO[1]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
+          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
