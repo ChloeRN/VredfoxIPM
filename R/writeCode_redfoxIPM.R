@@ -18,10 +18,6 @@
 writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
   
   ## Check for incompatible toggles
-  if(!imm.asRate & fitCov.immR){
-    stop("Incompatible model settings. Rodent covariate effect on immigration can only be fit (fitCov.immR = TRUE) if immigration is estimated as a rate (imm.asRate = TRUE).")
-  }
-  
   if(fitCov.mO & rCov.idx){
     stop("Incompatible model settings. Rodent effects on natural mortality (fitCov.mO = TRUE) are only implemented with continuous covariates (rCov.idx = FALSE).")
   }
@@ -953,7 +949,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+1)){
-          Imm[t] <- rpois(ImmExp[t])
+          Imm[t] ~ dpois(ImmExp[t])
           log(ImmExp[t]) <- log(Mu.Imm) + betaR.immR*RodentAbundance2[t] + betaD.immR*log(localN.tot[t]) + epsilon.Imm[t]
           epsilon.Imm[t] ~ dnorm(0, sd = logsigma.Imm) 
         }
