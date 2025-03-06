@@ -155,8 +155,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   ## Random effects (initialize at to 0)
-  epsilon.mH <- rep(0, Tmax)
-  epsilon.mO <- rep(0, Tmax)
+  epsilon.mH <- rep(0, Tmax+1)
+  epsilon.mO <- rep(0, Tmax+1)
   epsilon.Psi <- rep(0, Tmax+1)
   epsilon.rho <- rep(0, Tmax+1)
   
@@ -229,19 +229,19 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # Calculate year-specific vital rates #
   #-------------------------------------#
   
-  mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
-  Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
+  mO <- matrix(NA, nrow = Amax, ncol = Tmax)
+  mH <- Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
   S0 <- rep(NA, Tmax + 1)
   
   for(t in 1:(Tmax+1)){
     
     if(t <= Tmax){
-      ## Winter harvest mortality hazard rate
-      mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
-      
       ## Other (natural) mortality hazard rate
       mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t])
     }
+    
+    ## Winter harvest mortality hazard rate
+    mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
     
     ## Pregnancy rate
     Psi[1, t] <- 0
@@ -265,10 +265,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
 
   ## Survival probability
-  S <- exp(-(mH + mO))
+  S <- exp(-(mH[,1:Tmax] + mO))
   
   ## Proportion harvest mortality
-  alpha <- mH/(mH + mO)
+  alpha <- mH[,1:Tmax]/(mH[,1:Tmax] + mO)
 
   ## Harvest rate
   h <- (1 - S)*alpha
@@ -391,7 +391,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     h = h, 
     Psi = Psi, 
     rho = rho,
-    S0 = S0
+    S0 = S0,
+    
+    logDev.mH = log(mH[1, ]) - log(Mu.mH[1])
     
     #meanLS = c(0, (colSums(R[2:Amax,2:(Tmax+1)])*2)/colSums(B[2:Amax,2:(Tmax+1)]))
     
@@ -414,6 +416,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   if(fitCov.mO){
     InitVals$betaR.mO <- betaR.mO
+    InitVals$gamma.mO <- 0
   }
   
   if(fitCov.Psi){
@@ -426,6 +429,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   if(fitCov.immR){
     InitVals$betaR.immR <- betaR.immR
+    InitVals$gamma.immR <- 0
   }
   
   ## Add initial values specific to immigration model versions
