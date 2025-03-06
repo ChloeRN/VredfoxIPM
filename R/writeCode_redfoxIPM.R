@@ -249,7 +249,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*log(localN.tot[t]) + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -426,7 +426,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
               }
             }else{
               for(t in 1:(Tmax+1)){
-                log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + betaD.immR*log(localN.tot[t]) + epsilon.immR[t]
+                log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + betaD.immR*log(log(localN.tot[t]) - log(normN)) + epsilon.immR[t]
                 #log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + epsilon.immR[t]
               }
             }
@@ -763,7 +763,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*log(localN.tot[t]) + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -929,7 +929,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             #log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
             
             for(t in 1:(Tmax+1)){
-              log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + betaD.immR*log(localN.tot[t]) + epsilon.immR[t]
+              log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + betaD.immR*(log(localN.tot[t]) - log(normN)) + epsilon.immR[t]
               #log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + epsilon.immR[t]
             }
           }
@@ -950,7 +950,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+1)){
           Imm[t] ~ dpois(ImmExp[t])
-          log(ImmExp[t]) <- log(Mu.Imm) + betaR.immR*RodentAbundance2[t] + betaD.immR*log(localN.tot[t]) + epsilon.Imm[t]
+          log(ImmExp[t]) <- log(Mu.Imm) + betaR.immR*RodentAbundance2[t] + betaD.immR*(log(localN.tot[t]) - log(normN)) + epsilon.Imm[t]
           epsilon.Imm[t] ~ dnorm(0, sd = logsigma.Imm) 
         }
         
