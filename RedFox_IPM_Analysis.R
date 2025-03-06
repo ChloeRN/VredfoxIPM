@@ -353,8 +353,12 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_main_singleCensus_DD1.rds",
+                                 "RedFoxIPM_main_singleCensus_DD1_log.rds",
+                                 "RedFoxIPM_main_singleCensus_DD1_log_alt.rds",
                                  "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
               model.names = c("Density effect on mO[a] and immR", 
+                              "Log density effect on mO[a] and immR",
+                              "Log density effect on mO[a] and immR, not centered",
                               "No density-dependence"), 
               plotFolder = "Plots/Comp_DensityDep")
 
