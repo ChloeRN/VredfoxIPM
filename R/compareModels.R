@@ -160,9 +160,9 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
   
   ## Set parameters plotting time series of posterior summaries
   plotTS.paramsAge <- list(
-    ParamNames = c("mO", "S", "mH", "mHs", "Psi", "rho"),
+    ParamNames = c("mO", "S", "mH", "Psi", "rho"),
     ParamLabels = c("Natural mortality", "Survival", 
-                    "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female")
+                    "Harvest mortality", "Pregnancy rate", "# fetuses/female")
   )
 
   plotTS.params <- list(
