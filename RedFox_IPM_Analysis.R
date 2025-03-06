@@ -348,6 +348,17 @@ saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_DD1.rds")
 # 5) MODEL COMPARISONS #
 ########################
 
+## Models with density-dependence
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main_singleCensus_DD1.rds",
+                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
+              model.names = c("Density effect on mO[a] and immR", 
+                              "No density-dependence"), 
+              plotFolder = "Plots/Comp_DensityDep")
+
+
 ## Simplified models
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
