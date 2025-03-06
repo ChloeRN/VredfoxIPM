@@ -240,18 +240,23 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Survival and mortality
       
-      for(t in 1:Tmax){ 
-        
-        # Winter harvest mortality hazard rate
+      # Winter harvest mortality hazard rate
+      for(t in 1:(Tmax+1)){
         if(fitCov.mH){
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
         }else{
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + epsilon.mH[t]
         }
         
+        # Log mean deviation of harvest mortality hazard rate
+        logDev.mH[t] <- log(mH[1, t]) - log(Mu.mH[1])
+      }
+      
+      for(t in 1:Tmax){ 
+        
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + gamma.mO*logDev.mH[t] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -307,6 +312,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
+        gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
       }
       
       
@@ -426,7 +432,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
                 log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
               }
             }else{
-              log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+              log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + gamma.immR*logDev.mH[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
             }
           }else{
             log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
@@ -466,6 +472,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
         }else{
           betaR.immR ~ dunif(-5, 5)
+          gamma.immR ~ dunif(-5, 5)
         }
       }
       
@@ -745,18 +752,23 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Survival and mortality
       
-      for(t in 1:Tmax){ 
-        
-        # Winter harvest mortality hazard rate
+      # Winter harvest mortality hazard rate
+      for(t in 1:(Tmax+1)){
         if(fitCov.mH){
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
         }else{
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + epsilon.mH[t]
         }
         
+        # Log mean deviation of harvest mortality hazard rate
+        logDev.mH[t] <- log(mH[1, t]) - log(Mu.mH[1])
+      }
+      
+      for(t in 1:Tmax){ 
+        
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + gamma.mO*logDev.mH[t] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -812,6 +824,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
+        gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
       }
       
       
@@ -917,7 +930,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
               log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
             }
           }else{
-            log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+            log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + gamma.immR*logDev.mH[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
           }
         }else{
           log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
@@ -959,6 +972,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
         }else{
           betaR.immR ~ dunif(-5, 5)
+          gamma.immR ~ dunif(-5, 5)
         }
       }
       
