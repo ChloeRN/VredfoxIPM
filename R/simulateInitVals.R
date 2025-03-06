@@ -461,6 +461,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     
     InitVals$Mu.Imm <- Mu.Imm
     InitVals$logsigma.Imm <- logsigma.Imm
+    InitVals$epsilon.Imm <- rep(0, Tmax+1)
     InitVals$ImmExp <- Imm
   }
   
