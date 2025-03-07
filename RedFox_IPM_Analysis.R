@@ -344,6 +344,17 @@ saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_HarvestComp.rds")
 # 5) MODEL COMPARISONS #
 ########################
 
+## Models with compensation
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main_singleCensus_combHarvest2.rds", 
+                                 "RedFoxIPM_main_singleCensus_HarvestComp.rds"), 
+              model.names = c("Baseline", 
+                              "Effect of mH log deviation on mO and immR"), 
+              plotFolder = "Plots/Comp_Compensation")
+
+
 ## Simplified models
 compareModels(Amax = Amax, 
               Tmax = Tmax, 

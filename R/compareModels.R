@@ -147,7 +147,8 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]"),
-                  "betaR.mO", "betaR.immR"),
+                  "betaR.mO", "betaR.immR",
+                  "gamma.mO", "gamma.immR"),
     
     Imm = paste0("Imm[", 1:Tmax, "]"),
     
@@ -160,9 +161,9 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
   
   ## Set parameters plotting time series of posterior summaries
   plotTS.paramsAge <- list(
-    ParamNames = c("mO", "S", "mH", "mHs", "Psi", "rho"),
+    ParamNames = c("mO", "S", "mH", "Psi", "rho"),
     ParamLabels = c("Natural mortality", "Survival", 
-                    "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female")
+                    "Harvest mortality", "Pregnancy rate", "# fetuses/female")
   )
 
   plotTS.params <- list(
