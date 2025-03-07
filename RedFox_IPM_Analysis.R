@@ -15,7 +15,7 @@ library(coda)
 #**********#
 
 ## Set seed
-mySeed <- 10
+mySeed <- 156
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -305,6 +305,8 @@ model.setup <- setupModel(modelCode = redfox.code,
                           HoenigPrior = HoenigPrior,
                           imm.asRate = imm.asRate,
                           testRun = FALSE,
+                          niter = 100000 + 50000, 
+                          nburn = 37500 + 50000,
                           initVals.seed = mySeed
                           )
 
@@ -324,7 +326,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       nburnin = model.setup$mcmcParams$nburn, 
                       thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
-                      setSeed = 0)
+                      setSeed = mySeed)
 Sys.time() - t1
 
 
@@ -349,6 +351,17 @@ saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_DD1Imm_log_alt.rds")
 ########################
 
 ## Models with density-dependence
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main_singleCensus_DD1_log_alt.rds",
+                                 "RedFoxIPM_main_singleCensus_DD1Imm_log_alt.rds",
+                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
+              model.names = c("Log density effect on mO[a] and immR",
+                              "Log density effect on mO[a] and Imm",
+                              "No density-dependence"), 
+              plotFolder = "Plots/Comp_DensityDep2")
+
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
