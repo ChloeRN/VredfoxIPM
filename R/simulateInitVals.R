@@ -384,6 +384,11 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     epsilon.Psi = epsilon.Psi,
     epsilon.rho = epsilon.Psi,
     
+    eta.mH = epsilon.mH,
+    eta.mO = epsilon.mO,
+    tau.mO = 0,
+    C.mO = 0,
+    
     mH = mH,
     mO = mO, 
     S = S,
@@ -458,7 +463,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     InitVals$immR <- c(0, rep(InitVals$Mu.immR, Tmax))
     InitVals$sigma.immR <- runif(1, 0, 0.5)
     InitVals$epsilon.immR <- rep(0, Tmax+1)
-  
+    InitVals$eta.immR <- rep(0, Tmax+1)
+    InitVals$tau.immR <- 0
+    InitVals$C.immR <- 0
+    
   }else{
     
     InitVals$Mu.Imm <- Mu.Imm

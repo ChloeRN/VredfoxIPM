@@ -312,7 +312,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
-        gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
+        #gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
+        gamma.mO <- 0
       }
       
       
@@ -472,7 +473,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
         }else{
           betaR.immR ~ dunif(-5, 5)
-          gamma.immR ~ dunif(-5, 5)
+          #gamma.immR ~ dunif(-5, 5)
+          gamma.immR <- 0
         }
       }
       
@@ -491,10 +493,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       #---------------------------------------------------------------------------------------------
       
       
-      ## Random year variation
       for(t in 1:Tmax){  
-        epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
-        epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+        epsilon.mH[t] <- sigma.mH*eta.mH[t]
+        eta.mH[t] ~ dnorm(0, sd = 1)
+        
+        #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
+        eta.mO[t] ~ dnorm(0, sd = sigma.mO)
       }
       
       for(t in 1:(Tmax+1)){
@@ -514,12 +520,21 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         sigma.mO <- 0
       }
       
-      if(imm.asRate & poolYrs.genData){
+      if(imm.asRate){
         for(t in 1:(Tmax+1)){
-          epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+          #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+          epsilon.immR[t] <- eta.immR[t] + tau.immR*sigma.immR
+          eta.immR[t] ~ dnorm(0, sd = sigma.immR)
         }
         sigma.immR ~ dunif(0, 10)
       }
+      
+      tau.mO ~ dnorm(0, sd = 2.25) 
+      tau.immR ~ dnorm(0, sd = 2.25) 
+      
+      # Calculation of correlation coefficients
+      C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
+      C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2))
       
       #===============================================================================================
       
@@ -824,7 +839,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
-        gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
+        #gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
+        gamma.mO <- 0
       }
       
       
@@ -972,7 +988,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
         }else{
           betaR.immR ~ dunif(-5, 5)
-          gamma.immR ~ dunif(-5, 5)
+          #gamma.immR ~ dunif(-5, 5)
+          gamma.immR <- 0
         }
       }
       
@@ -1011,8 +1028,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Random year variation
       for(t in 1:Tmax){  
-        epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
-        epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+        epsilon.mH[t] <- sigma.mH*eta.mH[t]
+        eta.mH[t] ~ dnorm(0, sd = 1)
+        
+        #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
+        eta.mO[t] ~ dnorm(0, sd = sigma.mO)
       }
       
       for(t in 1:(Tmax+1)){
@@ -1034,10 +1056,19 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(imm.asRate){
         for(t in 1:(Tmax+1)){
-          epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+          #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+          epsilon.immR[t] <- eta.immR[t] + tau.immR*sigma.immR
+          eta.immR[t] ~ dnorm(0, sd = sigma.immR)
         }
         sigma.immR ~ dunif(0, 10)
       }
+      
+      tau.mO ~ dnorm(0, sd = 2.25) 
+      tau.immR ~ dnorm(0, sd = 2.25) 
+      
+      # Calculation of correlation coefficients
+      C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
+      C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2)) 
       
       #===============================================================================================
       

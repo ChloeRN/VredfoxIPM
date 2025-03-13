@@ -64,6 +64,7 @@ setupModel <- function(modelCode,
   params <- c("Mu.mH", "Mu.mO", "Mu.Psi", "Mu.rho", "Mu.S0",
               "sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho",
               "epsilon.mH", "epsilon.mO", "epsilon.Psi", "epsilon.rho",
+              "tau.mO", "C.mO",
               "Psi", "rho", "mH", "mO", "S",
               "initN",
               "N.tot", "B.tot", "R.tot", 
@@ -94,7 +95,7 @@ setupModel <- function(modelCode,
   }
   
   if(imm.asRate){
-    params <- c(params, "Mu.immR", "sigma.immR")
+    params <- c(params, "Mu.immR", "sigma.immR", "tau.immR", "C.immR")
     
     if(!poolYrs.genData){
       params <- c(params, "immR_pre")
