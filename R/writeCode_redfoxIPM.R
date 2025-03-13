@@ -530,7 +530,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       tau.mO ~ dnorm(0, sd = 2.25) 
-      tau.immR ~ dnorm(0, sd = 2.25) 
+      #tau.immR ~ dnorm(0, sd = 2.25)
+      tau.immR <- 0
       
       # Calculation of correlation coefficients
       C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
@@ -1064,7 +1065,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       tau.mO ~ dnorm(0, sd = 2.25) 
-      tau.immR ~ dnorm(0, sd = 2.25) 
+      #tau.immR ~ dnorm(0, sd = 2.25)
+      tau.immR <- 0
       
       # Calculation of correlation coefficients
       C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
