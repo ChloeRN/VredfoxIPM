@@ -82,7 +82,7 @@ setupModel <- function(modelCode,
   }
   
   if(fitCov.mO){
-    params <- c(params, "betaR.mO", "betaD.mO")
+    params <- c(params, "betaR.mO", "betaD.mO", "betaRxD.mO")
   }
   
   if(fitCov.Psi){
@@ -104,7 +104,7 @@ setupModel <- function(modelCode,
   } 
   
   if(fitCov.immR){
-    params <- c(params, "betaR.immR", "betaD.immR", "RodentAbundance2")
+    params <- c(params, "betaR.immR", "betaD.immR", "betaRxD.immR", "RodentAbundance2")
   }
   
   ## Simulate initial values

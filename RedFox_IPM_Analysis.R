@@ -328,7 +328,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_DD1_log_mO1.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_DD3_log_mO1.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -349,6 +349,17 @@ saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_DD1_log_mO1.rds")
 ########################
 
 ## Models with density-dependence
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main_singleCensus_DD1_log_mO1.rds",
+                                 "RedFoxIPM_main_singleCensus_DD3_log_mO1.rds",
+                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
+              model.names = c("Log density effect (mO[1], immR)", 
+                              "Log density x rodent effect (mO[a], immR)",
+                              "No density-dependence"), 
+              plotFolder = "Plots/Comp_DensityDep_xRodent")
+
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
