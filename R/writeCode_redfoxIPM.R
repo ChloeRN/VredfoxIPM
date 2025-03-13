@@ -310,8 +310,10 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
-        betaD.mO ~ dunif(-5, 5) # Density-dependence
-        betaRxD.mO ~ dunif(-5, 5)
+        #betaD.mO ~ dunif(-5, 5)
+        #betaRxD.mO ~ dunif(-5, 5)
+        betaD.mO <- 0
+        betaRxD.mO <- 0
       }
       
       
@@ -476,6 +478,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           betaR.immR ~ dunif(-5, 5)
           betaD.immR ~ dunif(-5, 5)
           betaRxD.immR ~ dunif(-5, 5)
+          #betaD.immR <- 0
+          #betaRxD.immR <- 0
         }
       }
       
@@ -825,8 +829,10 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
-        betaD.mO ~ dunif(-5, 5) # Density-dependence
-        betaRxD.mO ~ dunif(-5, 5)
+        #betaD.mO ~ dunif(-5, 5)
+        #betaRxD.mO ~ dunif(-5, 5)
+        betaD.mO <- 0
+        betaRxD.mO <- 0
       }
       
       
@@ -982,6 +988,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           betaR.immR ~ dunif(-5, 5)
           betaD.immR ~ dunif(-5, 5)
           betaRxD.immR ~ dunif(-5, 5)
+          #betaD.immR <- 0
+          #betaRxD.immR <- 0
         }
       }
       
