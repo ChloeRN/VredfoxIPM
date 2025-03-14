@@ -328,7 +328,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_DD3_log_immR.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_DD1_log_immR.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -354,10 +354,14 @@ compareModels(Amax = Amax,
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_main_singleCensus_DD1_log_mO1.rds",
                                  "RedFoxIPM_main_singleCensus_DD3_log_mO1.rds",
-                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
+                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds",
+                                 "RedFoxIPM_main_singleCensus_DD1_log_immR.rds",
+                                 "RedFoxIPM_main_singleCensus_DD3_log_immR.rds"), 
               model.names = c("Log density effect (mO[1], immR)", 
                               "Log density x rodent effect (mO[a], immR)",
-                              "No density-dependence"), 
+                              "No density-dependence",
+                              "Log density effect (immR only)", 
+                              "Log density x rodent effect (immR only)"), 
               plotFolder = "Plots/Comp_DensityDep_xRodent")
 
 compareModels(Amax = Amax, 

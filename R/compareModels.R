@@ -92,6 +92,10 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
       }
     }
     
+    # Remove 0 nodes
+    cols0 <- unname(which(colSums(samples) == 0))
+    samples <- samples[, -cols0]
+    
     # Change format and add to list
     model.data <- reshape2::melt(samples)
     colnames(model.data) <- c("Sample", "Parameter", "Value")

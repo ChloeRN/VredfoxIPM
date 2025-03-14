@@ -477,9 +477,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }else{
           betaR.immR ~ dunif(-5, 5)
           betaD.immR ~ dunif(-5, 5)
-          betaRxD.immR ~ dunif(-5, 5)
+          #betaRxD.immR ~ dunif(-5, 5)
           #betaD.immR <- 0
-          #betaRxD.immR <- 0
+          betaRxD.immR <- 0
         }
       }
       
@@ -987,9 +987,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }else{
           betaR.immR ~ dunif(-5, 5)
           betaD.immR ~ dunif(-5, 5)
-          betaRxD.immR ~ dunif(-5, 5)
+          #betaRxD.immR ~ dunif(-5, 5)
           #betaD.immR <- 0
-          #betaRxD.immR <- 0
+          betaRxD.immR <- 0
         }
       }
       
