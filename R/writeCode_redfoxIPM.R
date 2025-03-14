@@ -312,8 +312,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
-        #gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
-        gamma.mO <- 0
+        gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
+        #gamma.mO <- 0
       }
       
       
@@ -529,7 +529,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         sigma.immR ~ dunif(0, 10)
       }
       
-      tau.mO ~ dnorm(0, sd = 2.25) 
+      #tau.mO ~ dnorm(0, sd = 2.25) 
+      tau.mO <- 0 
       #tau.immR ~ dnorm(0, sd = 2.25)
       tau.immR <- 0
       
@@ -840,8 +841,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(fitCov.mO){
         betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
-        #gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
-        gamma.mO <- 0
+        gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
+        #gamma.mO <- 0
       }
       
       
@@ -1064,7 +1065,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         sigma.immR ~ dunif(0, 10)
       }
       
-      tau.mO ~ dnorm(0, sd = 2.25) 
+      #tau.mO ~ dnorm(0, sd = 2.25) 
+      tau.mO <- 0
       #tau.immR ~ dnorm(0, sd = 2.25)
       tau.immR <- 0
       

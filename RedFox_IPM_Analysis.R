@@ -324,7 +324,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_CorrRE_mO.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_HarvestComp_mO.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -350,10 +350,14 @@ compareModels(Amax = Amax,
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_main_singleCensus_combHarvest2.rds", 
                                  "RedFoxIPM_main_singleCensus_HarvestComp.rds",
-                                 "RedFoxIPM_main_singleCensus_CorrREs.rds"), 
+                                 "RedFoxIPM_main_singleCensus_CorrREs.rds",
+                                 "RedFoxIPM_main_singleCensus_HarvestComp_mO.rds",
+                                 "RedFoxIPM_main_singleCensus_CorrRE_mO.rds"), 
               model.names = c("Baseline", 
                               "Effect of mH log deviation on mO and immR",
-                              "Correlated REs for mH-mO and mH-immR"), 
+                              "Correlated REs for mH-mO and mH-immR",
+                              "Effect of mH log deviation on mO only",
+                              "Correlated REs for mH-mO only"), 
               plotFolder = "Plots/Comp_Compensation")
 
 
