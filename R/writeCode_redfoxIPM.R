@@ -242,19 +242,25 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Survival and mortality
       
-      for(t in 1:Tmax){ 
-        
-        # Winter harvest mortality hazard rate
+      # Winter harvest mortality hazard rate
+      for(t in 1:(Tmax+1)){
         if(fitCov.mH){
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
         }else{
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + epsilon.mH[t]
         }
         
+        # Log mean deviation of harvest mortality hazard rate
+        logDev.mH[t] <- log(mH[1, t]) - log(Mu.mH[1])
+      }
+      
+      for(t in 1:Tmax){ 
+        
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1, t]) <- log(Mu.mO[1]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
-          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          #log(mO[1, t]) <- log(Mu.mO[1]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
+          #log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + gamma.mO*logDev.mH[t] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -314,6 +320,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #betaRxD.mO ~ dunif(-5, 5)
         betaD.mO <- 0
         betaRxD.mO <- 0
+        gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
+        #gamma.mO <- 0
       }
       
       
@@ -437,6 +445,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
                 log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + betaD.immR*log(log(localN.tot[t]) - log(normN)) + betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + epsilon.immR[t]
                 #log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + epsilon.immR[t]
               }
+              #log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + gamma.immR*logDev.mH[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
             }
           }else{
             log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
@@ -480,6 +489,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           #betaRxD.immR ~ dunif(-5, 5)
           #betaD.immR <- 0
           betaRxD.immR <- 0
+          #gamma.immR ~ dunif(-5, 5)
+          gamma.immR <- 0
         }
       }
       
@@ -498,10 +509,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       #---------------------------------------------------------------------------------------------
       
       
-      ## Random year variation
       for(t in 1:Tmax){  
-        epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
-        epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+        epsilon.mH[t] <- sigma.mH*eta.mH[t]
+        eta.mH[t] ~ dnorm(0, sd = 1)
+        
+        #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
+        eta.mO[t] ~ dnorm(0, sd = sigma.mO)
       }
       
       for(t in 1:(Tmax+1)){
@@ -521,12 +536,23 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         sigma.mO <- 0
       }
       
-      if(imm.asRate & poolYrs.genData){
+      if(imm.asRate){
         for(t in 1:(Tmax+1)){
-          epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+          #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+          epsilon.immR[t] <- eta.immR[t] + tau.immR*sigma.immR
+          eta.immR[t] ~ dnorm(0, sd = sigma.immR)
         }
         sigma.immR ~ dunif(0, 10)
       }
+      
+      #tau.mO ~ dnorm(0, sd = 2.25) 
+      tau.mO <- 0 
+      #tau.immR ~ dnorm(0, sd = 2.25)
+      tau.immR <- 0
+      
+      # Calculation of correlation coefficients
+      C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
+      C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2))
       
       #===============================================================================================
       
@@ -761,19 +787,25 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Survival and mortality
       
-      for(t in 1:Tmax){ 
-        
-        # Winter harvest mortality hazard rate
+      # Winter harvest mortality hazard rate
+      for(t in 1:(Tmax+1)){
         if(fitCov.mH){
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
         }else{
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + epsilon.mH[t]
         }
         
+        # Log mean deviation of harvest mortality hazard rate
+        logDev.mH[t] <- log(mH[1, t]) - log(Mu.mH[1])
+      }
+      
+      for(t in 1:Tmax){ 
+        
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1, t]) <- log(Mu.mO[1]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
-          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          #log(mO[1, t]) <- log(Mu.mO[1]) + betaR.mO*RodentAbundance[t+1] + betaD.mO*(log(localN.tot[t]) - log(normN)) + betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + epsilon.mO[t]
+          #log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + gamma.mO*logDev.mH[t] + epsilon.mO[t]
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -833,6 +865,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #betaRxD.mO ~ dunif(-5, 5)
         betaD.mO <- 0
         betaRxD.mO <- 0
+        gamma.mO ~ dunif(-5, 5) # Compensatory effect from harvest
+        #gamma.mO <- 0
       }
       
       
@@ -940,11 +974,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }else{
             #log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + betaD.immR*(localN.tot[1:(Tmax+1)]-normN) + epsilon.immR[1:(Tmax+1)]
             #log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
-            
+
             for(t in 1:(Tmax+1)){
               log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + betaD.immR*(log(localN.tot[t]) - log(normN)) + betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + epsilon.immR[t]
               #log(immR[t]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[t] + epsilon.immR[t]
             }
+            
+            #log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + gamma.immR*logDev.mH[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
           }
         }else{
           log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
@@ -990,6 +1026,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           #betaRxD.immR ~ dunif(-5, 5)
           #betaD.immR <- 0
           betaRxD.immR <- 0
+          #gamma.immR ~ dunif(-5, 5)
+          gamma.immR <- 0
         }
       }
       
@@ -1028,8 +1066,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Random year variation
       for(t in 1:Tmax){  
-        epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
-        epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+        epsilon.mH[t] <- sigma.mH*eta.mH[t]
+        eta.mH[t] ~ dnorm(0, sd = 1)
+        
+        #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
+        eta.mO[t] ~ dnorm(0, sd = sigma.mO)
       }
       
       for(t in 1:(Tmax+1)){
@@ -1051,10 +1094,21 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       if(imm.asRate){
         for(t in 1:(Tmax+1)){
-          epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+          #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+          epsilon.immR[t] <- eta.immR[t] + tau.immR*sigma.immR
+          eta.immR[t] ~ dnorm(0, sd = sigma.immR)
         }
         sigma.immR ~ dunif(0, 10)
       }
+      
+      #tau.mO ~ dnorm(0, sd = 2.25) 
+      tau.mO <- 0
+      #tau.immR ~ dnorm(0, sd = 2.25)
+      tau.immR <- 0
+      
+      # Calculation of correlation coefficients
+      C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
+      C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2)) 
       
       #===============================================================================================
       
