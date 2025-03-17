@@ -399,11 +399,6 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     S0 = S0,
     
     logDev.mH = log(mH[1, ]) - log(Mu.mH[1])
-    
-    #meanLS = c(0, (colSums(R[2:Amax,2:(Tmax+1)])*2)/colSums(B[2:Amax,2:(Tmax+1)]))
-    
-    #Mu.Imm = Mu.Imm,
-    #sigma.Imm = sigma.Imm
   )
   
   ## Add initial values for parameters specific to survival prior model versions

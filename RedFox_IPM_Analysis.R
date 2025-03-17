@@ -109,6 +109,17 @@ useInfPrior.S0 <- FALSE
 S0.mean.offset <- 0
 S0.sd.factor <- 1
 
+## Density effects toggles
+DD.mO <- FALSE
+DD.immR <- TRUE
+DDxRodent <- FALSE
+
+## Compensation toggles
+comp.mO <- TRUE
+comp.immR <- FALSE
+comp.RE <- FALSE
+
+
 #*********************#
 # 1) DATA PREPARATION #
 #*********************#
@@ -304,6 +315,12 @@ model.setup <- setupModel(modelCode = redfox.code,
                           mO.varT = mO.varT,
                           HoenigPrior = HoenigPrior,
                           imm.asRate = imm.asRate,
+                          DD.mO = DD.mO, 
+                          DD.immR = DD.immR,
+                          DDxRodent = DDxRodent,
+                          comp.mO = comp.mO,
+                          comp.immR = comp.immR,
+                          comp.RE = comp.RE,
                           testRun = FALSE,
                           initVals.seed = mySeed
                           )
@@ -328,7 +345,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_DD1_log_immR.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_DDimmR_effCOMPmO.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")

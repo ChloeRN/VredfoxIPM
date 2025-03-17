@@ -153,7 +153,8 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]"),
                   "betaR.mO", "betaD.mO", "betaRxD.mO",
                   "betaR.immR", "betaD.immR", "betaRxD.immR",
-                  "tau.mO", "C.mO", "tau.immR", "C.immR"),
+                  "tau.mO", "C.mO", "gamma.mO",
+                  "tau.immR", "C.immR", "gamma.immR"),
     
     Imm = paste0("Imm[", 1:Tmax, "]"),
     
