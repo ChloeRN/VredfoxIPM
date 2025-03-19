@@ -112,12 +112,12 @@ S0.sd.factor <- 1
 ## Density effects toggles
 DD.mO <- FALSE
 DD.immR <- TRUE
-DDxRodent <- FALSE
+DDxRodent <- TRUE
 
 ## Compensation toggles
 comp.mO <- TRUE
 comp.immR <- FALSE
-comp.RE <- FALSE
+comp.RE <- TRUE
 
 
 #*********************#
@@ -345,7 +345,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_DDimmR_effCOMPmO.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_DDxRimmR_reCOMPmO.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -365,45 +365,21 @@ saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_DDimmR_effCOMPmO.rds")
 # 5) MODEL COMPARISONS #
 ########################
 
-## Models with density-dependence
+## Models with density-dependence & compensation
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main_singleCensus_DD1_log_mO1.rds",
-                                 "RedFoxIPM_main_singleCensus_DD3_log_mO1.rds",
+              post.filepaths = c("RedFoxIPM_singleCensus_DDimmR_effCOMPmO.rds",
+                                 "RedFoxIPM_singleCensus_DDxRimmR_effCOMPmO.rds",
                                  "RedFoxIPM_main_singleCensus_combHarvest2.rds",
-                                 "RedFoxIPM_main_singleCensus_DD1_log_immR.rds",
-                                 "RedFoxIPM_main_singleCensus_DD3_log_immR.rds"), 
-              model.names = c("Log density effect (mO[1], immR)", 
-                              "Log density x rodent effect (mO[a], immR)",
-                              "No density-dependence",
-                              "Log density effect (immR only)", 
-                              "Log density x rodent effect (immR only)"), 
-              plotFolder = "Plots/Comp_DensityDep_xRodent")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main_singleCensus_DD1_log_mO1.rds",
-                                 "RedFoxIPM_main_singleCensus_DD1_log.rds",
-                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
-              model.names = c("Log density effect on mO[1] and immR", 
-                              "Log density effect on mO[a] and immR",
-                              "No density-dependence"), 
-              plotFolder = "Plots/Comp_DensityDep_Age")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main_singleCensus_DD1.rds",
-                                 "RedFoxIPM_main_singleCensus_DD1_log.rds",
-                                 "RedFoxIPM_main_singleCensus_DD1_log_alt.rds",
-                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
-              model.names = c("Density effect on mO[a] and immR", 
-                              "Log density effect on mO[a] and immR",
-                              "Log density effect on mO[a] and immR, not centered",
-                              "No density-dependence"), 
-              plotFolder = "Plots/Comp_DensityDep")
+                                 "RedFoxIPM_singleCensus_DDimmR_reCOMPmO.rds",
+                                 "RedFoxIPM_singleCensus_DDxRimmR_reCOMPmO.rds"), 
+              model.names = c("Density effect on immR, mH-effect on mO", 
+                              "Density x rodent effect on immR, mH-effect on mO)",
+                              "Baseline (no DD or compensation)",
+                              "Density effect on immR, mH-mO correlated REs", 
+                              "Density x rodent effect on immR, mH-mO correlated REs"), 
+              plotFolder = "Plots/Comp_DD&Compensation")
 
 
 ## Simplified models
