@@ -1109,6 +1109,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             betaR.immR[x] ~ dunif(-5, 5)
           }
         }else{
+          betaR.immR ~ dunif(-5, 5)
+          
           if(DD.immR){
             betaD.immR ~ dunif(-5, 5)
             if(DDxRodent){
