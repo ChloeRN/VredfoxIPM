@@ -335,6 +335,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
+        betaR.mO ~ dunif(-5, 5)
         
         if(DD.mO){
           betaD.mO ~ dunif(-5, 5)
@@ -937,6 +938,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
+        betaR.mO ~ dunif(-5, 5)
         
         if(DD.mO){
           betaD.mO ~ dunif(-5, 5)
