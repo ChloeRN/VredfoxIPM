@@ -612,7 +612,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       for(t in 1:(Tmax+1)){
         #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
-        epsilon.immR[t] <- eta.immR[t] + tau.immR*sigma.immR
+        epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
         eta.immR[t] ~ dnorm(0, sd = sigma.immR)
       }
       sigma.immR ~ dunif(0, 10)
@@ -1225,7 +1225,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
       for(t in 1:(Tmax+1)){
         #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
-        epsilon.immR[t] <- eta.immR[t] + tau.immR*sigma.immR # TODO: Check whether there is something wrong here
+        epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
         eta.immR[t] ~ dnorm(0, sd = sigma.immR)
       }
       sigma.immR ~ dunif(0, 10)
