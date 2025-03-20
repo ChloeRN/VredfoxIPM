@@ -89,7 +89,7 @@ sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all p
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
-imm.asRate <- FALSE # Estimating immigration as a rate as opposed to numbers
+imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 poolYrs.genData <- TRUE # Pool data across all years
@@ -321,9 +321,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           comp.mO = comp.mO,
                           comp.immR = comp.immR,
                           comp.RE = comp.RE,
-                          testRun = FALSE,
-                          niter = 100000 + 50000, 
-                          nburn = 37500 + 50000,
+                          testRun = TRUE,
                           initVals.seed = mySeed
                           )
 

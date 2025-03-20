@@ -133,7 +133,7 @@ setupModel <- function(modelCode,
       params <- c(params, "immR_pre")
     }
   }else{
-    params <- c(params, "Mu.Imm", "logsigma.Imm")
+    params <- c(params, "Mu.Imm", "sigma.immR", "tau.immR", "C.immR")
   } 
   
   if(fitCov.immR){
