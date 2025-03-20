@@ -30,7 +30,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
     stop("Incompatible model settings. The model is not set up to combine categorical rodent effects alongside density-dependence.")
   }
   
-  # !indLikelihood.genData
   if(!poolYrs.genData & imm.asRate & (comp.immR | DD.immR)){
     stop("Incompatible model settings. The year-specific genetic data likelihood (poolYrs.genData = TRUE) is currently not adapted to work with density and/or compensation effects.")
   }
@@ -42,6 +41,11 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
     if(fitCov.immR & !imm.asRate){
       stop("Incompatible model settings. 
          Covariate effects on immigration numbers can only be fit (fitCov.immR = TRUE) when the pooled genetic data likelihood is used (indLikelihood.genData = FALSE).")
+    }
+    
+    if(useData.gen & !imm.asRate){
+      warning("You have specified a model using genetic data with an individual likelihood but modelling immigration as a number, not a rate (imm.asRate = FALSE).
+              This is currently not implemented. Your model will be run without genetic data.")
     }
     
     redfox.code <- nimbleCode({
@@ -510,19 +514,26 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }else{
         
         ## Lognormal prior for immigrant numbers
-        for(t in 2:Tmax){
-          Imm[t] <- round(ImmExp[t])
-          ImmExp[t] ~ dlnorm(meanlog = log(Mu.Imm), sdlog = logsigma.Imm) 
+
+        ## Lognormal prior for immigrant numbers
+        for(t in 2:(Tmax+1)){
+          Imm[t] ~ dpois(ImmExp[t]) # TODO: Consider if this should be round() instead 
+          log(ImmExp[t]) <- log(Mu.Imm) + 
+            betaR.immR*RodentAbundance2[t] + 
+            betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+            betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+            gamma.immR*logDev.mH[t] +
+            epsilon.immR[t]
         }
         
         Mu.Imm ~ dunif(1, uLim.Imm)
-        logsigma.Imm ~ dunif(0, 10)
         
         ## Derivation of immigration rates
         immR[1] <- 0
-        for(t in 2:Tmax){
+        for(t in 2:(Tmax+1)){
           immR[t] <- Imm[t] / R.tot[t]
         }
+        Mu.immR <- mean(immR[2:(Tmax+1)])
         
       }
       
@@ -599,14 +610,12 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         sigma.mO <- 0
       }
       
-      if(imm.asRate){
-        for(t in 1:(Tmax+1)){
-          #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
-          epsilon.immR[t] <- eta.immR[t] + tau.immR*sigma.immR
-          eta.immR[t] ~ dnorm(0, sd = sigma.immR)
-        }
-        sigma.immR ~ dunif(0, 10)
+      for(t in 1:(Tmax+1)){
+        #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+        epsilon.immR[t] <- eta.immR[t] + tau.immR*sigma.immR
+        eta.immR[t] ~ dnorm(0, sd = sigma.immR)
       }
+      sigma.immR ~ dunif(0, 10)
       
       if(comp.mO & comp.RE){
         tau.mO ~ dnorm(0, sd = 2.25)
