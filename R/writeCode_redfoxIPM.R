@@ -517,7 +517,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
 
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+1)){
-          Imm[t] ~ round(ImmExp[t])
+          Imm[t] <- round(ImmExp[t])
           log(ImmExp[t]) <- log(Mu.Imm) + 
             betaR.immR*RodentAbundance2[t] + 
             betaD.immR*(log(localN.tot[t]) - log(normN)) + 
@@ -1112,7 +1112,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+1)){
-          Imm[t] ~ round(ImmExp[t])
+          Imm[t] <- round(ImmExp[t])
           log(ImmExp[t]) <- log(Mu.Imm) + 
             betaR.immR*RodentAbundance2[t] + 
             betaD.immR*(log(localN.tot[t]) - log(normN)) + 

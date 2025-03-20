@@ -15,7 +15,7 @@ library(coda)
 #**********#
 
 ## Set seed
-mySeed <- 156
+mySeed <- 10
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
