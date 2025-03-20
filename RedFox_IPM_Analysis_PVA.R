@@ -31,6 +31,9 @@ plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
+# Normalizing value for population size when modelling density-dependence
+normN <- 400 # Based on mean/median of estimated N.tot-Imm 
+
 ## set dataset names, versions, and directories, and access
 carcass.dataset.name <- "v_redfox_carcass_examination_v3"
 carcass.dataset.version <- 3
@@ -105,6 +108,16 @@ useInfPrior.S0 <- FALSE
 ## Changes to denning survival prior
 S0.mean.offset <- 0
 S0.sd.factor <- 1
+
+## Density effects toggles
+DD.mO <- FALSE
+DD.immR <- TRUE
+DDxRodent <- TRUE
+
+## Compensation toggles
+comp.mO <- TRUE
+comp.immR <- FALSE
+comp.RE <- TRUE
 
 ## Set up perturbation parameters for running standard scenarios
 pert.mH <- FALSE
@@ -351,6 +364,12 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               mO.varT = mO.varT,
                               HoenigPrior = HoenigPrior,
                               imm.asRate = imm.asRate,
+                              DD.mO = DD.mO, 
+                              DD.immR = DD.immR,
+                              DDxRodent = DDxRodent,
+                              comp.mO = comp.mO,
+                              comp.immR = comp.immR,
+                              comp.RE = comp.RE,
                               testRun = FALSE,
                               initVals.seed = mySeed)
 

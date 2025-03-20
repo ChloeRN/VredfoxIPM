@@ -1132,7 +1132,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
       }
       
-      ## Prior for rodent effect
+      ## Prior for covariate effects
       if(fitCov.immR){
         if(rCov.idx){
           betaR.immR[1] <- 0 # --> Lowest level corresponds to intercept

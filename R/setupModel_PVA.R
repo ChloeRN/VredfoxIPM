@@ -37,6 +37,23 @@
 #' et al. 2017. Using these values seems to produce good sets of initial values
 #' for the entire model. If set to FALSE, initial values for Mu.mO parameters
 #' are instead simulated fron uniform distributions. 
+#' @param DD.mO logical. If TRUE, models natural mortality (of age class 1) as
+#' density-dependent. 
+#' @param DD.immR logical. If TRUE, models immigration rate as density-dependent.
+#' @param DDxRodent logical. If TRUE and if any density-dependence is included,
+#' models both a direct density effect and a rodent x density interaction on the
+#' relevant vital rate(s).
+#' @param comp.mO logical. If TRUE, models natural mortality as potentially
+#' compensatory for harvest (correlation with harvest).
+#' @param comp.immR logical. If TRUE, models immigration rate as potentially
+#' compensatory for harvest (correlation with harvest).
+#' @param comp.RE logical. If TRUE and if any compensation is included, models
+#' compensatory mechanisms via correlated random effects (after the approximation
+#' approach from Nater et al. 2020). If FALSE and if any compensation is included,
+#' models compensatory mechanisms as an effect of log-deviance of annual harvest
+#' mortality from average harvest mortality (= harvest mortality RE plus any 
+#' potential covariate effects on harvest mortality).
+
 #' @param niter integer. Number of MCMC iterations (default = 30000)
 #' @param nthin integer. Thinning factor (default = 4)
 #' @param nburn integer. Number of iterations to discard as burn-in (default = 5000)
@@ -56,6 +73,8 @@ setupModel_PVA <- function(modelCode,
                            minN1, maxN1, minImm, maxImm,
                            fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
                            mO.varT, HoenigPrior, imm.asRate, Mu.mO_fixInits = TRUE,
+                           DD.mO, DD.immR, DDxRodent,
+                           comp.mO, comp.immR, comp.RE,
                            niter = 100000, nthin = 8, nburn = 37500, nchains = 3,
                            testRun = FALSE, initVals.seed){
   
@@ -83,6 +102,21 @@ setupModel_PVA <- function(modelCode,
   
   if(fitCov.mO){
     params <- c(params, "betaR.mO")
+    
+    if(DD.mO){
+      params <- c(params, "betaD.mO")
+      if(DDxRodent){
+        params <- c(params, "betaRxD.mO")
+      }
+    }
+    
+    if(comp.mO & !comp.RE){
+      params <- c(params, "gamma.mO")
+    }
+  }
+  
+  if(comp.mO & comp.RE){
+    params <- c(params, "tau.mO", "C.mO")
   }
   
   if(fitCov.Psi){
@@ -94,17 +128,32 @@ setupModel_PVA <- function(modelCode,
   }
   
   if(imm.asRate){
-    params <- c(params, "Mu.immR", "sigma.immR")
+    params <- c(params, "Mu.immR", "sigma.immR", "tau.immR", "C.immR")
     
     if(!poolYrs.genData){
       params <- c(params, "immR_pre")
     }
   }else{
-    params <- c(params, "Mu.Imm", "logsigma.Imm")
+    params <- c(params, "Mu.Imm", "sigma.immR", "tau.immR", "C.immR")
   } 
   
   if(fitCov.immR){
-    params <- c(params, "betaR.immR")
+    params <- c(params, "betaR.immR", "RodentAbundance2")
+    
+    if(DD.immR){
+      params <- c(params, "betaD.immR")
+      if(DDxRodent){
+        params <- c(params, "betaRxD.immR")
+      }
+    }
+    
+    if(comp.immR & !comp.RE){
+      params <- c(params, "gamma.immR")
+    }
+  }
+  
+  if(comp.immR & comp.RE){
+    params <- c(params, "tau.immR", "C.immR")
   }
   
   ## Simulate initial values

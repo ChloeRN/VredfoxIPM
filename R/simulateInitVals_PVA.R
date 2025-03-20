@@ -413,6 +413,11 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     epsilon.Psi = epsilon.Psi,
     epsilon.rho = epsilon.Psi,
     
+    eta.mH = epsilon.mH,
+    eta.mO = epsilon.mO,
+    tau.mO = 0,
+    C.mO = 0,
+    
     mH = mH,
     mO = mO, 
     S = S,
@@ -424,8 +429,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     
     pertFac.mH.flex = pertFac.mH.flex
     
-    #Mu.Imm = Mu.Imm,
-    #sigma.Imm = sigma.Imm
+    logDev.mH = log(mH[1, ]) - log(Mu.mH[1])
   )
   
   ## Add initial values for parameters specific to survival prior model versions
@@ -443,6 +447,9 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   
   if(fitCov.mO){
     InitVals$betaR.mO <- betaR.mO
+    InitVals$betaD.mO <- 0
+    InitVals$betaRxD.mO <- 0
+    InitVals$gamma.mO <- 0
   }
   
   if(fitCov.Psi){
@@ -455,6 +462,10 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   
   if(fitCov.immR){
     InitVals$betaR.immR <- betaR.immR
+    InitVals$betaR.immR <- betaR.immR
+    InitVals$betaD.immR <- 0
+    InitVals$betaRxD.immR <- 0
+    InitVals$gamma.immR <- 0
   }
   
   ## Add initial values specific to immigration model versions
@@ -483,11 +494,18 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     InitVals$immR <- c(0, rep(InitVals$Mu.immR, Tmax))
     InitVals$sigma.immR <- runif(1, 0, 0.5)
     InitVals$epsilon.immR <- rep(0, Tmax+1)
+    InitVals$eta.immR <- rep(0, Tmax+1)
+    InitVals$tau.immR <- 0
+    InitVals$C.immR <- 0
     
   }else{
     
     InitVals$Mu.Imm <- Mu.Imm
-    InitVals$logsigma.Imm <- logsigma.Imm
+    InitVals$sigma.immR <- logsigma.Imm
+    InitVals$epsilon.immR <- rep(0, Tmax+1)
+    InitVals$eta.immR <- rep(0, Tmax+1)
+    InitVals$tau.immR <- 0
+    InitVals$C.immR <- 0
     InitVals$ImmExp <- Imm
   }
   
