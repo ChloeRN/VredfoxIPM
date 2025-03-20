@@ -427,7 +427,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     rho = rho,
     S0 = S0,
     
-    pertFac.mH.flex = pertFac.mH.flex
+    pertFac.mH.flex = pertFac.mH.flex,
     
     logDev.mH = log(mH[1, ]) - log(Mu.mH[1])
   )
