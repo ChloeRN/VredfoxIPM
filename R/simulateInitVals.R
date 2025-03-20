@@ -155,8 +155,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
   
   ## Random effects (initialize at to 0)
-  epsilon.mH <- rep(0, Tmax)
-  epsilon.mO <- rep(0, Tmax)
+  epsilon.mH <- rep(0, Tmax+1)
+  epsilon.mO <- rep(0, Tmax+1)
   epsilon.Psi <- rep(0, Tmax+1)
   epsilon.rho <- rep(0, Tmax+1)
   
@@ -229,19 +229,19 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   # Calculate year-specific vital rates #
   #-------------------------------------#
   
-  mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
-  Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
+  mO <- matrix(NA, nrow = Amax, ncol = Tmax)
+  mH <- Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
   S0 <- rep(NA, Tmax + 1)
   
   for(t in 1:(Tmax+1)){
     
     if(t <= Tmax){
-      ## Winter harvest mortality hazard rate
-      mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
-      
       ## Other (natural) mortality hazard rate
       mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t])
     }
+    
+    ## Winter harvest mortality hazard rate
+    mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])
     
     ## Pregnancy rate
     Psi[1, t] <- 0
@@ -265,10 +265,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   }
 
   ## Survival probability
-  S <- exp(-(mH + mO))
+  S <- exp(-(mH[,1:Tmax] + mO))
   
   ## Proportion harvest mortality
-  alpha <- mH/(mH + mO)
+  alpha <- mH[,1:Tmax]/(mH[,1:Tmax] + mO)
 
   ## Harvest rate
   h <- (1 - S)*alpha
@@ -384,6 +384,11 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     epsilon.Psi = epsilon.Psi,
     epsilon.rho = epsilon.Psi,
     
+    eta.mH = epsilon.mH,
+    eta.mO = epsilon.mO,
+    tau.mO = 0,
+    C.mO = 0,
+    
     mH = mH,
     mO = mO, 
     S = S,
@@ -391,12 +396,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     h = h, 
     Psi = Psi, 
     rho = rho,
-    S0 = S0
+    S0 = S0,
     
-    #meanLS = c(0, (colSums(R[2:Amax,2:(Tmax+1)])*2)/colSums(B[2:Amax,2:(Tmax+1)]))
-    
-    #Mu.Imm = Mu.Imm,
-    #sigma.Imm = sigma.Imm
+    logDev.mH = log(mH[1, ]) - log(Mu.mH[1])
   )
   
   ## Add initial values for parameters specific to survival prior model versions
@@ -415,6 +417,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   if(fitCov.mO){
     InitVals$betaR.mO <- betaR.mO
     InitVals$betaD.mO <- 0
+    InitVals$betaRxD.mO <- 0
+    InitVals$gamma.mO <- 0
   }
   
   if(fitCov.Psi){
@@ -428,6 +432,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   if(fitCov.immR){
     InitVals$betaR.immR <- betaR.immR
     InitVals$betaD.immR <- 0
+    InitVals$betaRxD.immR <- 0
+    InitVals$gamma.immR <- 0
   }
   
   ## Add initial values specific to immigration model versions
@@ -456,7 +462,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     InitVals$immR <- c(0, rep(InitVals$Mu.immR, Tmax))
     InitVals$sigma.immR <- runif(1, 0, 0.5)
     InitVals$epsilon.immR <- rep(0, Tmax+1)
-  
+    InitVals$eta.immR <- rep(0, Tmax+1)
+    InitVals$tau.immR <- 0
+    InitVals$C.immR <- 0
+    
   }else{
     
     InitVals$Mu.Imm <- Mu.Imm
