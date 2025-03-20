@@ -15,7 +15,7 @@ library(coda)
 #**********#
 
 ## Set seed
-mySeed <- 10
+mySeed <- 156
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -89,7 +89,7 @@ sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all p
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
-imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
+imm.asRate <- FALSE # Estimating immigration as a rate as opposed to numbers
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 poolYrs.genData <- TRUE # Pool data across all years
@@ -322,6 +322,8 @@ model.setup <- setupModel(modelCode = redfox.code,
                           comp.immR = comp.immR,
                           comp.RE = comp.RE,
                           testRun = FALSE,
+                          niter = 100000 + 50000, 
+                          nburn = 37500 + 50000,
                           initVals.seed = mySeed
                           )
 
@@ -341,11 +343,12 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       nburnin = model.setup$mcmcParams$nburn, 
                       thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
-                      setSeed = 0)
+                      setSeed = mySeed)
 Sys.time() - t1
 
 
 saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_DDxRimmR_reCOMPmO.rds") 
+
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -380,7 +383,6 @@ compareModels(Amax = Amax,
                               "Density effect on immR, mH-mO correlated REs", 
                               "Density x rodent effect on immR, mH-mO correlated REs"), 
               plotFolder = "Plots/Comp_DD&Compensation")
-
 
 ## Simplified models
 compareModels(Amax = Amax, 
