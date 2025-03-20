@@ -581,9 +581,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       DU.prior.N[1:uLim.N] <- 1/uLim.N
       
       #---------------------------------------------------------------------------------------------
-      
-      
-      for(t in 1:Tmax){  
+
+      for(t in 1:(Tmax+1)){
         #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
         epsilon.mH[t] <- sigma.mH*eta.mH[t]
         eta.mH[t] ~ dnorm(0, sd = 1)
@@ -591,9 +590,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
         epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
         eta.mO[t] ~ dnorm(0, sd = sigma.mO)
-      }
-      
-      for(t in 1:(Tmax+1)){
+        
         epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
         epsilon.rho[t] ~ dnorm(0, sd = sigma.rho) 
         # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
@@ -1196,7 +1193,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Random year variation
-      for(t in 1:Tmax){  
+      
+      for(t in 1:(Tmax+1)){
         #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
         epsilon.mH[t] <- sigma.mH*eta.mH[t]
         eta.mH[t] ~ dnorm(0, sd = 1)
@@ -1204,9 +1202,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
         epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
         eta.mO[t] ~ dnorm(0, sd = sigma.mO)
-      }
-      
-      for(t in 1:(Tmax+1)){
+        
         epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
         epsilon.rho[t] ~ dnorm(0, sd = sigma.rho) 
         # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)

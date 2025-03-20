@@ -259,7 +259,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       ## Survival and mortality
       
       # Winter harvest mortality hazard rate
-      for(t in 1:(Tmax+Tmax_sim)){
+      for(t in 1:(Tmax+Tmax_sim+1)){
         if(fitCov.mH){
           mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
         }else{
@@ -584,8 +584,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       
       
       ## Random year variation
-        
-      for(t in 1:(Tmax+Tmax_sim)){  
+      
+      for(t in 1:(Tmax+Tmax_sim+1)){
         #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
         epsilon.mH[t] <- sigma.mH*eta.mH[t]
         eta.mH[t] ~ dnorm(0, sd = 1)
@@ -593,9 +593,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
         epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
         eta.mO[t] ~ dnorm(0, sd = sigma.mO)
-      }
-      
-      for(t in 1:(Tmax+Tmax_sim+1)){
+        
         epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
         epsilon.rho[t] ~ dnorm(0, sd = sigma.rho) 
         # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
@@ -707,7 +705,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       pertFac.mH.flex[1:Tmax] <- 1
       
       if(Tmax_sim > 0){
-        for(t in (Tmax+1):(Tmax+Tmax_sim)){
+        for(t in (Tmax+1):(Tmax+Tmax_sim+1)){
           pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
                                                   covThreshold = threshold.rodent.mH,
                                                   thresholdAbove = thresholdAbove,
@@ -919,7 +917,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       ## Survival and mortality
       
       # Winter harvest mortality hazard rate
-      for(t in 1:(Tmax+Tmax_sim)){
+      for(t in 1:(Tmax+Tmax_sim+1)){
         
         if(fitCov.mH){
           mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
@@ -1252,7 +1250,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       
       ## Random year variation
 
-      for(t in 1:(Tmax+Tmax_sim)){  
+      for(t in 1:(Tmax+Tmax_sim+1)){
+        
         #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
         epsilon.mH[t] <- sigma.mH*eta.mH[t]
         eta.mH[t] ~ dnorm(0, sd = 1)
@@ -1260,9 +1259,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
         epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
         eta.mO[t] ~ dnorm(0, sd = sigma.mO)
-      }
-      
-      for(t in 1:(Tmax+Tmax_sim+1)){
+        
         epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
         epsilon.rho[t] ~ dnorm(0, sd = sigma.rho) 
         # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
@@ -1374,7 +1371,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       pertFac.mH.flex[1:Tmax] <- 1
       
       if(Tmax_sim > 0){
-        for(t in (Tmax+1):(Tmax+Tmax_sim)){
+        for(t in (Tmax+1):(Tmax+Tmax_sim+1)){
           pertFac.mH.flex[t] <- calculate_pertFac(pertFactor = factor.mH.rodent,
                                                   covThreshold = threshold.rodent.mH,
                                                   thresholdAbove = thresholdAbove,

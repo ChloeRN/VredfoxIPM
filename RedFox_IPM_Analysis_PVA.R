@@ -111,13 +111,13 @@ S0.sd.factor <- 1
 
 ## Density effects toggles
 DD.mO <- FALSE
-DD.immR <- TRUE
-DDxRodent <- TRUE
+DD.immR <- FALSE
+DDxRodent <- FALSE
 
 ## Compensation toggles
-comp.mO <- TRUE
+comp.mO <- FALSE
 comp.immR <- FALSE
-comp.RE <- TRUE
+comp.RE <- FALSE
 
 ## Set up perturbation parameters for running standard scenarios
 pert.mH <- FALSE
@@ -325,6 +325,7 @@ input.data <- assemble_inputData_PVA(Amax = Amax,
                                      maxPups = 14,
                                      uLim.N = 800,
                                      uLim.Imm = 3000,
+                                     normN = normN,
                                      nLevels.rCov = nLevels.rCov,
                                      standSpec.rCov = standSpec.rCov,
                                      poolYrs.genData = poolYrs.genData,
@@ -370,7 +371,7 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               comp.mO = comp.mO,
                               comp.immR = comp.immR,
                               comp.RE = comp.RE,
-                              testRun = FALSE,
+                              testRun = TRUE,
                               initVals.seed = mySeed)
 
 

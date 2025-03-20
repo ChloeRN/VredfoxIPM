@@ -107,7 +107,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   }
   
   pertFac.mH.flex[1:nim.constants$Tmax] <- 1
-  pertFac.mH.flex <- pertFac.mH.flex[1:Tmax]
+  pertFac.mH.flex <- pertFac.mH.flex[1:(Tmax+1)]
   
   #---------------------------------------------------#
   # Set initial values for vital rate base parameters #
@@ -183,8 +183,8 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   }
   
   ## Random effects (initialize at to 0)
-  epsilon.mH <- rep(0, Tmax)
-  epsilon.mO <- rep(0, Tmax)
+  epsilon.mH <- rep(0, Tmax+1)
+  epsilon.mO <- rep(0, Tmax+1)
   epsilon.Psi <- rep(0, Tmax+1)
   epsilon.rho <- rep(0, Tmax+1)
   
@@ -257,20 +257,16 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   # Calculate year-specific vital rates #
   #-------------------------------------#
   
-  mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
-  Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
+  mH <- mO <- Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
   S0 <- rep(NA, Tmax + 1)
   
   for(t in 1:(Tmax+1)){
-    
-    if(t <= Tmax){
       
-      ## Winter harvest mortality hazard rate
-      mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
+    ## Winter harvest mortality hazard rate
+    mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
       
-      ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
-    }
+    ## Other (natural) mortality hazard rate
+    mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
     
     ## Pregnancy rate
     Psi[1, t] <- 0
@@ -303,7 +299,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   h <- (1 - S)*alpha
   
   ## Immigrant numbers
-  Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))*pertFac.immR
+  Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm)*pertFac.immR)
   Imm[1] <- 0
   
   
@@ -396,6 +392,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     L = L,
     R = R,
     Imm = Imm,
+    localN.tot = colSums(R[2:Amax, 1:(Tmax+1)]) + colSums(N[2:Amax, 1:(Tmax+1)]),
     
     Mu.mH = Mu.mH,
     Mu.mO = Mu.mO,

@@ -35,8 +35,6 @@
 #' Default = FALSE. 
 #' @param factor.S0 numeric. Relative change to denning survival to apply.
 #' 1 = no change (default). < 1 = decrease. > 1 = increase. 
-#' @param factor.mHs numeric. Relative change to summer harvest mortality hazard 
-#' rate to apply. 1 = no change (default). < 1 = decrease. > 1 = increase. 
 #' @param pert.immR logical. Whether to apply a perturbation to immigration rate. 
 #' Default = FALSE. 
 #' @param factor.immR numeric. Relative change to immigration rate to apply.
@@ -59,27 +57,27 @@ setupPerturbVecs_PVA <- function(Tmax, Tmax_sim,
                                  pert.rodent = FALSE,  factor.rodent = 1){
   
   ## Check that there are no invalid perturbation factors
-  if(any(c(factor.mH, factor.mO, factor.S0, factor.mHs, factor.immR, factor.rodent) < 0)){
+  if(any(c(factor.mH, factor.mO, factor.S0, factor.immR, factor.rodent) < 0)){
     stop("Invalid perturbation factor provided. Perturbation factors have to be
          numerical values >= 0.")
   }
   
-  if(any(!is.numeric(c(factor.mH, factor.mO, factor.S0, factor.mHs, factor.immR, factor.rodent)))){
+  if(any(!is.numeric(c(factor.mH, factor.mO, factor.S0, factor.immR, factor.rodent)))){
     stop("Invalid perturbation factor provided. Perturbation factors have to be
          numerical values >= 0.")
   }
   
   ## Set up basics perturbation vectors during study/data period
-  pertFac.mH <- pertFac.mO <- pertFac.mHs <- pertFac.immR <- rep(1, Tmax)
-  pertFac.S0 <- rep(1, Tmax+1)
+  pertFac.mH <- pertFac.mO <- rep(1, Tmax)
+  pertFac.immR <- pertFac.S0 <- rep(1, Tmax+1)
   pertFac.rodent <- rep(1, Tmax+1)
   
   ## Add factors for perturbation period
   if(Tmax_sim > 0){
-    pertFac.mH <- c(pertFac.mH, rep(ifelse(pert.mH, factor.mH, 1), Tmax_sim))
-    pertFac.mO <- c(pertFac.mO, rep(ifelse(pert.mO, factor.mO, 1), Tmax_sim))
+    pertFac.mH <- c(pertFac.mH, rep(ifelse(pert.mH, factor.mH, 1), Tmax_sim+1))
+    pertFac.mO <- c(pertFac.mO, rep(ifelse(pert.mO, factor.mO, 1), Tmax_sim+1))
     pertFac.S0 <- c(pertFac.S0, rep(ifelse(pert.S0, factor.S0, 1), Tmax_sim))
-    pertFac.immR <- c(pertFac.immR, rep(ifelse(pert.immR, factor.immR, 1), Tmax_sim+1))
+    pertFac.immR <- c(pertFac.immR, rep(ifelse(pert.immR, factor.immR, 1), Tmax_sim))
     pertFac.rodent <- c(pertFac.rodent, rep(ifelse(pert.rodent, factor.rodent, 1), Tmax_sim))
   }
   

@@ -111,11 +111,11 @@ S0.sd.factor <- 1
 
 ## Density effects toggles
 DD.mO <- FALSE
-DD.immR <- TRUE
-DDxRodent <- TRUE
+DD.immR <- FALSE
+DDxRodent <- FALSE
 
 ## Compensation toggles
-comp.mO <- TRUE
+comp.mO <- FALSE
 comp.immR <- FALSE
 comp.RE <- FALSE
 
@@ -345,7 +345,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_DDxRImm_effCOMPmO.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_baseline_Imm.rds") 
 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
@@ -367,6 +367,17 @@ saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_DDxRImm_effCOMPmO.rds")
 ########################
 
 ## Models with density-dependence & compensation
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_singleCensus_DDxRImm_effCOMPmO.rds",
+                                 "RedFoxIPM_singleCensus_DDxRimmR_effCOMPmO.rds",
+                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
+              model.names = c("Density x rodent effect on Imm, mH-effect on mO)", 
+                              "Density x rodent effect on immR, mH-effect on mO)",
+                              "Baseline (no DD or compensation)"), 
+              plotFolder = "Plots/Comp_DD&Compensation_immRvsImm")
+
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
