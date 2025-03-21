@@ -408,6 +408,21 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_Imm.rds") # No pert
 # 5) MODEL COMPARISONS #
 ########################
 
+## New model setup with DD & compensation
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_immR.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_Imm.rds"), 
+                           model.names = c("No DD & compensation",
+                                           "DD & compensation coded (immR)",
+                                           "DD & compensation coded (Imm)"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_DD&CompSetup",
+                           returnSumData = TRUE)
+
 ## Models with/without second census
 PVA0_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
