@@ -134,7 +134,7 @@ setupModel_PVA <- function(modelCode,
       params <- c(params, "immR_pre")
     }
   }else{
-    params <- c(params, "Mu.Imm", "sigma.immR", "tau.immR", "C.immR")
+    params <- c(params, "Mu.Imm", "Mu.immR", "sigma.immR", "tau.immR", "C.immR")
   } 
   
   if(fitCov.immR){

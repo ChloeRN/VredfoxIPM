@@ -190,45 +190,39 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       
       
       ### Likelihood (immigration status of sampled individuals)
-      if(imm.asRate){
-        if(useData.gen){
+      if(useData.gen){
+        
+        ## Likelihood for individuals (within study period) to be immigrants
+        for(x in 1:Xgen){
+          ImmData[x] ~ dbern(pImm[x])
+        }
+        
+        if(poolYrs.genData){
           
-          ## Likelihood for individuals (within study period) to be immigrants
-          for(x in 1:Xgen){
-            ImmData[x] ~ dbern(pImm[x])
-          }
-          
-          if(poolYrs.genData){
-            
-            ## Derivation of average immigration rate
-            Mu.immR <- sum(ImmData[1:Xgen]) / (Xgen - sum(ImmData[1:Xgen]))
-            
-          }else{
-            
-            ## Likelihood for individuals outside the study period to be immigrants
-            for(x in 1:Xgen_pre){
-              ImmData_pre[x] ~ dbern(pImm_pre[x])
-            }
-            
-            ## Derivation of year-specific immigration rates
-            # Within study period
-            immR[1:Tmax_Gen] <- calculateImmR(ImmData = ImmData[1:Xgen], 
-                                              yearIdx = pImm_yrs[1:Xgen],
-                                              Tmax = Tmax_Gen, skip_t1 = FALSE)
-            
-            # Outside study period
-            immR_pre[1:Tmax_Gen_pre] <- calculateImmR(ImmData = ImmData_pre[1:Xgen_pre], 
-                                                      yearIdx = pImm_yrs_pre[1:Xgen_pre],
-                                                      Tmax = Tmax_Gen_pre, skip_t1 = FALSE)
-            
-          }
+          ## Derivation of average immigration rate
+          Mu.immR <- sum(ImmData[1:Xgen]) / (Xgen - sum(ImmData[1:Xgen]))
           
         }else{
           
-          Mu.immR ~ dunif(0, 10)
+          ## Likelihood for individuals outside the study period to be immigrants
+          for(x in 1:Xgen_pre){
+            ImmData_pre[x] ~ dbern(pImm_pre[x])
+          }
+          
+          ## Derivation of year-specific immigration rates
+          # Within study period
+          immR[1:Tmax_Gen] <- calculateImmR(ImmData = ImmData[1:Xgen], 
+                                            yearIdx = pImm_yrs[1:Xgen],
+                                            Tmax = Tmax_Gen, skip_t1 = FALSE)
+          
+          # Outside study period
+          immR_pre[1:Tmax_Gen_pre] <- calculateImmR(ImmData = ImmData_pre[1:Xgen_pre], 
+                                                    yearIdx = pImm_yrs_pre[1:Xgen_pre],
+                                                    Tmax = Tmax_Gen_pre, skip_t1 = FALSE)
           
         }
       }
+      
       
       #===============================================================================================
       
@@ -507,6 +501,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           }else{
             immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
           }
+          
+          Mu.immR ~ dunif(0, 10)
         }
         
         for(t in 1:(Tmax+Tmax_sim)){ 
@@ -518,13 +514,21 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+Tmax_sim+1)){
+          
           Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
-          log(ImmExp[t]) <- log(Mu.Imm) + 
-            betaR.immR*RodentAbundance2[t] + 
-            betaD.immR*(log(localN.tot[t]) - log(normN)) + 
-            betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
-            gamma.immR*logDev.mH[t] +
-            epsilon.immR[t] 
+          
+          if(fitCov.immR){
+            log(ImmExp[t]) <- log(Mu.Imm) + 
+              betaR.immR*RodentAbundance2[t] + 
+              betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+              betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+              gamma.immR*logDev.mH[t] +
+              epsilon.immR[t] 
+          }else{
+            Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
+            log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t] 
+          }
+
         }
         
         Mu.Imm ~ dunif(1, uLim.Imm)
@@ -867,7 +871,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       
       
       ### Likelihood (immigration status of sampled individuals)
-      if(imm.asRate & useData.gen){
+      if(useData.gen){
         
         if(poolYrs.genData){
           
@@ -1152,28 +1156,38 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         }else{
           immR[1:(Tmax+Tmax_sim+1)] <- exp(log(Mu.immR) + epsilon.immR[1:(Tmax+Tmax_sim+1)])*pertFac.immR[1:(Tmax+Tmax_sim+1)]
         }
-          
+        
+        Mu.immR ~ dunif(0, 10)  
           
         for(t in 1:(Tmax+Tmax_sim)){ 
           Imm[t] ~ dpois(R.tot[t]*immR[t])
         }
         
-        Mu.immR ~ dunif(0, 10)
-        
-        
       }else{
         
         ## Lognormal prior for immigrant numbers
-        for(t in 2:(Tmax+Tmax_sim+1)){
-          Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
-          log(ImmExp[t]) <- log(Mu.Imm) + 
-            betaR.immR*RodentAbundance2[t] + 
-            betaD.immR*(log(localN.tot[t]) - log(normN)) + 
-            betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
-            gamma.immR*logDev.mH[t] +
-            epsilon.immR[t]
-        }
         
+        for(t in 2:(Tmax+Tmax_sim+1)){
+          
+          Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
+          
+          if(fitCov.immR){
+            
+            log(ImmExp[t]) <- log(Mu.Imm) + 
+              betaR.immR*RodentAbundance2[t] + 
+              betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+              betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+              gamma.immR*logDev.mH[t] +
+              epsilon.immR[t]
+          }else{
+            
+            for(t in 2:(Tmax+Tmax_sim+1)){
+              log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
+            }
+          }
+          
+        }
+
         Mu.Imm ~ dunif(1, uLim.Imm)
         
         ## Derivation of immigration rates
@@ -1217,7 +1231,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       
       
       ## Immigration outside the study period
-      if(imm.asRate & useData.gen & !poolYrs.genData){
+      if(useData.gen & !poolYrs.genData){
         
         for(t in 1:Tmax_Gen_pre){
           
