@@ -89,7 +89,7 @@ sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all p
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
-imm.asRate <- FALSE # Estimating immigration as a rate as opposed to numbers
+imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 poolYrs.genData <- TRUE # Pool data across all years
@@ -111,13 +111,13 @@ S0.sd.factor <- 1
 
 ## Density effects toggles
 DD.mO <- FALSE
-DD.immR <- FALSE
+DD.immR <- TRUE
 DDxRodent <- FALSE
 
 ## Compensation toggles
-comp.mO <- FALSE
+comp.mO <- TRUE
 comp.immR <- FALSE
-comp.RE <- FALSE
+comp.RE <- TRUE
 
 ## Set up perturbation parameters for running standard scenarios
 pert.mH <- FALSE
@@ -372,7 +372,7 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               comp.immR = comp.immR,
                               comp.RE = comp.RE,
                               testRun = FALSE,
-                              initVals.seed = mySeed + 1)
+                              initVals.seed = mySeed)
 
 
 ####################
@@ -393,7 +393,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_Imm.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
