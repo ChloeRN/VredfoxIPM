@@ -64,7 +64,7 @@ fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
 fitCov.mO <- TRUE # Fit covariates on mO (rodent abundance)
 fitCov.Psi <- TRUE # Fit covariates on Psi (rodent abundance)
 fitCov.rho <- TRUE # Fit covariates on rho (rodent abundance)
-fitCov.immR <- TRUE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
+fitCov.immR <- FALSE # Fit covariates on immigration rate (rodent abundance) - only if immigration is estimated as a rate
 rCov.idx <- FALSE # Use discrete vs. continuous rodent covariate
 nLevels.rCov <- 2 # 2-level discrete rodent covariate
 #nLevels.rCov <- 3 # 3-level discrete rodent covariate (data not currently prepared)
@@ -86,11 +86,11 @@ sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all p
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
-imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
+imm.asRate <- FALSE # Estimating immigration as a rate as opposed to numbers
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 poolYrs.genData <- TRUE # Pool data across all years
-useData.gen <- TRUE # Use genetic data for estimation of immigration rate
+useData.gen <- FALSE # Use genetic data for estimation of immigration rate
 indLikelihood.genData <- FALSE # Apply an individual-level likelihood for genetic data
 threshold <- 0.05
 #threshold <- 0.2
@@ -324,7 +324,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_combHarvest2.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_noImmCov_ImmNo_mHa_noGenData.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -345,6 +345,25 @@ saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_combHarvest2.rds")
 ########################
 
 ## Simplified models
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main_singleCensus_noImmCov_immRNo_mHa_noGenData.rds", 
+                                 "RedFoxIPM_main_singleCensus_noImmCov_ImmNo_mHa_noGenData.rds"), 
+              model.names = c("Immigration rate", 
+                              "Immigrant numbers"), 
+              plotFolder = "Plots/Comp_NoImm")
+
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main_singleCensus_noImmCov.rds", 
+                                 "RedFoxIPM_main_singleCensus_noImmCov_ImmNo.rds"), 
+              model.names = c("Immigration rate", 
+                              "Immigrant numbers"), 
+              plotFolder = "Plots/Comp_NoImmCovs")
+
+
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 

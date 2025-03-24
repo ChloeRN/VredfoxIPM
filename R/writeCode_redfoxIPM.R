@@ -774,11 +774,14 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       # Median harvest mortality hazard rates
       
       # Age-dependent
-      for(a in 1:2){
+      # for(a in 1:2){
+      #   Mu.mH[a] ~ dunif(0, 5)
+      # }
+      # 
+      # Mu.mH[3:Amax] <- Mu.mH[2]
+      for(a in 1:Amax){
         Mu.mH[a] ~ dunif(0, 5)
       }
-      
-      Mu.mH[3:Amax] <- Mu.mH[2]
       
       # Age-independent   
       #Mu.mH.all ~ dunif(0, 5) 
