@@ -143,7 +143,7 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
                 "Mu.S0", "Mu.immR", "Mu.Imm"),
     
     VReffects = c("sigma.mH", "sigma.mHs", "sigma.mO", "sigma.Psi", "sigma.rho", 
-                  "sigma.immR", "logsigma.Imm",
+                  "sigma.immR", "logsigma.Imm", "sigma.Imm",
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]"),

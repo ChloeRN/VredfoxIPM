@@ -316,15 +316,15 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       inits = model.setup$initVals, 
                       monitors = model.setup$modelParams,
                       nchains = model.setup$mcmcParams$nchains, 
-                      niter = model.setup$mcmcParams$niter, 
-                      nburnin = model.setup$mcmcParams$nburn, 
-                      thin = model.setup$mcmcParams$nthin, 
+                      niter = model.setup$mcmcParams$niter*2, 
+                      nburnin = model.setup$mcmcParams$nburn*2, 
+                      thin = model.setup$mcmcParams$nthin*2, 
                       samplesAsCodaMCMC = TRUE, 
                       setSeed = 0)
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_noImmCov_ImmNo_mHa_noGenData.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_noImmCov_ImmNorm_mHa_noGenData.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
@@ -348,10 +348,12 @@ saveRDS(IPM.out, file = "RedFoxIPM_main_singleCensus_noImmCov_ImmNo_mHa_noGenDat
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main_singleCensus_noImmCov_immRNo_mHa_noGenData.rds", 
-                                 "RedFoxIPM_main_singleCensus_noImmCov_ImmNo_mHa_noGenData.rds"), 
+              post.filepaths = c("RedFoxIPM_main_singleCensus_noImmCov_immR_mHa_noGenData.rds", 
+                                 "RedFoxIPM_main_singleCensus_noImmCov_ImmNo_mHa_noGenData.rds",
+                                 "RedFoxIPM_main_singleCensus_noImmCov_ImmNorm_mHa_noGenData.rds"), 
               model.names = c("Immigration rate", 
-                              "Immigrant numbers"), 
+                              "Immigrant numbers, logNorm", 
+                              "Immigrant numbers, T(Norm)"), 
               plotFolder = "Plots/Comp_NoImm")
 
 compareModels(Amax = Amax, 

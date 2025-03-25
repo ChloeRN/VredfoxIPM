@@ -939,11 +939,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         ## Lognormal prior for immigrant numbers
         for(t in 2:Tmax){
           Imm[t] <- round(ImmExp[t])
-          ImmExp[t] ~ dlnorm(meanlog = log(Mu.Imm), sdlog = logsigma.Imm) 
+          #ImmExp[t] ~ dlnorm(meanlog = log(Mu.Imm), sdlog = logsigma.Imm)
+          ImmExp[t] ~ T(dnorm(mean = Mu.Imm, sd = sigma.Imm), 0, uLim.Imm*1.5) 
         }
         
         Mu.Imm ~ dunif(1, uLim.Imm)
-        logsigma.Imm ~ dunif(0, 10)
+        #logsigma.Imm ~ dunif(0, 10)
+        sigma.Imm ~ dunif(0, uLim.Imm/1.5)
         
         ## Derivation of immigration rates
         immR[1] <- 0
