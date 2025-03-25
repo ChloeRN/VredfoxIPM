@@ -106,7 +106,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     pertFac.mH.flex <- ifelse(RodentAbundance_pert < nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
   }
   
-  pertFac.mH.flex[1:nim.constants$Tmax] <- 1
+  pertFac.mH.flex[1:(nim.constants$Tmax+1)] <- 1
   pertFac.mH.flex <- pertFac.mH.flex[1:(Tmax+1)]
   
   #---------------------------------------------------#

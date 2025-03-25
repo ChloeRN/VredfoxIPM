@@ -93,8 +93,8 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
   }else{
     
     if(nLevels.rCov == 2){
-      RodentIndex <- rodent.data$cat2.wintvar
-      RodentIndex2 <- rodent.data$cat2.fallstor
+      RodentIndex <- rodent.data$cat2.wintvar[1:(Tmax+1)]
+      RodentIndex2 <- rodent.data$cat2.fallstor[1:(Tmax+1)]
     }else{
       #RodentIndex <- rodent.data$cat3
       stop("3 level rodent covariate not currently supported")
@@ -103,20 +103,26 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
   
   ## Select relevant continuous rodent covariate
   if(standSpec.rCov){
-    RodentAbundance <- rodent.data$cont.wintvar.stsp
+    RodentAbundance <- rodent.data$cont.wintvar.stsp[1:(Tmax+1)]
   }else{
-    RodentAbundance <- rodent.data$cont.wintvar
+    RodentAbundance <- rodent.data$cont.wintvar[1:(Tmax+1)]
   }
   
   if(standSpec.rCov){
-    RodentAbundance2 <- rodent.data$cont.fallstor.stsp
+    RodentAbundance2 <- rodent.data$cont.fallstor.stsp[1:(Tmax+1)]
   }else{
-    RodentAbundance2 <- rodent.data$cont.fallstor
+    RodentAbundance2 <- rodent.data$cont.fallstor[1:(Tmax+1)]
   }
   
   ## Select relevant reindeer covariates
   Reindeer <- reindeer.data$RDcarcass
   
+  ## Select and expand harvest effort covariate
+  HarvestEffort <- hunter.data$NHunters_std
+  if(length(HarvestEffort) < Tmax+1){
+    HarvestEffort <- c(HarvestEffort, rep(NA, (Tmax+1)-length(HarvestEffort)))
+  }
+    
   ## Add simulation years to covariates
   if(Tmax_sim > 0){
     RodentAbundance <- c(RodentAbundance, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance))))
@@ -124,9 +130,9 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
     RodentIndex <- c(RodentIndex, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex))))
     RodentIndex2 <- c(RodentIndex2, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex2))))
     Reindeer <- c(Reindeer, rep(NA, (Tmax+Tmax_sim+1-length(Reindeer))))
-    HarvestEffort <- c(hunter.data$NHunters_std, rep(NA, (Tmax+Tmax_sim-length(hunter.data$NHunters_std))))
+    HarvestEffort <- c(HarvestEffort, rep(NA, (Tmax+Tmax_sim+1-length(HarvestEffort))))
   }else{
-    HarvestEffort <- hunter.data$NHunters_std
+    HarvestEffort <- HarvestEffort
   }
   
   ## List all relevant data (split into data and constants as used by NIMBLE)

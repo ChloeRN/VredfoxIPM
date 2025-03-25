@@ -54,9 +54,9 @@
 #' mortality from average harvest mortality (= harvest mortality RE plus any 
 #' potential covariate effects on harvest mortality).
 
-#' @param niter integer. Number of MCMC iterations (default = 30000)
-#' @param nthin integer. Thinning factor (default = 4)
-#' @param nburn integer. Number of iterations to discard as burn-in (default = 5000)
+#' @param niter integer. Number of MCMC iterations (default = 100000)
+#' @param nthin integer. Thinning factor (default = 8)
+#' @param nburn integer. Number of iterations to discard as burn-in (default = 37500)
 #' @param nchains integer. Number of chains to run (default = 3).
 #' @param testRun logical. If TRUE, sets up for a test run with 10 iterations,
 #' no thinning, and no burn-in (default = FALSE)

@@ -78,13 +78,13 @@ agvar_spring$st.vole <- (agvar_spring$vole-mean(agvar_spring$vole))/sd(agvar_spr
 agvar_spring$st.lemvole <- (agvar_spring$st.lem+ agvar_spring$st.vole) # vole and lemming together after standardised
 
 agvar_winter <- rbind(agvar_fall, agvar_spring)
-agvar_winter <- aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot, st.tot, st.lem, st.vole, st.lemvole) ~ start_hunting_year , agvar_winter, mean)
+agvar_winter <- stats::aggregate(cbind(Llem, Moec, Mruf, Mrut, rodsp, vole, tot, st.tot, st.lem, st.vole, st.lemvole) ~ start_hunting_year , agvar_winter, mean)
 
 #remove data for start_hunting year 2003 (only spring 2004, no rodents from 2003 fall)
-agvar_winter[ agvar_winter$start_hunting_year==2003, -1] <-NA
+agvar_winter[agvar_winter$start_hunting_year==2003, -1] <-NA
 
 #if spring and fall have dissimilar "start_hunting_year" in the final row, this "start_hunting_year" should also be NA (because spring rodents not collected yet for that year)
-if (agvar_spring[nrow(agvar_spring), 11] != agvar_fall[nrow(agvar_fall), 11]) {
+if (agvar_spring[nrow(agvar_spring), "start_hunting_year"] != agvar_fall[nrow(agvar_fall), "start_hunting_year"]) {
  agvar_winter[nrow(agvar_winter), -1] <-NA    
 }
   

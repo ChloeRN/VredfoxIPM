@@ -1149,7 +1149,6 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
                                betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + 
                                gamma.immR*logDev.mH[t] +
                                epsilon.immR[t])*pertFac.immR[t]
-              
             }
           }
           
@@ -1159,7 +1158,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         
         Mu.immR ~ dunif(0, 10)  
           
-        for(t in 1:(Tmax+Tmax_sim)){ 
+        for(t in 1:(Tmax+Tmax_sim+1)){ 
           Imm[t] ~ dpois(R.tot[t]*immR[t])
         }
         
