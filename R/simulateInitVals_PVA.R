@@ -108,7 +108,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   }
   
   pertFac.mH.flex[1:nim.constants$Tmax] <- 1
-  pertFac.mH.flex <- pertFac.mH.flex[1:Tmax]
+  pertFac.mH.flex <- pertFac.mH.flex[1:(Tmax+1)]
   
   #---------------------------------------------------#
   # Set initial values for vital rate base parameters #
@@ -117,7 +117,10 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   ## Harvest and natural mortality
   Mu.mHs <- runif(Amax, 0.01, 0.1)
   
-  Mu.mH <- runif(Amax, 0.05, 0.2)
+  Mu.mH.juv <- runif(1, 0.05, 0.2)
+  Mu.mH.ad <- runif(1, 0.05, 0.2)
+  
+  Mu.mH <- c(Mu.mH.juv, rep(Mu.mH.ad, length(2:Amax)))
   
   if(Mu.mO_fixInits){
     
@@ -185,8 +188,8 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   
   ## Random effects (initialize at to 0)
   epsilon.mHs <- rep(0, Tmax)
-  epsilon.mH <- rep(0, Tmax)
-  epsilon.mO <- rep(0, Tmax)
+  epsilon.mH <- rep(0, Tmax+1)
+  epsilon.mO <- rep(0, Tmax+1)
   epsilon.Psi <- rep(0, Tmax+1)
   epsilon.rho <- rep(0, Tmax+1)
   
@@ -259,23 +262,20 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   # Calculate year-specific vital rates #
   #-------------------------------------#
   
-  mHs <- mH <- mO <- matrix(NA, nrow = Amax, ncol = Tmax)
-  Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
+  mHs <- mH <- mO <- Psi <- rho <- matrix(NA, nrow = Amax, ncol = Tmax + 1)
   S0 <- rep(NA, Tmax + 1)
   
   for(t in 1:(Tmax+1)){
     
-    if(t <= Tmax){
-      
-      ## Summer harvest mortality hazard rate
-      mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])*pertFac.mHs[t]
-      
-      ## Winter harvest mortality hazard rate
-      mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
-      
-      ## Other (natural) mortality hazard rate
-      mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
-    }
+    ## Summer harvest mortality hazard rate
+    mHs[1:Amax, t] <- exp(log(Mu.mHs[1:Amax]) + epsilon.mHs[t])*pertFac.mHs[t]
+    
+    ## Winter harvest mortality hazard rate
+    mH[1:Amax, t] <- exp(log(Mu.mH[1:Amax]) + betaHE.mH*NHunters[t] + epsilon.mH[t])*pertFac.mH[t]*pertFac.mH.flex[t]
+    
+    ## Other (natural) mortality hazard rate
+    mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance_pert[t+1] + epsilon.mO[t])*pertFac.mO[t]
+    
     
     ## Pregnancy rate
     Psi[1, t] <- 0
@@ -406,7 +406,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     L[a, 1] <- 0
     R[a, 1] <- 0
   }
-  survN1[1] <- 0
+  survN1[1] <- round(mean(survN1[2:Tmax]))
   
   # NOTE: These nodes do not appear in the model and it therefore does not 
   #       matter what numbers they contain. Filling them in prevents a warning
@@ -442,6 +442,11 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     epsilon.Psi = epsilon.Psi,
     epsilon.rho = epsilon.Psi,
     
+    eta.mH = epsilon.mH,
+    eta.mO = epsilon.mO,
+    tau.mO = 0,
+    C.mO = 0,
+    
     mHs = mHs,
     mH = mH,
     mO = mO, 
@@ -452,10 +457,9 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     rho = rho,
     S0 = S0,
     
-    pertFac.mH.flex = pertFac.mH.flex
+    pertFac.mH.flex = pertFac.mH.flex,
     
-    #Mu.Imm = Mu.Imm,
-    #sigma.Imm = sigma.Imm
+    logDev.mH = log(mH[1, ]) - log(Mu.mH[1])
   )
   
   ## Add initial values for parameters specific to survival prior model versions
@@ -473,6 +477,9 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   
   if(fitCov.mO){
     InitVals$betaR.mO <- betaR.mO
+    InitVals$betaD.mO <- 0
+    InitVals$betaRxD.mO <- 0
+    InitVals$gamma.mO <- 0
   }
   
   if(fitCov.Psi){
@@ -485,6 +492,9 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   
   if(fitCov.immR){
     InitVals$betaR.immR <- betaR.immR
+    InitVals$betaD.immR <- 0
+    InitVals$betaRxD.immR <- 0
+    InitVals$gamma.immR <- 0
   }
   
   ## Add initial values specific to immigration model versions
@@ -513,11 +523,18 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     InitVals$immR <- c(0, rep(InitVals$Mu.immR, Tmax))
     InitVals$sigma.immR <- runif(1, 0, 0.5)
     InitVals$epsilon.immR <- rep(0, Tmax+1)
+    InitVals$eta.immR <- rep(0, Tmax+1)
+    InitVals$tau.immR <- 0
+    InitVals$C.immR <- 0
     
   }else{
     
     InitVals$Mu.Imm <- Mu.Imm
-    InitVals$logsigma.Imm <- logsigma.Imm
+    InitVals$sigma.immR <- logsigma.Imm
+    InitVals$epsilon.immR <- rep(0, Tmax+1)
+    InitVals$eta.immR <- rep(0, Tmax+1)
+    InitVals$tau.immR <- 0
+    InitVals$C.immR <- 0
     InitVals$ImmExp <- Imm
   }
   

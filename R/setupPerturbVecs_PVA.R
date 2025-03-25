@@ -79,12 +79,15 @@ setupPerturbVecs_PVA <- function(Tmax, Tmax_sim,
   
   ## Add factors for perturbation period
   if(Tmax_sim > 0){
-    pertFac.mH <- c(pertFac.mH, rep(ifelse(pert.mH, factor.mH, 1), Tmax_sim))
-    pertFac.mO <- c(pertFac.mO, rep(ifelse(pert.mO, factor.mO, 1), Tmax_sim))
+    pertFac.mH <- c(pertFac.mH, rep(ifelse(pert.mH, factor.mH, 1), Tmax_sim+1))
+    pertFac.mO <- c(pertFac.mO, rep(ifelse(pert.mO, factor.mO, 1), Tmax_sim+1))
     pertFac.S0 <- c(pertFac.S0, rep(ifelse(pert.S0, factor.S0, 1), Tmax_sim))
     pertFac.mHs <- c(pertFac.mHs, rep(ifelse(pert.mHs, factor.mHs, 1), Tmax_sim))
     pertFac.immR <- c(pertFac.immR, rep(ifelse(pert.immR, factor.immR, 1), Tmax_sim))
     pertFac.rodent <- c(pertFac.rodent, rep(ifelse(pert.rodent, factor.rodent, 1), Tmax_sim))
+  }else{
+    pertFac.mH <- c(pertFac.mH, 1)
+    pertFac.mO <- c(pertFac.mO, 1)
   }
   
   ## List and return perturbation vectors
