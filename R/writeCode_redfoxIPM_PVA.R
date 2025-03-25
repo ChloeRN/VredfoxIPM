@@ -216,10 +216,11 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
                                             Tmax = Tmax_Gen, skip_t1 = FALSE)
           
           # Outside study period
-          immR_pre[1:Tmax_Gen_pre] <- calculateImmR(ImmData = ImmData_pre[1:Xgen_pre], 
-                                                    yearIdx = pImm_yrs_pre[1:Xgen_pre],
-                                                    Tmax = Tmax_Gen_pre, skip_t1 = FALSE)
-          
+          if(imm.asRate){
+            immR_pre[1:Tmax_Gen_pre] <- calculateImmR(ImmData = ImmData_pre[1:Xgen_pre], 
+                                                      yearIdx = pImm_yrs_pre[1:Xgen_pre],
+                                                      Tmax = Tmax_Gen_pre, skip_t1 = FALSE)
+          }
         }
       }
       
@@ -887,8 +888,10 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           }
           
           # Outside study period
-          for(t in 1:Tmax_Gen_pre){
-            genObs_Imm_pre[t] ~ dpois(genObs_Res_pre[t]*immR_pre[t])
+          if(imm.asRate){
+            for(t in 1:Tmax_Gen_pre){
+              genObs_Imm_pre[t] ~ dpois(genObs_Res_pre[t]*immR_pre[t])
+            }
           }
         }
       }
@@ -1173,7 +1176,6 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
           
           if(fitCov.immR){
-            
             log(ImmExp[t]) <- log(Mu.Imm) + 
               betaR.immR*RodentAbundance2[t] + 
               betaD.immR*(log(localN.tot[t]) - log(normN)) + 
@@ -1181,10 +1183,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
               gamma.immR*logDev.mH[t] +
               epsilon.immR[t]
           }else{
-            
-            for(t in 2:(Tmax+Tmax_sim+1)){
-              log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
-            }
+            log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
           }
           
         }

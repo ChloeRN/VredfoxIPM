@@ -53,7 +53,6 @@
 #' models compensatory mechanisms as an effect of log-deviance of annual harvest
 #' mortality from average harvest mortality (= harvest mortality RE plus any 
 #' potential covariate effects on harvest mortality).
-
 #' @param niter integer. Number of MCMC iterations (default = 100000)
 #' @param nthin integer. Thinning factor (default = 8)
 #' @param nburn integer. Number of iterations to discard as burn-in (default = 37500)

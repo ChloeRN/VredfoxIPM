@@ -510,8 +510,6 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }else{
         
         ## Lognormal prior for immigrant numbers
-
-        ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+1)){
           Imm[t] <- round(ImmExp[t])
           
@@ -828,8 +826,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             genObs_Imm[t] ~ dpois(genObs_Res[t]*immR[t])
           }
           
+          # Outside study period
           if(imm.asRate){
-            # Outside study period
             for(t in 1:Tmax_Gen_pre){
               genObs_Imm_pre[t] ~ dpois(genObs_Res_pre[t]*immR_pre[t])
             }
@@ -1091,9 +1089,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
                 betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + 
                 gamma.immR*logDev.mH[t] +
                 epsilon.immR[t]
-
             }
           }
+          
         }else{
           log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
         }

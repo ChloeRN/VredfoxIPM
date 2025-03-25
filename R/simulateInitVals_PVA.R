@@ -33,7 +33,7 @@
 #' taken from the North Sweden red fox population as presented in Devenish-Nelson
 #' et al. 2017. Using these values seems to produce good sets of initial values
 #' for the entire model. If set to FALSE, initial values for Mu.mO parameters
-#' are instead simulated fron uniform distributions. 
+#' are instead simulated from uniform distributions. 
 #' 
 #' @return a list containing a complete set of initial values for all parameters
 #' in the IPM. 
@@ -106,7 +106,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     pertFac.mH.flex <- ifelse(RodentAbundance_pert < nim.data$threshold.rodent.mH, nim.data$factor.mH.rodent, 1)
   }
   
-  pertFac.mH.flex[1:(nim.constants$Tmax+1)] <- 1
+  pertFac.mH.flex[1:nim.constants$Tmax] <- 1
   pertFac.mH.flex <- pertFac.mH.flex[1:(Tmax+1)]
   
   #---------------------------------------------------#
