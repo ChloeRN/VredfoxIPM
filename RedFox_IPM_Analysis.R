@@ -90,6 +90,7 @@ sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all p
 
 # Immigration parameters toggle
 imm.asRate <- FALSE # Estimating immigration as a rate as opposed to numbers
+Imm.logNorm <- TRUE
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 poolYrs.genData <- TRUE # Pool data across all years

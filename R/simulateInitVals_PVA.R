@@ -463,6 +463,10 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     InitVals$betaD.immR <- 0
     InitVals$betaRxD.immR <- 0
     InitVals$gamma.immR <- 0
+    InitVals$betaR.Imm <- 0
+    InitVals$betaD.Imm <- 0
+    InitVals$betaRxD.Imm <- 0
+    InitVals$gamma.Imm <- 0
   }
   
   ## Add initial values specific to immigration model versions
@@ -499,8 +503,11 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     
     InitVals$Mu.Imm <- Mu.Imm
     InitVals$sigma.immR <- logsigma.Imm
+    InitVals$sigma.Imm <- sd(Imm)
     InitVals$epsilon.immR <- rep(0, Tmax+1)
+    InitVals$epsilon.Imm <- rep(0, Tmax+1)
     InitVals$eta.immR <- rep(0, Tmax+1)
+    InitVals$eta.Imm <- rep(0, Tmax+1)
     InitVals$tau.immR <- 0
     InitVals$C.immR <- 0
     InitVals$ImmExp <- Imm

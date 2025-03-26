@@ -511,17 +511,35 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+1)){
-          Imm[t] <- round(ImmExp[t])
+          Imm[t] <- round(min(ImmExp[t], 0))
           
           if(fitCov.immR){
-            log(ImmExp[t]) <- log(Mu.Imm) + 
-              betaR.immR*RodentAbundance2[t] + 
-              betaD.immR*(log(localN.tot[t]) - log(normN)) + 
-              betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
-              gamma.immR*logDev.mH[t] +
-              epsilon.immR[t]
+            
+            if(Imm.logNorm){
+              log(ImmExp[t]) <- log(Mu.Imm) + 
+                betaR.immR*RodentAbundance2[t] + 
+                betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+                betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+                gamma.immR*logDev.mH[t] +
+                epsilon.immR[t]
+            }else{
+              ImmExp[t] <- Mu.Imm + 
+                betaR.Imm*RodentAbundance2[t] + 
+                betaD.Imm*(log(localN.tot[t]) - log(normN)) + 
+                betaRxD.Imm*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+                gamma.Imm*logDev.mH[t] +
+                epsilon.Imm[t]
+            }
+            
+            
           }else{
-            log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
+            
+            if(Imm.logNorm){
+              log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
+            }else{
+              ImmExp[t] <- Mu.Imm + epsilon.Imm[t]
+            }
+  
           }
         }
         
@@ -544,26 +562,52 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             betaR.immR[x] ~ dunif(-5, 5)
           }
         }else{
-          betaR.immR ~ dunif(-5, 5)
           
-          if(DD.immR){
-            betaD.immR ~ dunif(-10, 5)
-            if(DDxRodent){
-              betaRxD.immR ~ dunif(-5, 5)
+          if(!imm.asRate & !Imm.logNorm){
+            
+            betaR.Imm ~ dunif(-500, 500)
+            
+            if(DD.immR){
+              betaD.Imm ~ dunif(-1000, 500)
+              
+              if(DDxRodent){
+                betaRxD.Imm ~ dunif(-500, 500)
+              }else{
+                betaRxD.Imm <- 0
+              }
             }else{
+              betaD.Imm <- 0
+              betaRxD.Imm <- 0
+            }
+            
+            if(comp.immR & !comp.RE){
+              gamma.Imm ~ dunif(-500, 500)
+            }else{
+              gamma.Imm <- 0
+            }
+            
+          }else{
+            
+            betaR.immR ~ dunif(-5, 5)
+            
+            if(DD.immR){
+              betaD.immR ~ dunif(-10, 5)
+              if(DDxRodent){
+                betaRxD.immR ~ dunif(-5, 5)
+              }else{
+                betaRxD.immR <- 0
+              }
+            }else{
+              betaD.immR <- 0
               betaRxD.immR <- 0
             }
-          }else{
-            betaD.immR <- 0
-            betaRxD.immR <- 0
+            
+            if(comp.immR & !comp.RE){
+              gamma.immR ~ dunif(-5, 5)
+            }else{
+              gamma.immR <- 0
+            }
           }
-          
-          if(comp.immR & !comp.RE){
-            gamma.immR ~ dunif(-5, 5)
-          }else{
-            gamma.immR <- 0
-          }
-
         }
       }
       
@@ -610,8 +654,12 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
         epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
         eta.immR[t] ~ dnorm(0, sd = sigma.immR)
+        
+        epsilon.Imm[t] <- eta.Imm[t] + tau.immR*eta.mH[t]
+        eta.Imm[t] ~ dnorm(0, sd = sigma.Imm)
       }
       sigma.immR ~ dunif(0, 10)
+      sigma.Imm ~ dunif(0, 1000)
       
       if(comp.mO & comp.RE){
         tau.mO ~ dnorm(0, sd = 2.25)
@@ -1106,19 +1154,36 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+1)){
-          Imm[t] <- round(ImmExp[t])
+          Imm[t] <- round(min(ImmExp[t], 0))
           
           if(fitCov.immR){
-            log(ImmExp[t]) <- log(Mu.Imm) + 
-              betaR.immR*RodentAbundance2[t] + 
-              betaD.immR*(log(localN.tot[t]) - log(normN)) + 
-              betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
-              gamma.immR*logDev.mH[t] +
-              epsilon.immR[t]
+            
+            if(Imm.logNorm){
+              log(ImmExp[t]) <- log(Mu.Imm) + 
+                betaR.immR*RodentAbundance2[t] + 
+                betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+                betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+                gamma.immR*logDev.mH[t] +
+                epsilon.immR[t]
+            }else{
+              ImmExp[t] <- Mu.Imm + 
+                betaR.Imm*RodentAbundance2[t] + 
+                betaD.Imm*(log(localN.tot[t]) - log(normN)) + 
+                betaRxD.Imm*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+                gamma.Imm*logDev.mH[t] +
+                epsilon.Imm[t]
+            }
+            
+            
           }else{
-            log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
+            
+            if(Imm.logNorm){
+              log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
+            }else{
+              ImmExp[t] <- Mu.Imm + epsilon.Imm[t]
+            }
+    
           }
-        }
         
         Mu.Imm ~ dunif(1, uLim.Imm)
         
@@ -1129,6 +1194,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
         Mu.immR <- mean(immR[2:(Tmax+1)])
         
+        }
       }
       
       ## Prior for covariate effects
@@ -1139,28 +1205,54 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             betaR.immR[x] ~ dunif(-5, 5)
           }
         }else{
-          betaR.immR ~ dunif(-5, 5)
           
-          if(DD.immR){
-            betaD.immR ~ dunif(-10, 5)
-            if(DDxRodent){
-              betaRxD.immR ~ dunif(-10, 10)
+          if(!imm.asRate & !Imm.logNorm){
+            
+            betaR.Imm ~ dunif(-500, 500)
+            
+            if(DD.immR){
+              betaD.Imm ~ dunif(-1000, 500)
+              
+              if(DDxRodent){
+                betaRxD.Imm ~ dunif(-500, 500)
+              }else{
+                betaRxD.Imm <- 0
+              }
             }else{
+              betaD.Imm <- 0
+              betaRxD.Imm <- 0
+            }
+            
+            if(comp.immR & !comp.RE){
+              gamma.Imm ~ dunif(-500, 500)
+            }else{
+              gamma.Imm <- 0
+            }
+            
+          }else{
+            
+            betaR.immR ~ dunif(-5, 5)
+            
+            if(DD.immR){
+              betaD.immR ~ dunif(-10, 5)
+              if(DDxRodent){
+                betaRxD.immR ~ dunif(-5, 5)
+              }else{
+                betaRxD.immR <- 0
+              }
+            }else{
+              betaD.immR <- 0
               betaRxD.immR <- 0
             }
-          }else{
-            betaD.immR <- 0
-            betaRxD.immR <- 0
-          }
-          
-          if(comp.immR & !comp.RE){
-            gamma.immR ~ dunif(-5, 5)
-          }else{
-            gamma.immR <- 0
+            
+            if(comp.immR & !comp.RE){
+              gamma.immR ~ dunif(-5, 5)
+            }else{
+              gamma.immR <- 0
+            }
           }
         }
       }
-      
       
       ## Immigration outside the study period
       if(imm.asRate & useData.gen & !poolYrs.genData){
@@ -1225,8 +1317,12 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
         epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
         eta.immR[t] ~ dnorm(0, sd = sigma.immR)
+        
+        epsilon.Imm[t] <- eta.Imm[t] + tau.immR*eta.mH[t]
+        eta.Imm[t] ~ dnorm(0, sd = sigma.Imm)
       }
       sigma.immR ~ dunif(0, 10)
+      sigma.Imm ~ dunif(0, 1000)
       
       
       if(comp.mO & comp.RE){

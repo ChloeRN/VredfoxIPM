@@ -89,6 +89,8 @@ setupModel <- function(modelCode,
               "RodentAbundance")
   
   ## Add additional parameters to monitor depending on model version
+  immName <- ifelse(Imm.logNorm, "immR", "Imm")
+  
   if(HoenigPrior){
     params <- c(params, "JuvAdRatio", "Mu.mO.ad")
   }else{
@@ -127,27 +129,29 @@ setupModel <- function(modelCode,
   }
   
   if(imm.asRate){
-    params <- c(params, "Mu.immR", "sigma.immR", "tau.immR", "C.immR")
+    params <- c(params, "Mu.immR", paste0("sigma.", immName), "tau.immR", "C.immR")
     
     if(!poolYrs.genData){
       params <- c(params, "immR_pre")
     }
   }else{
-    params <- c(params, "Mu.Imm", "Mu.immR",  "sigma.immR", "tau.immR", "C.immR")
+    
+    params <- c(params, "Mu.Imm", paste0("sigma.", immName), "tau.immR", "C.immR")
+    
   } 
   
   if(fitCov.immR){
-    params <- c(params, "betaR.immR", "RodentAbundance2")
+    params <- c(params, paste0("betaR.", immName), "RodentAbundance2")
     
     if(DD.immR){
-      params <- c(params, "betaD.immR")
+      params <- c(params, paste0("betaD.", immName))
       if(DDxRodent){
-        params <- c(params, "betaRxD.immR")
+        params <- c(params, paste0("betaRxD.", immName))
       }
     }
     
     if(comp.immR & !comp.RE){
-      params <- c(params, "gamma.immR")
+      params <- c(params, paste0("gamma.", immName))
     }
   }
   
