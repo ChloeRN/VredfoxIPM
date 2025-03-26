@@ -217,6 +217,9 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
   dev.off()
   
   ## Plot posterior summary time series for age-specific parameters
+  sum.data <- sum.data %>%
+    dplyr::filter(!(ParamName == "mO" & Year == max(sum.data$Year)))
+  
   pdf(paste0(plotFolder, "/PosteriorSummaries_TimeSeriesAge.pdf"), width = 8, height = 8)
   for(x in 1:length(plotTS.paramsAge$ParamNames)){
     
