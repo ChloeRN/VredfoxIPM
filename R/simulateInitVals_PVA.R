@@ -499,11 +499,13 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     
     InitVals$Mu.Imm <- Mu.Imm
     InitVals$sigma.immR <- logsigma.Imm
+    InitVals$sigma.Imm <- ifelse(Imm.logNorm, 0, sd(Imm))
     InitVals$epsilon.immR <- rep(0, Tmax+1)
     InitVals$eta.immR <- rep(0, Tmax+1)
     InitVals$tau.immR <- 0
     InitVals$C.immR <- 0
     InitVals$ImmExp <- Imm
+    InitVals$ImmExp2 <- Imm
   }
   
   ## Add initial values for missing covariate values (if applicable)

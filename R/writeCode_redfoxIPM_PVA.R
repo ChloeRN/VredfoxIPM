@@ -516,7 +516,12 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+Tmax_sim+1)){
           
-          Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
+          Imm[t] <- round(ImmExp2[t]*pertFac.immR[t])
+          if(Imm.logNorm){
+            ImmExp2[t] <- ImmExp[t]
+          }else{
+            ImmExp2[t] ~ T(dnorm(mean = ImmExp[t], sd = sigma.Imm), 0, uLim.Imm*10)
+          }
           
           if(fitCov.immR){
             log(ImmExp[t]) <- log(Mu.Imm) + 
@@ -620,7 +625,14 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
         eta.immR[t] ~ dnorm(0, sd = sigma.immR)
       }
-      sigma.immR ~ dunif(0, 10)
+      
+      if(!imm.asRate & !Imm.logNorm){
+        sigma.immR <- 0
+        sigma.Imm ~ dunif(0, uLim.Imm)
+      }else{
+        sigma.immR ~ dunif(0, 10)
+        sigma.Imm <- 0
+      }
       
       if(comp.mO & comp.RE){
         tau.mO ~ dnorm(0, sd = 2.25)
@@ -635,8 +647,12 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       }
       
       # Calculation of correlation coefficients
+      if(!imm.asRate & !Imm.logNorm){
+        C.immR <- 0
+      }else{
+        C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2)) 
+      }
       C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
-      C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2))
       
       
       #===============================================================================================
@@ -1173,7 +1189,12 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         
         for(t in 2:(Tmax+Tmax_sim+1)){
           
-          Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
+          Imm[t] <- round(ImmExp2[t]*pertFac.immR[t])
+          if(Imm.logNorm){
+            ImmExp2[t] <- ImmExp[t]
+          }else{
+            ImmExp2[t] ~ T(dnorm(mean = ImmExp[t], sd = sigma.Imm), 0, uLim.Imm*10)
+          }
           
           if(fitCov.immR){
             log(ImmExp[t]) <- log(Mu.Imm) + 
@@ -1295,8 +1316,14 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
         eta.immR[t] ~ dnorm(0, sd = sigma.immR)
       }
-      sigma.immR ~ dunif(0, 10)
       
+      if(!imm.asRate & !Imm.logNorm){
+        sigma.immR <- 0
+        sigma.Imm ~ dunif(0, uLim.Imm)
+      }else{
+        sigma.immR ~ dunif(0, 10)
+        sigma.Imm <- 0
+      }
       
       if(comp.mO & comp.RE){
         tau.mO ~ dnorm(0, sd = 2.25)
@@ -1311,8 +1338,12 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       }
       
       # Calculation of correlation coefficients
+      if(!imm.asRate & !Imm.logNorm){
+        C.immR <- 0
+      }else{
+        C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2)) 
+      }
       C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
-      C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2)) 
       
       #===============================================================================================
       
