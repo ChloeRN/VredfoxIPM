@@ -112,7 +112,7 @@ S0.sd.factor <- 1
 ## Density effects toggles
 DD.mO <- FALSE
 DD.immR <- TRUE
-DDxRodent <- FALSE
+DDxRodent <- TRUE
 
 ## Compensation toggles
 comp.mO <- TRUE
@@ -393,7 +393,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDxRimmR_reCOMPmO.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -433,15 +433,15 @@ PVA0_comp <- compareModels(Amax = Amax,
                            maxYear = 2030,
                            logN = TRUE,
                            post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_immR.rds",
+                                              #"RedFoxIPM_sim_baseline_singleCensus_DDxRimmR_effCOMPmO.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDxRimmR_reCOMPmO.rds",
                                               "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDxRimmR_effCOMPmO.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDxRimmR_reCOMPmO.rds"), 
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds"), 
                            model.names = c("No DD & comp.",
+                                           #"DDxR on immR, effect comp. on mO",
+                                           "DDxR on immR, re comp. on mO",
                                            "DD on immR, effect comp. on mO",
-                                           "DD on immR, RE comp. on mO",
-                                           "DDxR on immR, effect comp. on mO",
-                                           "DDxR on immR, re comp. on mO"), 
+                                           "DD on immR, RE comp. on mO"), 
                            plotFolder = "Plots/ScenarioComp_PVA0_DD&CompSetup2",
                            returnSumData = TRUE)
 
