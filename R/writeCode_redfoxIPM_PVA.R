@@ -516,34 +516,35 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+Tmax_sim+1)){
           
-          Imm[t] <- round(min(ImmExp[t], 0)*pertFac.immR[t])
+          Imm[t] <- round(max(ImmExp[t], 0)*pertFac.immR[t])
           
-          if(Imm.logNorm){
-            log(ImmExp[t]) <- log(Mu.Imm) + 
-              betaR.immR*RodentAbundance2[t] + 
-              betaD.immR*(log(localN.tot[t]) - log(normN)) + 
-              betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
-              gamma.immR*logDev.mH[t] +
-              epsilon.immR[t]
+          if(fitCov.immR){
+            if(Imm.logNorm){
+              log(ImmExp[t]) <- log(Mu.Imm) + 
+                betaR.immR*RodentAbundance2[t] + 
+                betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+                betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+                gamma.immR*logDev.mH[t] +
+                epsilon.immR[t]
+            }else{
+              ImmExp[t] <- Mu.Imm + 
+                betaR.Imm*RodentAbundance2[t] + 
+                betaD.Imm*(log(localN.tot[t]) - log(normN)) + 
+                betaRxD.Imm*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+                gamma.Imm*logDev.mH[t] +
+                epsilon.Imm[t]
+            }
+            
+            
           }else{
-            ImmExp[t] <- Mu.Imm + 
-              betaR.Imm*RodentAbundance2[t] + 
-              betaD.Imm*(log(localN.tot[t]) - log(normN)) + 
-              betaRxD.Imm*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
-              gamma.Imm*logDev.mH[t] +
-              epsilon.Imm[t]
-          }
-          
-          
-        }else{
-          
-          if(Imm.logNorm){
-            log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
-          }else{
-            ImmExp[t] <- Mu.Imm + epsilon.Imm[t]
+            
+            if(Imm.logNorm){
+              log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
+            }else{
+              ImmExp[t] <- Mu.Imm + epsilon.Imm[t]
+            }
           }
         }
-        
         
         Mu.Imm ~ dunif(1, uLim.Imm)
         
@@ -1214,7 +1215,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         
         for(t in 2:(Tmax+Tmax_sim+1)){
           
-          Imm[t] <- round(min(ImmExp[t], 0)*pertFac.immR[t])
+          Imm[t] <- round(max(ImmExp[t], 0)*pertFac.immR[t])
           
           if(fitCov.immR){
             if(Imm.logNorm){

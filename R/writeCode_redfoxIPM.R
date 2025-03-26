@@ -511,7 +511,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+1)){
-          Imm[t] <- round(min(ImmExp[t], 0))
+          Imm[t] <- round(max(ImmExp[t], 0))
           
           if(fitCov.immR){
             
@@ -1154,7 +1154,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         ## Lognormal prior for immigrant numbers
         for(t in 2:(Tmax+1)){
-          Imm[t] <- round(min(ImmExp[t], 0))
+          Imm[t] <- round(max(ImmExp[t], 0))
           
           if(fitCov.immR){
             
