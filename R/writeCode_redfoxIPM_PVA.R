@@ -520,7 +520,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           if(Imm.logNorm){
             ImmExp2[t] <- ImmExp[t]
           }else{
-            ImmExp2[t] ~ T(dnorm(mean = ImmExp[t], sd = sigma.Imm), 0, uLim.Imm*10)
+            ImmExp2[t] ~ T(dnorm(mean = ImmExp[t], sd = sigma.Imm), 0, Inf)
           }
           
           if(fitCov.immR){
@@ -1193,7 +1193,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           if(Imm.logNorm){
             ImmExp2[t] <- ImmExp[t]
           }else{
-            ImmExp2[t] ~ T(dnorm(mean = ImmExp[t], sd = sigma.Imm), 0, uLim.Imm*10)
+            ImmExp2[t] ~ T(dnorm(mean = ImmExp[t], sd = sigma.Imm), 0, Inf)
+            #ImmExp2[t] ~ dnorm(mean = ImmExp[t], sd = sigma.Imm)
           }
           
           if(fitCov.immR){
