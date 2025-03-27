@@ -1312,9 +1312,16 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       }
       
       for(t in 1:(Tmax+Tmax_sim+1)){
-        #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+        
         epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
-        eta.immR[t] ~ dnorm(0, sd = sigma.immR)
+        
+        if(Imm.logNorm){
+          #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+          eta.immR[t] ~ dnorm(0, sd = sigma.immR)
+        }else{
+          eta.immR[t] <- 0
+        }
+        
       }
       
       if(!imm.asRate & !Imm.logNorm){
