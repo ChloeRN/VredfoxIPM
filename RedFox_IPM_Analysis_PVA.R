@@ -113,7 +113,7 @@ S0.sd.factor <- 1
 ## Density effects toggles
 DD.mO <- FALSE
 DD.immR <- TRUE
-DDxRodent <- TRUE
+DDxRodent <- FALSE
 
 ## Compensation toggles
 comp.mO <- TRUE
@@ -385,7 +385,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       data = input.data$nim.data, 
                       constants = input.data$nim.constants,
                       inits = model.setup$initVals, 
-                      monitors = c(model.setup$modelParams, "epsilon.immR", "eta.immR", "localN.tot"),
+                      monitors = c(model.setup$modelParams, "epsilon.immR", "eta.immR", "localN.tot", "ImmExp", "ImmExp2"),
                       nchains = model.setup$mcmcParams$nchains, 
                       niter = model.setup$mcmcParams$niter, 
                       nburnin = model.setup$mcmcParams$nburn, 
@@ -394,7 +394,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDxRimmR_reCOMPmO.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO_Imm2.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
