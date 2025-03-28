@@ -409,6 +409,23 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO_Imm
 # 5) MODEL COMPARISONS #
 ########################
 
+## DD & compensation models with different parameterizations for immigration
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_DDlogImm_reCOMPmO.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO_Imm1.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO_Imm2.rds"), 
+                           model.names = c("Imm (logNormal)",
+                                           "immR",
+                                           "Imm (tNormal, threshold)",
+                                           "Imm (tNormal RE)"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_DD&CompImm",
+                           returnSumData = TRUE)
+
 ## New model setup with DD & compensation
 PVA0_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
