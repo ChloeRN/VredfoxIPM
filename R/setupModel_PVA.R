@@ -89,6 +89,8 @@ setupModel_PVA <- function(modelCode,
               "RodentAbundance", "RodentAbundance2", "pertFac.mH.flex")
   
   ## Add additional parameters to monitor depending on model version
+  immName <- ifelse(Imm.logNorm, "immR", "Imm")
+  
   if(HoenigPrior){
     params <- c(params, "JuvAdRatio", "Mu.mO.ad")
   }else{
@@ -133,7 +135,7 @@ setupModel_PVA <- function(modelCode,
       params <- c(params, "immR_pre")
     }
   }else{
-    params <- c(params, "Mu.Imm", "Mu.immR",  "sigma.immR", "tau.immR", "C.immR")
+    params <- c(params, "Mu.immR", paste0("sigma.", immName), "tau.immR", "C.immR")
   } 
   
   if(fitCov.immR){
