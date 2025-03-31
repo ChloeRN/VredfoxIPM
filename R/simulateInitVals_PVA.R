@@ -115,12 +115,15 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   #---------------------------------------------------#
   
   ## Harvest and natural mortality
-  Mu.mHs <- runif(Amax, 0.01, 0.1)
-  
   Mu.mH.juv <- runif(1, 0.05, 0.2)
   Mu.mH.ad <- runif(1, 0.05, 0.2)
   
   Mu.mH <- c(Mu.mH.juv, rep(Mu.mH.ad, length(2:Amax)))
+  
+  Mu.mHs.juv <- runif(1, 0.01, 0.1)
+  Mu.mHs.ad <- runif(1, 0.01, 0.1)
+  
+  Mu.mHs <- c(Mu.mHs.juv, rep(Mu.mHs.ad, length(2:Amax)))
   
   if(Mu.mO_fixInits){
     
