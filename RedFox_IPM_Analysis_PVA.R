@@ -90,7 +90,7 @@ sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all p
 
 # Immigration parameters toggle
 imm.asRate <- FALSE # Estimating immigration as a rate as opposed to numbers
-Imm.logNorm <- FALSE
+Imm.logNorm <- TRUE
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 poolYrs.genData <- TRUE # Pool data across all years
@@ -394,7 +394,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_Imm2.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_logImm.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -415,15 +415,15 @@ PVA0_comp <- compareModels(Amax = Amax,
                            minYear = minYear, 
                            maxYear = 2030,
                            logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_DDlogImm_reCOMPmO.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO_Imm1.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO_Imm2.rds"), 
+                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_logImm.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_Imm1.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_Imm2.rds"), 
                            model.names = c("Imm (logNormal)",
                                            "immR",
                                            "Imm (tNormal, threshold)",
                                            "Imm (tNormal RE)"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_DD&CompImm",
+                           plotFolder = "Plots/ScenarioComp_PVA0_DD&CompImm2",
                            returnSumData = TRUE)
 
 ## New model setup with DD & compensation
