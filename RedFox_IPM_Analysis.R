@@ -89,7 +89,7 @@ sPriorSource <- "metaAll" # Base survival prior on meta-analysis including all p
 #sPriorSource <- "metaSub" # Base survival prior on meta-analysis including only not/lightly hunted populations
 
 # Immigration parameters toggle
-imm.asRate <- FALSE # Estimating immigration as a rate as opposed to numbers
+imm.asRate <- TRUE # Estimating immigration as a rate as opposed to numbers
 
 # Genetic immigration data toggles (details in documentation of wrangleData_gen function
 poolYrs.genData <- TRUE # Pool data across all years
@@ -111,11 +111,11 @@ S0.sd.factor <- 1
 
 ## Density effects toggles
 DD.mO <- FALSE
-DD.immR <- FALSE
+DD.immR <- TRUE
 DDxRodent <- FALSE
 
 ## Compensation toggles
-comp.mO <- FALSE
+comp.mO <- TRUE
 comp.immR <- FALSE
 comp.RE <- FALSE
 
@@ -345,7 +345,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_baseline_Imm.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main.rds") 
 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
@@ -365,56 +365,6 @@ saveRDS(IPM.out, file = "RedFoxIPM_singleCensus_baseline_Imm.rds")
 ########################
 # 5) MODEL COMPARISONS #
 ########################
-
-## Models with density-dependence & compensation
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_singleCensus_DDxRImm_effCOMPmO.rds",
-                                 "RedFoxIPM_singleCensus_DDxRimmR_effCOMPmO.rds",
-                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
-              model.names = c("Density x rodent effect on Imm, mH-effect on mO)", 
-                              "Density x rodent effect on immR, mH-effect on mO)",
-                              "Baseline (no DD or compensation)"), 
-              plotFolder = "Plots/Comp_DD&Compensation_immRvsImm")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_singleCensus_DDimmR_effCOMPmO.rds",
-                                 "RedFoxIPM_singleCensus_DDxRimmR_effCOMPmO.rds",
-                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds",
-                                 "RedFoxIPM_singleCensus_DDimmR_reCOMPmO.rds",
-                                 "RedFoxIPM_singleCensus_DDxRimmR_reCOMPmO.rds"), 
-              model.names = c("Density effect on immR, mH-effect on mO", 
-                              "Density x rodent effect on immR, mH-effect on mO)",
-                              "Baseline (no DD or compensation)",
-                              "Density effect on immR, mH-mO correlated REs", 
-                              "Density x rodent effect on immR, mH-mO correlated REs"), 
-              plotFolder = "Plots/Comp_DD&Compensation")
-
-## Simplified models
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_main_singleCensus_splitHarvest.rds",
-                                 "RedFoxIPM_main_singleCensus_combHarvest.rds"), 
-              model.names = c("Two census (original)", 
-                              "One census, split harvest",
-                              "One census, combined harvest"), 
-              plotFolder = "Plots/Comp_SimplifiedCensus")
-
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds",
-                                 "RedFoxIPM_main_singleCensus_combHarvest.rds",
-                                 "RedFoxIPM_main_singleCensus_combHarvest2.rds"), 
-              model.names = c("Two census (original)", 
-                              "One census",
-                              "One census, equal adult harvest"), 
-              plotFolder = "Plots/Comp_SimplifiedCensus2")
 
 ## Genetic data likelihoods
 compareModels(Amax = Amax, 
