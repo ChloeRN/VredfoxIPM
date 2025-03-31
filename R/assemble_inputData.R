@@ -123,6 +123,10 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     Reindeer = Reindeer
   )
   
+  if("pData_winter" %in% names(wAaH.data)){
+    nim.data$pData_wOnly <-  wAaH.data$pData_winter[which(colnames(wAaH.data$C) == minYear) + 1:Tmax - 1]
+  }
+    
   # Constants
   nim.constants <- list(
     Amax = Amax,

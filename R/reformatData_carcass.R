@@ -103,13 +103,20 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   agedf.ann <- table(fvar1$start_hunting_year[!is.na(fvar1$v_age) & fvar1$mnd %notin% summer_removal]) #where unaged removed, summer also removed
   
   if(add.sumr.unaged){  
-    allf.ann <- table(fvar1$start_hunting_year)                                                           #where unaged not removed, summer not removed  
+    allf.ann <- table(fvar1$start_hunting_year) #where unaged not removed, summer not removed
+    allf.win <- table(fvar1$start_hunting_year[fvar1$mnd %notin% summer_removal])
   }else{
     allf.ann <- table(fvar1$start_hunting_year[fvar1$mnd %notin% summer_removal]) #where unaged not removed, summer also removed
   }
   
   prop <- agedf.ann/allf.ann
+  
   varFC2$pData <- prop
+  
+  if(add.sumr.unaged){
+    prop.win <- agedf.ann/allf.win
+    varFC2$pData_winter <- prop.win
+  }
   
   #===============    SUMMER AGE AT HARVEST MATRIX BUILDING ==============================
   #here we exclude foxes shot in winter months and foxes with no age info
