@@ -117,7 +117,7 @@ DDxRodent <- FALSE
 ## Compensation toggles
 comp.mO <- TRUE
 comp.immR <- FALSE
-comp.RE <- TRUE
+comp.RE <- FALSE
 
 ## Set up perturbation parameters for running standard scenarios
 pert.mH <- FALSE
@@ -371,7 +371,7 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               comp.mO = comp.mO,
                               comp.immR = comp.immR,
                               comp.RE = comp.RE,
-                              testRun = FALSE,
+                              testRun = TRUE,
                               initVals.seed = mySeed)
 
 

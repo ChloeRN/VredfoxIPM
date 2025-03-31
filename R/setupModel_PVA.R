@@ -123,7 +123,7 @@ setupModel_PVA <- function(modelCode,
   }
   
   if(fitCov.rho){
-    params <- c(params, "betaR.rho")
+    params <- c(params, "betaR.rho", "betaD.Psi", "betaRxD.Psi")
   }
   
   if(imm.asRate){

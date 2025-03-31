@@ -451,6 +451,8 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   
   if(fitCov.Psi){
     InitVals$betaR.Psi <- betaR.Psi
+    InitVals$betaD.Psi <- 0
+    InitVals$betaRxD.Psi <- 0
   }
   
   if(fitCov.rho){

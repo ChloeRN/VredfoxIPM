@@ -1054,7 +1054,13 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           if(rCov.idx){
             logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi[RodentIndex[t]] + epsilon.Psi[t] # Reindeer.rodent interaction not (yet) written in
           }else{
-            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + betaR.Psi*RodentAbundance_pert[t] + epsilon.Psi[t]
+            
+            logit(Psi[2:Amax,t]) <- logit(Mu.Psi[2:Amax]) + 
+              betaR.Psi*RodentAbundance_pert[t] + 
+              betaD.Psi*(log(sum(N[2:Amax, t])) - log(200)) + 
+              betaRxD.Psi*RodentAbundance_pert[t]*(log(sum(N[2:Amax, t])) - log(200)) + 
+              epsilon.Psi[t]
+            
           }
         }else{
           logit(Psi[2:Amax, t]) <- logit(Mu.Psi[2:Amax]) + epsilon.Psi[t]
@@ -1074,6 +1080,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           }
         }else{
           betaR.Psi ~ dunif(-5, 5)
+          betaD.Psi ~ dunif(-5, 5)
+          betaRxD.Psi ~ dunif(-5, 5)
         }
       }
       
