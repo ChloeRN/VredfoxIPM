@@ -371,7 +371,7 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               comp.mO = comp.mO,
                               comp.immR = comp.immR,
                               comp.RE = comp.RE,
-                              testRun = TRUE,
+                              testRun = FALSE,
                               initVals.seed = mySeed)
 
 
@@ -393,7 +393,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR&Psi_effCOMPmO.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -409,6 +409,18 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds
 ########################
 
 ## New model setup with DD & compensation
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_DDimmR&Psi_effCOMPmO.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds"), 
+                           model.names = c("DD on Psi",
+                                           "No DD on Psi"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_DDPsi",
+                           returnSumData = TRUE)
+
 PVA0_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
                            minYear = minYear, 
