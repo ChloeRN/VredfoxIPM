@@ -23,7 +23,7 @@
 runLTRE_fixedDesign_allYears <- function(paramSamples, Amax, Tmax, HazardRates = TRUE, PopStructure = TRUE){
   
   ## List all year pairs to run analyses for
-  t_pairs <- cbind(2:(Tmax-2), 2:(Tmax-2) + 1)
+  t_pairs <- cbind(1:(Tmax-2), 1:(Tmax-2) + 1)
   
   ## Set up results lists and dataframes
   contList <- list(cont = list(), other = list())
@@ -63,7 +63,7 @@ runLTRE_fixedDesign_allYears <- function(paramSamples, Amax, Tmax, HazardRates =
   
   
   ## Save and return
-  saveRDS(results_allYears, file = "RedFoxIPM_LTREresults_fixedDesign.rds")
+  save(results_allYears, file = "RedFoxIPM_LTREresults_fixedDesign.rds")
   return(results_allYears)
 }
   
