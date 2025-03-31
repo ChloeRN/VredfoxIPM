@@ -608,7 +608,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           betaR.immR ~ dunif(-5, 5)
           
           if(DD.immR){
-            betaD.immR ~ dunif(-10, 10)
+            betaD.immR ~ dunif(-10, 5)
             if(DDxRodent){
               betaRxD.immR ~ dunif(-5, 5)
             }else{
@@ -1318,7 +1318,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           betaR.immR ~ dunif(-5, 5)
           
           if(DD.immR){
-            betaD.immR ~ dunif(-5, 5)
+            betaD.immR ~ dunif(-10, 5)
             if(DDxRodent){
               betaRxD.immR ~ dunif(-10, 10)
             }else{
