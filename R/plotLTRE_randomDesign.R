@@ -87,10 +87,13 @@ plotLTRE_randomDesign <- function(LTRE_results, Amax, HazardRates = TRUE, PopStr
     gsub('\\s','\n',x)
   }
   
+  y_cutoff <- quantile(contData_sum$Contribution, prob = 0.999)
+  
   p.sum <- ggplot(contData_sum, aes(x = type, y = Contribution, group = type)) + 
     geom_violin(aes(fill = type, color = type), alpha = 0.5, scale = 'width', draw_quantiles = 0.5) + 
     geom_hline(yintercept = 0, color = "grey70", linetype = "dashed") + 
     ylab("Contribution") + 
+    ylim(min(contData_sum$Contribution), y_cutoff) + 
     xlab('') + 
     scale_fill_manual(values = plot.colors) + 
     scale_color_manual(values = plot.colors) + 
