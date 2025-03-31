@@ -187,7 +187,7 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   }
   
   ## Random effects (initialize at to 0)
-  epsilon.mHs <- rep(0, Tmax)
+  epsilon.mHs <- rep(0, Tmax+1)
   epsilon.mH <- rep(0, Tmax+1)
   epsilon.mO <- rep(0, Tmax+1)
   epsilon.Psi <- rep(0, Tmax+1)
