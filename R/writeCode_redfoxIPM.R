@@ -133,8 +133,10 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         B.tot[t] <- sum(B[1:Amax, t])
       }
       
-      for(t in 1:Tmax){
-        localN.tot[t] <- survN1[t] + sum(octN[2:Amax, t])
+      localN.tot[1] <- normN
+      for(t in 2:(Tmax+Tmax_sim)){
+        #localN.tot[t] <- survN1[t] + sum(octN[2:Amax, t])
+        localN.tot[t] <- sum(N[1:Amax, t])
       }
       
       #===============================================================================================
@@ -833,8 +835,10 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         B.tot[t] <- sum(B[1:Amax, t])
       }
       
-      for(t in 1:Tmax){
-        localN.tot[t] <- survN1[t] + sum(octN[2:Amax, t])
+      localN.tot[1] <- normN
+      for(t in 2:(Tmax+Tmax_sim)){
+        #localN.tot[t] <- survN1[t] + sum(octN[2:Amax, t])
+        localN.tot[t] <- sum(N[1:Amax, t])
       }
       
       #===============================================================================================

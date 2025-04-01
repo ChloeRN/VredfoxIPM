@@ -383,8 +383,8 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               comp.mO = comp.mO,
                               comp.immR = comp.immR,
                               comp.RE = comp.RE,
-                              testRun = TRUE,
-                              initVals.seed = mySeed)
+                              testRun = FALSE,
+                              initVals.seed = mySeed + 1)
 
 
 ####################
@@ -427,10 +427,12 @@ PVA0_comp <- compareModels(Amax = Amax,
                            maxYear = 2030,
                            logN = TRUE,
                            post.filepaths = c("RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO.rds", 
+                                              "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mO1summer_fixed.rds",
                                               "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds"), 
-                           model.names = c("Two census", 
+                           model.names = c("Two census",
+                                           "Two census, fixed summer mO1",
                                            "One census"), 
-                           censusCollapse = c(TRUE, FALSE),
+                           censusCollapse = c(TRUE, TRUE, FALSE),
                            plotFolder = "Plots/ScenarioComp_PVA0_CensusNoOrig",
                            returnSumData = TRUE)
 
