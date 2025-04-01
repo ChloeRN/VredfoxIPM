@@ -126,7 +126,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     Reindeer = Reindeer
   )
   
-  nim.data$mO1prop.summer <- mO1prop.summer
+  #nim.data$mO1prop.summer <- mO1prop.summer
   
   # Constants
   nim.constants <- list(
