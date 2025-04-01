@@ -15,7 +15,9 @@
 #' "LL-based" = log likelihood other / log likelihood other + log likelihood Varanger. 
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
 #' @param normN integer. Value used for centering density covariate (should 
-#' approximate average local population size, i.e. population size minus immigrants.) 
+#' approximate average local population size, i.e. population size minus immigrants.)
+#' @param mO1prop.summer numeric between 0 and 1. Proportion of annual natural 
+#' mortality of age class 1 we assume occurs during the first summer of life.  
 #' @param wAaH.data a list containing a winter Age-at-Harvest matrix (C) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @param sAaH.data a list containing a summer Age-at-Harvest matrix (C) and a vector of
@@ -123,6 +125,8 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     RodentIndex2 = RodentIndex2,
     Reindeer = Reindeer
   )
+  
+  nim.data$mO1prop.summer <- mO1prop.summer
   
   # Constants
   nim.constants <- list(

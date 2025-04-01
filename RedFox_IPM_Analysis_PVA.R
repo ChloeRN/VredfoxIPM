@@ -30,6 +30,7 @@ plac_start <- 180 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
+mO1prop.summer <- 4/12
 
 # Normalizing value for population size when modelling density-dependence
 normN <- 400 # Based on mean/median of estimated N.tot-Imm 
@@ -335,6 +336,7 @@ input.data <- assemble_inputData_PVA(Amax = Amax,
                                      uLim.N = 800,
                                      uLim.Imm = 3000,
                                      normN = normN,
+                                     mO1prop.summer = mO1prop.summer,
                                      nLevels.rCov = nLevels.rCov,
                                      standSpec.rCov = standSpec.rCov,
                                      poolYrs.genData = poolYrs.genData,
@@ -365,6 +367,7 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               maxN1 = c(800, 400, 400, 400, 400), 
                               minImm = 50, 
                               maxImm = 600,
+                              mO1prop.summer = mO1prop.summer,
                               fitCov.mH = fitCov.mH, 
                               fitCov.mO = fitCov.mO,
                               fitCov.Psi = fitCov.Psi, 
@@ -380,7 +383,7 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               comp.mO = comp.mO,
                               comp.immR = comp.immR,
                               comp.RE = comp.RE,
-                              testRun = FALSE,
+                              testRun = TRUE,
                               initVals.seed = mySeed)
 
 
@@ -402,7 +405,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mO1summer_fixed.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")

@@ -83,11 +83,11 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       for(t in 2:(Tmax+Tmax_sim)){
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
         octN[1, t] <- survN1[t] + Imm[t]     
-        survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
+        survN1[t] ~ dbin(Ss[1, t], N[1, t])
         
         # Age classes 1 to 4+ (indices = 2:5)
         for(a in 2:Amax){
-          octN[a, t] ~ dbin(exp(-mHs[a, t]), N[a, t])
+          octN[a, t] ~ dbin(Ss[a, t], N[a, t])
         }
       }  
       
@@ -182,7 +182,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       
       for(x in 1:XsH){
         for(a in 1:Amax){
-          C_s[a, x] ~ dbin((1-exp(-mHs[a, sH_year[x]]))*pData_s[x], N[a, sH_year[x]])
+          C_s[a, x] ~ dbin(hs[a, sH_year[x]]*pData_s[x], N[a, sH_year[x]])
         }
       }
       
@@ -344,15 +344,26 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + epsilon.mO[t])*pertFac.mO[t]
         }
         
-        # Survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
+        # (Annual/winter) survival probability
+        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mO1prop.summer)*mO[1:Amax,t]))
         
         # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
+        alpha[1, t] <- mH[1, t]/(mH[1, t] + (1-mO1prop.summer)*mO[1, t])
+        alpha[2:Amax, t] <- mH[2:Amax, t]/(mH[2:Amax, t] + mO[2:Amax, t])
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
         
+        # Summer survival probability
+        Ss[1, t] <- exp(-(mHs[1, t] + mO1prop.summer*mO[1, t]))
+        Ss[2:Amax, t] <- exp(-mHs[2:Amax, t])
+        
+        # Proportion summer harvest mortality
+        alphas[1, t] <- (mHs[1, t]/(mHs[1, t] + mO1prop.summer*mO[1, t]))
+        alphas[2:Amax, t] <- 1
+        
+        # Summer harvest rate
+        hs[2:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
       }
       
       # Median harvest mortality hazard rates
@@ -828,11 +839,11 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       for(t in 2:(Tmax+Tmax_sim)){
         # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
         octN[1, t] <- survN1[t] + Imm[t]     
-        survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
+        survN1[t] ~ dbin(Ss[1, t], N[1, t])
         
         # Age classes 1 to 4+ (indices = 2:5)
         for(a in 2:Amax){
-          octN[a, t] ~ dbin(exp(-mHs[a, t]), N[a, t])
+          octN[a, t] ~ dbin(Ss[a, t], N[a, t])
         }
       }  
       
@@ -926,7 +937,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       
       for(x in 1:XsH){
         for(a in 1:Amax){
-          C_s[a, x] ~ dbin((1-exp(-mHs[a, sH_year[x]]))*pData_s[x], N[a, sH_year[x]])
+          C_s[a, x] ~ dbin(hs[a, sH_year[x]]*pData_s[x], N[a, sH_year[x]])
         }
       }
       
@@ -1077,15 +1088,26 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           mO[1:Amax, t] <- exp(log(Mu.mO[1:Amax]) + epsilon.mO[t])*pertFac.mO[t]
         }
         
-        # Survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
+        # (Annual/winter) survival probability
+        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mO1prop.summer)*mO[1:Amax,t]))
         
         # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
+        alpha[1, t] <- mH[1, t]/(mH[1, t] + (1-mO1prop.summer)*mO[1, t])
+        alpha[2:Amax, t] <- mH[2:Amax, t]/(mH[2:Amax, t] + mO[2:Amax, t])
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
         
+        # Summer survival probability
+        Ss[1, t] <- exp(-(mHs[1, t] + mO1prop.summer*mO[1, t]))
+        Ss[2:Amax, t] <- exp(-mHs[2:Amax, t])
+         
+        # Proportion summer harvest mortality
+        alphas[1, t] <- (mHs[1, t]/(mHs[1, t] + mO1prop.summer*mO[1, t]))
+        alphas[2:Amax, t] <- 1
+         
+        # Summer harvest rate
+        hs[2:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
       }
       
       # Median harvest mortality hazard rates
