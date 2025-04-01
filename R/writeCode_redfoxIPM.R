@@ -363,7 +363,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         alphas[2:Amax, t] <- 1
         
         # Summer harvest rate
-        hs[2:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
+        hs[1:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
       }
       
       # Median harvest mortality hazard rates
@@ -1050,7 +1050,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         alphas[2:Amax, t] <- 1
         
         # Summer harvest rate
-        hs[2:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
+        hs[1:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
       }
       
       # Median harvest mortality hazard rates
