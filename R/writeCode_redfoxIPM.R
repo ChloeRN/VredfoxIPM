@@ -409,7 +409,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       ## Proportion of natural mortality in summer (age class 1)
-      mO1prop.summer ~ dunif(0, 1)
+      mO1prop.summer ~ dbeta(1.2, 2)
       
       ## Covariate effects
       if(fitCov.mH){
@@ -1100,7 +1100,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       ## Proportion of natural mortality in summer (age class 1)
-      mO1prop.summer ~ dunif(0, 1)
+      mO1prop.summer ~ dbeta(1.2, 2)
       
       ## Covariate effects
       if(fitCov.mH){
