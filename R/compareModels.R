@@ -142,7 +142,7 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
                 paste0("Mu.rho[", 2:Amax, "]"),  
                 "Mu.S0", "Mu.immR", "Mu.Imm"),
     
-    VReffects = c("sigma.mH", "sigma.mHs", "sigma.mO", "sigma.Psi", "sigma.rho", 
+    VReffects = c("sigma.mH", "sigma.mHs", "sigma.mO", "sigma.mOs", "sigma.Psi", "sigma.rho", 
                   "sigma.immR", "logsigma.Imm",
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
@@ -162,8 +162,8 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
   
   ## Set parameters plotting time series of posterior summaries
   plotTS.paramsAge <- list(
-    ParamNames = c("mO", "S", "mH", "mHs", "Psi", "rho"),
-    ParamLabels = c("Natural mortality", "Survival", 
+    ParamNames = c("mO", "mOs", "S", "mH", "mHs", "Psi", "rho"),
+    ParamLabels = c("Natural mortality", "Summer natural mortality", "Survival", 
                     "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female")
   )
 

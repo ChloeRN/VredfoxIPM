@@ -82,9 +82,9 @@ setupModel <- function(modelCode,
   
   ## Set parameters to monitor in all model versions
   params <- c("Mu.mHs", "Mu.mH", "Mu.mO", "Mu.Psi", "Mu.rho", "Mu.S0",
-              "sigma.mHs", "sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho",
+              "sigma.mHs", "sigma.mOs", "sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho",
               "epsilon.mHs", "epsilon.mH", "epsilon.mO", "epsilon.Psi", "epsilon.rho",
-              "Psi", "rho", "mHs", "mH", "mO", "S", "mOprop.summer",
+              "Psi", "rho", "mHs", "mOs", "mH", "mO", "S", "mOprop.summer",
               "initN",
               "N.tot", "B.tot", "R.tot", 
               "N", "octN", "B", "L", "R", "Imm", "immR",
