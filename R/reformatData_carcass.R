@@ -121,6 +121,11 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   #===============    SUMMER AGE AT HARVEST MATRIX BUILDING ==============================
   #here we exclude foxes shot in winter months and foxes with no age info
   
+  # NOTE: Years 2004 and 2016 are missing summer harvest. 
+  # If data for these years should be included (part of saAH.years) the 0's 
+  # need to be coded in manually as the current code drops any years with
+  # 0 observations from the summaries (tables, matrices, vectors) 
+  
   svar.F.C <- as.matrix(table(fvar1$start_hunting_year[!is.na(fvar1$v_age) & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years], 
                              fvar1$alder4[!is.na(fvar1$v_age) & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]))
   
