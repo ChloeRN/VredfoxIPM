@@ -317,11 +317,11 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         # Summer harvest mortality hazard rate
         log(mHs[1:Amax, t]) <- log(Mu.mHs[1:Amax]) + epsilon.mHs[t]
         
-        # Other (natural) mortality hazard rate
+        # Winter other (natural) mortality hazard rate
         if(fitCov.mO){
           
           # First age class
-          log(mO[1, t]) <- log(Mu.mO[1]) + 
+          log(mO[1, t]) <- log(Mu.mO[1]*(1-mOprop.summer[1])) + 
             betaR.mO*RodentAbundance[t+1] + 
             betaD.mO*(log(localN.tot[t]) - log(normN)) + 
             betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
@@ -329,13 +329,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             epsilon.mO[t]
           
           # Other age classes
-          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + 
+          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]*(1-mOprop.summer[2:Amax])) + 
             betaR.mO*RodentAbundance[t+1] +
             gamma.mO*logDev.mH[t] +
             epsilon.mO[t]
           
           # All age classes
-          # log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + 
+          # log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]*(1-mOprop.summer[1:Amax])) + 
           #   betaR.mO*RodentAbundance[t+1] + 
           #   betaD.mO*(log(localN.tot[t]) - log(normN)) + 
           #   betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
@@ -343,23 +343,26 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           #   epsilon.mO[t]
           
         }else{
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]*(1-mOprop.summer[1:Amax])) + epsilon.mO[t]
         }
         
+        # Summer other (natural) survival probability
+        log(mOs[1:Amax, t]) <- log(Mu.mO[1:Amax]*mOprop.summer[1:Amax]) + epsilon.mOs[t]
+        
         # (Annual/winter) survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mOprop.summer[1:Amax])*mO[1:Amax,t]))
+        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
 
         # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + (1-mOprop.summer[1:Amax])*mO[1:Amax, t])
+        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
 
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
         
         # Summer survival probability
-        Ss[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mOprop.summer[1:Amax]*mO[1, t]))
+        Ss[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mOs[1, t]))
 
         # Proportion summer harvest mortality
-        alphas[1:Amax, t] <- (mHs[1:Amax, t]/(mHs[1:Amax, t] + mOprop.summer[1:Amax]*mO[1:Amax, t]))
+        alphas[1:Amax, t] <- (mHs[1:Amax, t]/(mHs[1:Amax, t] + mOs[1:Amax, t]))
 
         # Summer harvest rate
         hs[1:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
@@ -659,6 +662,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ## Random year variation
       for(t in 1:Tmax+1){ 
         epsilon.mHs[t] ~ dnorm(0, sd = sigma.mHs)
+        epsilon.mOs[t] ~ dnorm(0, sd = sigma.mOs)
         
         #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
         epsilon.mH[t] <- sigma.mH*eta.mH[t]
@@ -674,6 +678,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       sigma.mHs ~ dunif(0, 5)
+      sigma.mOs ~ dunif(0, 5)
       sigma.mH ~ dunif(0, 5)
       sigma.Psi ~ dunif(0, 5)
       sigma.rho ~ dunif(0, 5)
@@ -1008,10 +1013,11 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         # Summer harvest mortality hazard rate
         log(mHs[1:Amax, t]) <- log(Mu.mHs[1:Amax]) + epsilon.mHs[t]
         
-        # Other (natural) mortality hazard rate
+        # Winter other (natural) mortality hazard rate
         if(fitCov.mO){
+          
           # First age class
-          log(mO[1, t]) <- log(Mu.mO[1]) + 
+          log(mO[1, t]) <- log(Mu.mO[1]*(1-mOprop.summer[1])) + 
             betaR.mO*RodentAbundance[t+1] + 
             betaD.mO*(log(localN.tot[t]) - log(normN)) + 
             betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
@@ -1019,13 +1025,13 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             epsilon.mO[t]
           
           # Other age classes
-          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + 
+          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]*(1-mOprop.summer[2:Amax])) + 
             betaR.mO*RodentAbundance[t+1] +
             gamma.mO*logDev.mH[t] +
             epsilon.mO[t]
           
           # All age classes
-          # log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + 
+          # log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]*(1-mOprop.summer[1:Amax])) + 
           #   betaR.mO*RodentAbundance[t+1] + 
           #   betaD.mO*(log(localN.tot[t]) - log(normN)) + 
           #   betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
@@ -1033,23 +1039,26 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           #   epsilon.mO[t]
           
         }else{
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
+          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]*(1-mOprop.summer[1:Amax])) + epsilon.mO[t]
         }
         
+        # Summer other (natural) survival probability
+        log(mOs[1:Amax, t]) <- log(Mu.mO[1:Amax]*mOprop.summer[1:Amax]) + epsilon.mOs[t]
+        
         # (Annual/winter) survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mOprop.summer[1:Amax])*mO[1:Amax,t]))
+        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + mO[1:Amax,t]))
         
         # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + (1-mOprop.summer[1:Amax])*mO[1:Amax, t])
+        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + mO[1:Amax, t])
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
         
         # Summer survival probability
-        Ss[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mOprop.summer[1:Amax]*mO[1, t]))
+        Ss[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mOs[1, t]))
         
         # Proportion summer harvest mortality
-        alphas[1:Amax, t] <- (mHs[1:Amax, t]/(mHs[1:Amax, t] + mOprop.summer[1:Amax]*mO[1:Amax, t]))
+        alphas[1:Amax, t] <- (mHs[1:Amax, t]/(mHs[1:Amax, t] + mOs[1:Amax, t]))
         
         # Summer harvest rate
         hs[1:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
@@ -1352,6 +1361,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       for(t in 1:(Tmax+1)){
         epsilon.mHs[t] ~ dnorm(0, sd = sigma.mHs)
+        epsilon.mOs[t] ~ dnorm(0, sd = sigma.mOs)
         
         #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
         epsilon.mH[t] <- sigma.mH*eta.mH[t]
@@ -1367,6 +1377,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       sigma.mHs ~ dunif(0, 5)
+      sigma.mOs ~ dunif(0, 5)
       sigma.mH ~ dunif(0, 5)
       sigma.Psi ~ dunif(0, 5)
       sigma.rho ~ dunif(0, 5)
