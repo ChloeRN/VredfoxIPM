@@ -405,7 +405,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mO1summer_estBeta.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -428,15 +428,19 @@ PVA0_comp <- compareModels(Amax = Amax,
                            logN = TRUE,
                            post.filepaths = c("RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO.rds", 
                                               "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mO1summer_fixed.rds",
-                                              "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mO1summer_estUnif.rds",
+                                              #"RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mO1summer_estUnif.rds",
                                               "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mO1summer_estBeta.rds",
                                               "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds"), 
                            model.names = c("Two census",
                                            "Two census, fixed summer mO1",
-                                           "Two census, uniform summer mO1",
+                                           #"Two census, uniform summer mO1",
                                            "Two census, beta summer mO1",
                                            "One census"), 
-                           censusCollapse = c(TRUE, TRUE, TRUE, TRUE, FALSE),
+                           censusCollapse = c(TRUE, 
+                                              TRUE, 
+                                              #TRUE, 
+                                              TRUE, 
+                                              FALSE),
                            plotFolder = "Plots/ScenarioComp_PVA0_CensusNoOrig",
                            returnSumData = TRUE)
 
