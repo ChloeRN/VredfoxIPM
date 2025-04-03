@@ -30,7 +30,7 @@ plac_start <- 180 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
-mO1prop.summer <- c(4/12, rep(0.1, Amax-1))
+mOprop.summer <- c(4/12, rep(0.1, Amax-1))
 
 # Normalizing value for population size when modelling density-dependence
 normN <- 400 # Based on mean/median of estimated N.tot-Imm 
@@ -281,7 +281,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  uLim.N = 800,
                                  uLim.Imm = 3000,
                                  normN = normN,
-                                 mO1prop.summer = mO1prop.summer,
+                                 mOprop.summer = mOprop.summer,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
                                  poolYrs.genData = poolYrs.genData,
@@ -308,7 +308,7 @@ model.setup <- setupModel(modelCode = redfox.code,
                           maxN1 = c(800, 400, 400, 400, 400), 
                           minImm = 50, 
                           maxImm = 600,
-                          mO1prop.summer = mO1prop.summer,
+                          mOprop.summer = mOprop.summer,
                           fitCov.mH = fitCov.mH, 
                           fitCov.mO = fitCov.mO,
                           fitCov.Psi = fitCov.Psi, 

@@ -347,19 +347,19 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
         
         # (Annual/winter) survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mO1prop.summer[1:Amax])*mO[1:Amax,t]))
+        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mOprop.summer[1:Amax])*mO[1:Amax,t]))
 
         # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + (1-mO1prop.summer[1:Amax])*mO[1:Amax, t])
+        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + (1-mOprop.summer[1:Amax])*mO[1:Amax, t])
 
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
         
         # Summer survival probability
-        Ss[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mO1prop.summer[1:Amax]*mO[1, t]))
+        Ss[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mOprop.summer[1:Amax]*mO[1, t]))
 
         # Proportion summer harvest mortality
-        alphas[1:Amax, t] <- (mHs[1:Amax, t]/(mHs[1:Amax, t] + mO1prop.summer[1:Amax]*mO[1:Amax, t]))
+        alphas[1:Amax, t] <- (mHs[1:Amax, t]/(mHs[1:Amax, t] + mOprop.summer[1:Amax]*mO[1:Amax, t]))
 
         # Summer harvest rate
         hs[1:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
@@ -406,9 +406,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       ## Proportion of natural mortality in summer
-      mO1prop.summer[1] ~ dbeta(1.2, 2)
-      mO1prop.summer[2:Amax] <- mO1prop.summer.ad
-      mO1prop.summer.ad ~ dbeta(1.2, 4)
+      mOprop.summer[1] ~ dbeta(1.2, 2)
+      mOprop.summer[2:Amax] <- mOprop.summer.ad
+      mOprop.summer.ad ~ dbeta(1.2, 4)
       
       ## Covariate effects
       if(fitCov.mH){
@@ -1037,19 +1037,19 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         }
         
         # (Annual/winter) survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mO1prop.summer[1:Amax])*mO[1:Amax,t]))
+        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mOprop.summer[1:Amax])*mO[1:Amax,t]))
         
         # Proportion winter harvest mortality
-        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + (1-mO1prop.summer[1:Amax])*mO[1:Amax, t])
+        alpha[1:Amax, t] <- mH[1:Amax, t]/(mH[1:Amax, t] + (1-mOprop.summer[1:Amax])*mO[1:Amax, t])
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
         
         # Summer survival probability
-        Ss[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mO1prop.summer[1:Amax]*mO[1, t]))
+        Ss[1:Amax, t] <- exp(-(mHs[1:Amax, t] + mOprop.summer[1:Amax]*mO[1, t]))
         
         # Proportion summer harvest mortality
-        alphas[1:Amax, t] <- (mHs[1:Amax, t]/(mHs[1:Amax, t] + mO1prop.summer[1:Amax]*mO[1:Amax, t]))
+        alphas[1:Amax, t] <- (mHs[1:Amax, t]/(mHs[1:Amax, t] + mOprop.summer[1:Amax]*mO[1:Amax, t]))
         
         # Summer harvest rate
         hs[1:Amax, t] <- (1-Ss[1:Amax, t])*alphas[1:Amax, t]
@@ -1096,9 +1096,9 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       ## Proportion of natural mortality in summer
-      mO1prop.summer[1] ~ dbeta(1.2, 2)
-      mO1prop.summer[2:Amax] <- mO1prop.summer.ad
-      mO1prop.summer.ad ~ dbeta(1.2, 4)
+      mOprop.summer[1] ~ dbeta(1.2, 2)
+      mOprop.summer[2:Amax] <- mOprop.summer.ad
+      mOprop.summer.ad ~ dbeta(1.2, 4)
       
       ## Covariate effects
       if(fitCov.mH){

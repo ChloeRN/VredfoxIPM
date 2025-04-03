@@ -304,12 +304,12 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   }
   
   ## Survival probabilities
-  S[1:Amax, 1:Tmax] <- exp(-(mH[1:Amax, 1:Tmax] + (1-mO1prop.summer[1:Amax])*mO[1:Amax, 1:Tmax]))
-  Ss[1:Amax, 1:Tmax] <- exp(-(mHs[1:Amax, 1:Tmax] + mO1prop.summer[1:Amax]*mO[1:Amax, 1:Tmax]))
+  S[1:Amax, 1:Tmax] <- exp(-(mH[1:Amax, 1:Tmax] + (1-mOprop.summer[1:Amax])*mO[1:Amax, 1:Tmax]))
+  Ss[1:Amax, 1:Tmax] <- exp(-(mHs[1:Amax, 1:Tmax] + mOprop.summer[1:Amax]*mO[1:Amax, 1:Tmax]))
   
   ## Proportions harvest mortality
-  alpha[1:Amax, 1:Tmax] <- mH[1:Amax, 1:Tmax]/(mH[1:Amax, 1:Tmax] + (1-mO1prop.summer[1:Amax])*mO[1:Amax, 1:Tmax])
-  alphas[1:Amax, 1:Tmax] <- mHs[1:Amax, 1:Tmax]/(mHs[1:Amax, 1:Tmax] + mO1prop.summer[1:Amax]*mO[1:Amax, 1:Tmax])
+  alpha[1:Amax, 1:Tmax] <- mH[1:Amax, 1:Tmax]/(mH[1:Amax, 1:Tmax] + (1-mOprop.summer[1:Amax])*mO[1:Amax, 1:Tmax])
+  alphas[1:Amax, 1:Tmax] <- mHs[1:Amax, 1:Tmax]/(mHs[1:Amax, 1:Tmax] + mOprop.summer[1:Amax]*mO[1:Amax, 1:Tmax])
   
   ## Harvest rates
   h <- (1 - S)*alpha
