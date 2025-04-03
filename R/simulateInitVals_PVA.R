@@ -304,22 +304,12 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
   }
   
   ## Survival probabilities
-  # Age class 1
-  S[1, 1:Tmax] <- exp(-(mH[1, 1:Tmax] + (1-mO1prop.summer)*mO[1, 1:Tmax]))
-  Ss[1, 1:Tmax] <- exp(-(mHs[1, 1:Tmax] + mO1prop.summer*mO[1, 1:Tmax]))
-  
-  # Age class 2+
-  S[2:Amax, 1:Tmax] <- exp(-(mH[2:Amax, 1:Tmax] + mO[2:Amax, 1:Tmax]))
-  Ss[2:Amax, 1:Tmax] <- exp(-(mHs[2:Amax, 1:Tmax]))
+  S[1:Amax, 1:Tmax] <- exp(-(mH[1:Amax, 1:Tmax] + (1-mO1prop.summer[1:Amax])*mO[1:Amax, 1:Tmax]))
+  Ss[1:Amax, 1:Tmax] <- exp(-(mHs[1:Amax, 1:Tmax] + mO1prop.summer[1:Amax]*mO[1:Amax, 1:Tmax]))
   
   ## Proportions harvest mortality
-  # Age class 1
-  alpha[1, 1:Tmax] <- mH[1, 1:Tmax]/(mH[1, 1:Tmax] + (1-mO1prop.summer)*mO[1, 1:Tmax])
-  alphas[1, 1:Tmax] <- mHs[1, 1:Tmax]/(mHs[1, 1:Tmax] + mO1prop.summer*mO[1, 1:Tmax])
-  
-  # Age class 2+
-  alpha[2:Amax, 1:Tmax] <- mH[2:Amax, 1:Tmax]/(mH[2:Amax, 1:Tmax] + mO[2:Amax, 1:Tmax])
-  alphas[2:Amax] <- 1
+  alpha[1:Amax, 1:Tmax] <- mH[1:Amax, 1:Tmax]/(mH[1:Amax, 1:Tmax] + (1-mO1prop.summer[1:Amax])*mO[1:Amax, 1:Tmax])
+  alphas[1:Amax, 1:Tmax] <- mHs[1:Amax, 1:Tmax]/(mHs[1:Amax, 1:Tmax] + mO1prop.summer[1:Amax]*mO[1:Amax, 1:Tmax])
   
   ## Harvest rates
   h <- (1 - S)*alpha

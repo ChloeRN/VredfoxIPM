@@ -30,7 +30,7 @@ plac_start <- 180 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
-mO1prop.summer <- 4/12
+mO1prop.summer <- c(4/12, rep(0.1, Amax-1))
 
 # Normalizing value for population size when modelling density-dependence
 normN <- 400 # Based on mean/median of estimated N.tot-Imm 
