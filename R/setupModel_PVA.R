@@ -11,7 +11,7 @@
 #' use in initial value simulation.  
 #' @param maxImm integer. Upper bound for the annual number of immigrants to 
 #' use in initial value simulation. 
-#' @param mO1prop.summer numeric between 0 and 1. Proportion of annual natural 
+#' @param mOprop.summer numeric between 0 and 1. Proportion of annual natural 
 #' mortality of age class 1 we assume occurs during the first summer of life. 
 #' @param fitCov.mH logical. If TRUE, sets up model including covariate
 #' effects on harvest mortality.
@@ -71,7 +71,7 @@
 
 setupModel_PVA <- function(modelCode,
                            nim.data, nim.constants,
-                           minN1, maxN1, minImm, maxImm, mO1prop.summer,
+                           minN1, maxN1, minImm, maxImm, mOprop.summer,
                            fitCov.mH, fitCov.mO, fitCov.Psi, fitCov.rho, fitCov.immR, rCov.idx, 
                            mO.varT, HoenigPrior, imm.asRate, Mu.mO_fixInits = TRUE,
                            DD.mO, DD.immR, DDxRodent,
@@ -83,7 +83,7 @@ setupModel_PVA <- function(modelCode,
   ## Set parameters to monitor in all model versions
   params <- c("Mu.mHs", "Mu.mH", "Mu.mO", "Mu.Psi", "Mu.rho", "Mu.S0",
               "sigma.mHs", "sigma.mH", "sigma.mO", "sigma.Psi", "sigma.rho",
-              "Psi", "rho", "mHs", "mH", "mO", "S", "mO1prop.summer",
+              "Psi", "rho", "mHs", "mH", "mO", "S", "mOprop.summer",
               "initN",
               "N.tot", "B.tot", "R.tot", 
               "N", "octN", "B", "L", "R", "Imm", "immR",
@@ -167,7 +167,7 @@ setupModel_PVA <- function(modelCode,
                                           nim.constants = nim.constants, 
                                           minN1 = minN1, maxN1 = maxN1, 
                                           minImm = minImm, maxImm = maxImm,
-                                          mO1prop.summer = mO1prop.summer,
+                                          mOprop.summer = mOprop.summer,
                                           fitCov.mH = fitCov.mH, 
                                           fitCov.mO = fitCov.mO,
                                           fitCov.Psi = fitCov.Psi, 
