@@ -347,7 +347,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         }
         
         # (Annual/winter) survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mO1prop.summer)*mO[1:Amax,t]))
+        S[1, t] <- exp(-(mH[1, t] + (1-mO1prop.summer)*mO[1,t]))
+        S[2:Amax, t] <- exp(-(mH[2:Amax, t] + mO[2:Amax,t]))
         
         # Proportion winter harvest mortality
         alpha[1, t] <- mH[1, t]/(mH[1, t] + (1-mO1prop.summer)*mO[1, t])
@@ -1095,7 +1096,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         }
         
         # (Annual/winter) survival probability
-        S[1:Amax, t] <- exp(-(mH[1:Amax, t] + (1-mO1prop.summer)*mO[1:Amax,t]))
+        S[1, t] <- exp(-(mH[1, t] + (1-mO1prop.summer)*mO[1,t]))
+        S[2:Amax, t] <- exp(-(mH[2:Amax, t] + mO[2:Amax,t]))
         
         # Proportion winter harvest mortality
         alpha[1, t] <- mH[1, t]/(mH[1, t] + (1-mO1prop.summer)*mO[1, t])
