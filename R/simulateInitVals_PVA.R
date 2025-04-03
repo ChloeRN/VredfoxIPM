@@ -472,7 +472,8 @@ simulateInitVals_PVA <- function(nim.data, nim.constants, minN1, maxN1, minImm, 
     
     logDev.mH = log(mH[1, ]) - log(Mu.mH[1]),
     
-    mOprop.summer = mOprop.summer
+    mOprop.summer = mOprop.summer,
+    mOprop.summer.ad = mOprop.summer[2]
   )
   
   ## Add initial values for parameters specific to survival prior model versions
