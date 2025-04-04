@@ -149,7 +149,7 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]"),
                   "betaR.mO", "betaD.mO", "betaRxD.mO", "gamma.mO",
                   "betaR.immR", "betaD.immR", "betaRxD.immR", "gamma.immR",
-                  "mOprop.summer[1]", "mOprop.summer[2]"),
+                  "mO1prop.summer", "mOprop.summer[1]", "mOprop.summer[2]"),
     
     Imm = paste0("Imm[", 1:Tmax, "]"),
     
@@ -191,7 +191,10 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
     sum.data$uCI[popN.rows] <- ifelse(sum.data$uCI[popN.rows] == 0, 0, log(sum.data$uCI[popN.rows]))
   }
   
-  
+  ## Remove last year for natural mortality
+  sum.data <- sum.data %>%
+    dplyr::filter(!(ParamName == "mO" & Year >= (maxYear-1)))
+                  
   ## Set plotting colors
   plot.cols <- paletteer::paletteer_c("grDevices::Temps", length(model.names))
 
@@ -214,19 +217,21 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
   pdf(paste0(plotFolder, "/PosteriorSummaries_TimeSeriesAge.pdf"), width = 8, height = 8)
   for(x in 1:length(plotTS.paramsAge$ParamNames)){
     
-    print(
-      ggplot(subset(sum.data, ParamName == plotTS.paramsAge$ParamNames[x] & Year <= maxYear), aes(group = Model)) + 
-        geom_line(aes(x = Year, y = median, color = Model)) + 
-        geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
-        scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
-        scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
-        facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
-        ggtitle(plotTS.paramsAge$ParamLabels[x]) +  
-        theme_bw() + theme(panel.grid.minor = element_blank(), 
-                           panel.grid.major.y = element_blank(), 
-                           axis.text.x = element_text(angle = 45, vjust = 0.5))
-    )
-    
+    if(plotTS.paramsAge$ParamNames[x] %in% sum.data$ParamName){
+      print(
+        
+        ggplot(subset(sum.data, ParamName == plotTS.paramsAge$ParamNames[x] & Year <= maxYear), aes(group = Model)) + 
+          geom_line(aes(x = Year, y = median, color = Model)) + 
+          geom_ribbon(aes(x = Year, ymin = lCI, ymax = uCI, fill = Model), alpha = 1/nModels) + 
+          scale_fill_manual(values = plot.cols) + scale_color_manual(values = plot.cols) + 
+          scale_x_continuous(breaks = c(minYear:maxYear), labels = c(minYear:maxYear)) + 
+          facet_wrap(~ Age, ncol = 1, scales = "free_y") + 
+          ggtitle(plotTS.paramsAge$ParamLabels[x]) +  
+          theme_bw() + theme(panel.grid.minor = element_blank(), 
+                             panel.grid.major.y = element_blank(), 
+                             axis.text.x = element_text(angle = 45, vjust = 0.5))
+      )
+    }
   }
   dev.off()
   
