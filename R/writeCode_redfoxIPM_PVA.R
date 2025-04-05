@@ -676,7 +676,12 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           RodentAbundance_pred[t] <- beta.RodMod[1]*RodentAbundance[t-1] + 
             beta.RodMod[2]*RodentAbundance[t-2] + 
             beta.RodMod[3]*RodentAbundance[t-1]*RodentAbundance[t-2]
-          RodentAbundance[t] ~ dnorm(RodentAbundance_pred[t], sd = sigmaT.RodAbun)
+          
+          RodentAbundance_pred_t[t] <- truncateCovPrediction(cov_pred = RodentAbundance_pred[t],
+                                                             minValue = min_RodAbun,
+                                                             maxValue = max_RodAbun)
+          
+          RodentAbundance[t] ~ dnorm(RodentAbundance_pred_t[t], sd = sigmaT.RodAbun)
         }
           
         # Larger area: Correlative model for rodent dynamics in the larger area
@@ -1351,9 +1356,14 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           RodentAbundance_pred[t] <- beta.RodMod[1]*RodentAbundance[t-1] + 
             beta.RodMod[2]*RodentAbundance[t-2] + 
             beta.RodMod[3]*RodentAbundance[t-1]*RodentAbundance[t-2]
-          RodentAbundance[t] ~ dnorm(RodentAbundance_pred[t], sd = sigmaT.RodAbun)
+          
+          RodentAbundance_pred_t[t] <- truncateCovPrediction(cov_pred = RodentAbundance_pred[t],
+                                                             minValue = min_RodAbun,
+                                                             maxValue = max_RodAbun)
+          
+          RodentAbundance[t] ~ dnorm(RodentAbundance_pred_t[t], sd = sigmaT.RodAbun)
         }
-        
+    
         # Larger area: Correlative model for rodent dynamics in the larger area
         for(t in 1:(Tmax+Tmax_sim)){
           RodentAbundance2[t] ~ dnorm(beta.RodCorr*RodentAbundance[t+1], sd = sigmaT.RodAbun2)
