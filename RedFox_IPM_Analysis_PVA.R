@@ -30,8 +30,8 @@ plac_start <- 180 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
-#mOprop.summer <- c(4/12, rep(0.1, Amax-1))
-mOprop.summer <- c(4/12, rep(0, Amax-1))
+mOprop.summer <- c(4/12, rep(0.1, Amax-1))
+#mOprop.summer <- c(4/12, rep(0, Amax-1))
 
 # Normalizing value for population size when modelling density-dependence
 normN <- 400 # Based on mean/median of estimated N.tot-Imm 
@@ -406,7 +406,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mO1summer_estBeta_alt.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")

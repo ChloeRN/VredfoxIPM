@@ -411,8 +411,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       ## Proportion of natural mortality in summer
       mOprop.summer[1] ~ dbeta(1.2, 2)
       mOprop.summer[2:Amax] <- mOprop.summer.ad
-      #mOprop.summer.ad ~ dbeta(1.2, 4)
-      mOprop.summer.ad <- 0
+      mOprop.summer.ad ~ dbeta(1.2, 4)
+      #mOprop.summer.ad <- 0
       
       ## Covariate effects
       if(fitCov.mH){
@@ -1169,8 +1169,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       ## Proportion of natural mortality in summer
       mOprop.summer[1] ~ dbeta(1.2, 2)
       mOprop.summer[2:Amax] <- mOprop.summer.ad
-      #mOprop.summer.ad ~ dbeta(1.2, 4)
-      mOprop.summer.ad <- 0
+      mOprop.summer.ad ~ dbeta(1.2, 4)
+      #mOprop.summer.ad <- 0
       
       ## Covariate effects
       if(fitCov.mH){
