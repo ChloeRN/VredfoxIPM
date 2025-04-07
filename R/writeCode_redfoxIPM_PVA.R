@@ -579,17 +579,27 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           Mu.immR ~ dunif(0, 10)
         }
         
-        for(t in 1:(Tmax+Tmax_sim)){ 
+        for(t in 1:Tmax){ 
           Imm[t] ~ dpois(survN1[t]*immR[t])
         }
         
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
+          Imm[t] ~ dpois(min(survN1[t]*immR[t], max(Imm[2:Tmax])*1.25))
+        }
         
       }else{
         
         ## Lognormal prior for immigrant numbers
-        for(t in 1:(Tmax+Tmax_sim)){
+        for(t in 1:Tmax){ 
           Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
-          
+        }
+        
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
+          Imm[t] <- round(min(ImmExp[t], max(Imm[2:Tmax])*1.25)*pertFac.immR[t])
+        }
+        
+        for(t in 1:(Tmax+Tmax_sim)){
+
           if(fitCov.immR){
             log(ImmExp[t]) <- log(Mu.Imm) + 
               betaR.immR*RodentAbundance2[t] + 
@@ -1322,16 +1332,27 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         
         Mu.immR ~ dunif(0, 10) 
   
-        for(t in 1:(Tmax+Tmax_sim)){ 
+        for(t in 1:Tmax){ 
           Imm[t] ~ dpois(survN1[t]*immR[t])
+        }
+        
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
+          Imm[t] ~ dpois(min(survN1[t]*immR[t], max(Imm[2:Tmax])*1.25))
         }
         
       }else{
         
         ## Lognormal prior for immigrant numbers
+        for(t in 1:Tmax){ 
+          Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
+        }
+        
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
+          Imm[t] <- round(min(ImmExp[t], max(Imm[2:Tmax])*1.25)*pertFac.immR[t])
+        }
+        
         for(t in 1:(Tmax+Tmax_sim)){
-          Imm[t] <- round(ImmExp[t])
-          
+
           if(fitCov.immR){
             log(ImmExp[t]) <- log(Mu.Imm) + 
               betaR.immR*RodentAbundance2[t] + 
