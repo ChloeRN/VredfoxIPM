@@ -117,7 +117,7 @@ DDxRodent <- FALSE
 ## Compensation toggles
 comp.mO <- TRUE
 comp.immR <- FALSE
-comp.RE <- TRUE
+comp.RE <- FALSE
 
 ## Set up perturbation parameters for running standard scenarios
 pert.mH <- FALSE
@@ -393,7 +393,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc2.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -407,6 +407,21 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds
 ########################
 # 5) MODEL COMPARISONS #
 ########################
+
+## Constrained rodent prediction model
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc2.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds"), 
+                           model.names = c("Pred. & realization constr.",
+                                           "Prediction constr.",
+                                           "Unconstrained"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_RodModConstr",
+                           returnSumData = TRUE)
 
 ## New model setup with DD & compensation
 PVA0_comp <- compareModels(Amax = Amax, 
