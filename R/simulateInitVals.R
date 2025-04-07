@@ -367,6 +367,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     L = L,
     R = R,
     Imm = Imm,
+    localN.tot = colSums(R[2:Amax, 1:(Tmax+1)]) + colSums(N[2:Amax, 1:(Tmax+1)]) + 1,
     
     Mu.mH = Mu.mH,
     Mu.mO = Mu.mO,

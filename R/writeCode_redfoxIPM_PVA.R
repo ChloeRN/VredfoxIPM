@@ -113,7 +113,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         R.tot[t] <- sum(R[1:Amax, t])		
         B.tot[t] <- sum(B[1:Amax, t])
         
-        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t])
+        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t]) + 1
       }
       
       #===============================================================================================
@@ -803,7 +803,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         R.tot[t] <- sum(R[1:Amax, t])		
         B.tot[t] <- sum(B[1:Amax, t])
         
-        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t])
+        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t]) + 1
       }
       
       #===============================================================================================
