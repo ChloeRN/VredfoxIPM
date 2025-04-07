@@ -406,7 +406,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -420,6 +420,21 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsum
 ########################
 # 5) MODEL COMPARISONS #
 ########################
+
+## Constrained rodent prediction model
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2.rds",
+                                              "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc.rds",
+                                              "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt.rds"), 
+                           model.names = c("Pred. & realization constr.",
+                                           "Prediction constr.",
+                                           "Unconstrained"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_RodModConstr2",
+                           returnSumData = TRUE)
 
 ## Two census vs. one census with DD & compensation
 PVA0_comp <- compareModels(Amax = Amax, 
