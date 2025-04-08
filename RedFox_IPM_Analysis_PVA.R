@@ -112,7 +112,7 @@ S0.mean.offset <- 0
 S0.sd.factor <- 1
 
 ## Density effects toggles
-DD.mO <- FALSE
+DD.mO <- TRUE
 DD.immR <- TRUE
 DDxRodent <- FALSE
 
@@ -406,7 +406,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmRmO_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2_ImmTrunc_2.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -423,6 +423,19 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsum
 
 ## Constrained rodent prediction model
 PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2_ImmTrunc.rds",
+                                              "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2_ImmTrunc_2.rds",
+                                              "RedFoxIPM_sim_baseline_twoCensus_DDimmRmO_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2_ImmTrunc_2.rds"), 
+                           model.names = c("Imm. constrained (max: +25%)",
+                                           "Imm. constrained (max: +100%)",
+                                           "Imm. constrained (max: +100%) + DD on mO"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_RodModConstr3",
+                           returnSumData = TRUE)
+
 PVA0_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
                            minYear = minYear, 
