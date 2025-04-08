@@ -580,7 +580,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         }
         
         for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
-          Imm[t] ~ dpois(min(survN1[t]*immR[t], max(Imm[2:Tmax])*1.25))
+          Imm[t] ~ dpois(min(survN1[t]*immR[t], max(Imm[2:Tmax])*2))
         }
         
       }else{
@@ -591,7 +591,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         }
         
         for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
-          Imm[t] <- round(min(ImmExp[t], max(Imm[2:Tmax])*1.25)*pertFac.immR[t])
+          Imm[t] <- round(min(ImmExp[t], max(Imm[2:Tmax])*2)*pertFac.immR[t])
         }
         
         for(t in 1:(Tmax+Tmax_sim)){
@@ -1327,7 +1327,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         }
         
         for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
-          Imm[t] ~ dpois(min(survN1[t]*immR[t], max(Imm[2:Tmax])*1.25))
+          Imm[t] ~ dpois(min(survN1[t]*immR[t], max(Imm[2:Tmax])*2))
         }
         
       }else{
@@ -1338,7 +1338,7 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         }
         
         for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
-          Imm[t] <- round(min(ImmExp[t], max(Imm[2:Tmax])*1.25)*pertFac.immR[t])
+          Imm[t] <- round(min(ImmExp[t], max(Imm[2:Tmax])*2)*pertFac.immR[t])
         }
         
         for(t in 1:(Tmax+Tmax_sim)){
