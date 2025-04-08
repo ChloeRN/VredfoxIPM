@@ -110,7 +110,7 @@ S0.mean.offset <- 0
 S0.sd.factor <- 1
 
 ## Density effects toggles
-DD.mO <- FALSE
+DD.mO <- TRUE
 DD.immR <- TRUE
 DDxRodent <- FALSE
 
@@ -393,7 +393,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = 0)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc2_ImmTrunc.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc_2.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -403,12 +403,32 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_Ro
 
 #MCMCvis::MCMCtrace(IPM.out)
 
+MCMCvis::MCMCtrace(IPM.out,
+                   params = "gamma.mO",
+                   pdf = FALSE)
+
 
 ########################
 # 5) MODEL COMPARISONS #
 ########################
 
-## Constrained rodent prediction model
+## Constrained prediction models
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc2_ImmTrunc.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc_2.rds",
+                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds"), 
+                           model.names = c("Max. imm: +25%",
+                                           "Max. imm: +25% (+DD on mO[1])",
+                                           "Max. imm: +100% (+DD on mO[1])",
+                                           "Unconstrained imm"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_Constraints2",
+                           returnSumData = TRUE)
+
 PVA0_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
                            minYear = minYear, 
