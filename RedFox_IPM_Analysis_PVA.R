@@ -423,6 +423,23 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsum
 
 ## Constrained rodent prediction model
 PVA0_comp <- compareModels(Amax = Amax, 
+PVA0_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2030,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2.rds",
+                                              "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt.rds",
+                                              "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2_ImmTrunc.rds",
+                                              "RedFoxIPM_sim_baseline_twoCensus_DDimmR_effCOMPmO_mOsummer_estBeta_alt_RodTrunc2_ImmTrunc_2.rds"), 
+                           model.names = c("Rodents constr.",
+                                           "Unconstrained",
+                                           "Rodents & imm. constrained (max: +25%)",
+                                           "Rodents & imm. constrained (max: +100%)"), 
+                           plotFolder = "Plots/ScenarioComp_PVA0_RodModConstr2",
+                           returnSumData = TRUE)
+
+PVA0_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
                            minYear = minYear, 
                            maxYear = 2030,
@@ -433,7 +450,7 @@ PVA0_comp <- compareModels(Amax = Amax,
                            model.names = c("Pred. & realization constr.",
                                            "Prediction constr.",
                                            "Unconstrained"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_RodModConstr2",
+                           plotFolder = "Plots/ScenarioComp_PVA0_RodModConstr",
                            returnSumData = TRUE)
 
 ## Two census vs. one census with DD & compensation
