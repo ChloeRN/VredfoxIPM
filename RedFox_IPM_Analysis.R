@@ -35,6 +35,9 @@ embr_end   <- 140 #until, not including
 normN <- 400 # Based on mean/median of estimated N.tot-Imm 
 
 ## set dataset names, versions, and directories, and access
+hunting.dataset.name <- "v_redfox_hunting_v2"
+hunting.dataset.version <- 2
+
 carcass.dataset.name <- "v_redfox_carcass_examination_v3"
 carcass.dataset.version <- 3
 
@@ -127,6 +130,16 @@ comp.RE <- FALSE
 # 1a) Download and reformat carcass data
 #-------------------------------#
 
+## Download hunting data (this is the record of foxes hunted, before they end up in the carcass examination lab)
+hunting.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
+                                      COATdataset.name = hunting.dataset.name,
+                                      COATdataset.version = hunting.dataset.version)
+
+#reformat hunting data
+hunting.data  <- reformatData_hunting(summer_removal = summer_removal ,
+                                     hunting.dataset = hunting.data.raw)
+
+
 ## Download carcass data
 carcass.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
                                      COATdataset.name = carcass.dataset.name,
@@ -144,7 +157,9 @@ carcass.data <- reformatData_carcass(Amax = Amax,
                                      carcass.dataset = carcass.data.raw,
                                      shapefile.dir = shapefile.dir,
                                      add.sumr.unaged = add.sumr.unaged, 
-                                     saAH.years = saAH.years)
+                                     saAH.years = saAH.years,
+                                     hunting.data = hunting.data)
+
 
 
 # 1b) Age-at-Harvest data #
