@@ -20,11 +20,6 @@ writePostSummaries <- function(MCMC.samples, Amax, minYear){
                   `Mu.S[3]` = exp(-(`Mu.mH[3]` + `Mu.mO[3]`)),
                   `Mu.S[4]` = exp(-(`Mu.mH[4]` + `Mu.mO[4]`)),
                   `Mu.S[5]` = exp(-(`Mu.mH[5]` + `Mu.mO[5]`)),
-                  `Mu.Ss[1]` = exp(-(`Mu.mHs[1]`)),
-                  `Mu.Ss[2]` = exp(-(`Mu.mHs[2]`)),
-                  `Mu.Ss[3]` = exp(-(`Mu.mHs[3]`)),
-                  `Mu.Ss[4]` = exp(-(`Mu.mHs[4]`)),
-                  `Mu.Ss[5]` = exp(-(`Mu.mHs[5]`)),
                   SampleID = 1:nrow(as.matrix(MCMC.samples))) %>%
     tidyr::pivot_longer(cols = -SampleID) %>%
     dplyr::rename(Parameter = name,

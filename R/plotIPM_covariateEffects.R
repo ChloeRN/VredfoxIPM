@@ -266,7 +266,25 @@ plotIPM_covariateEffects <- function(MCMC.samples, rCov.idx,
     ggtitle("a) Compensatory mortality") + 
     theme_bw() + theme(panel.grid = element_blank(), legend.position = "none")
   
-  p.dens2 <- densityPred.data %>%
+  p.dens2.mO <- densityPred.data %>%
+    dplyr::filter(VitalRate == "Natural mortality") %>%
+    dplyr::mutate(VitalRate = factor(dplyr::case_when(VitalRate == "Natural mortality" ~ paste0("Natural mortality (age ", AgeClass, ")"),
+                                                      VitalRate == "Pregnancy rate" ~ paste0("Pregnancy rate (age ", AgeClass, ")"),
+                                                      TRUE ~ VitalRate), 
+                                     levels = c(paste0("Natural mortality (age ", AgeClass, ")"), 
+                                                "Immigration rate")),
+                  PopDensity_t = exp(PopDensity + log(normN)))%>%
+    ggplot(aes(x = PopDensity_t)) + 
+    geom_line(aes(y = median, color = VitalRate)) + 
+    geom_ribbon(aes(ymin = lCI, ymax = uCI, fill = VitalRate), alpha = 0.5) + 
+    scale_color_manual(values = c("#089392FF")) + 
+    scale_fill_manual(values = c("#089392FF")) + 
+    ylab("Natural mortality") + 
+    xlab("Local population size") + 
+    ggtitle("b) Density-dependent mortality") + 
+    theme_bw() + theme(panel.grid = element_blank(), legend.position = "none")
+  
+  p.dens2.immR <- densityPred.data %>%
     dplyr::filter(VitalRate == "Immigration rate") %>%
     dplyr::mutate(VitalRate = factor(dplyr::case_when(VitalRate == "Natural mortality" ~ paste0("Natural mortality (age ", AgeClass, ")"),
                                                       VitalRate == "Pregnancy rate" ~ paste0("Pregnancy rate (age ", AgeClass, ")"),
@@ -281,12 +299,12 @@ plotIPM_covariateEffects <- function(MCMC.samples, rCov.idx,
     scale_fill_manual(values = c("#E79069FF")) + 
     ylab("Immigration rate") + 
     xlab("Local population size") + 
-    ggtitle("b) Density-dependent immigration") + 
+    ggtitle("c) Density-dependent immigration") + 
     theme_bw() + theme(panel.grid = element_blank(), legend.position = "none")
   
   
-  pdf("Plots/RedfoxIPM_DD&Compensation_VitalRates_reduced.pdf", width = 4, height = 6)
-  print(p.comp2 / p.dens2)
+  pdf("Plots/RedfoxIPM_DD&Compensation_VitalRates_reduced.pdf", width = 4, height = 9)
+  print(p.comp2 / p.dens2.mO / p.dens2.immR)
   dev.off()
   
   ## Return list of plots
