@@ -47,7 +47,7 @@
 
 assemble_inputData <- function(Amax, Tmax, minYear,
                                maxPups, uLim.N, uLim.Imm, 
-                               normN,
+                               normN, mOprop.summer,
                                nLevels.rCov = NA, standSpec.rCov,
                                poolYrs.genData, pImm.type,
                                wAaH.data, sAaH.data, rep.data, gen.data, pup.data,
