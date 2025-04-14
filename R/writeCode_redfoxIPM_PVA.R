@@ -136,8 +136,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       
       localN.tot[1] <- normN
       for(t in 2:(Tmax+Tmax_sim)){
-        #localN.tot[t] <- survN1[t] + sum(octN[2:Amax, t])
-        localN.tot[t] <- sum(N[1:Amax, t])
+        #localN.tot[t] <- survN1[t] + sum(octN[2:Amax, t]) + 1
+        localN.tot[t] <- sum(N[1:Amax, t]) + 1
       }
       
       #===============================================================================================
@@ -575,16 +575,26 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           Mu.immR ~ dunif(0, 10)
         }
         
-        for(t in 1:(Tmax+Tmax_sim)){ 
+        for(t in 1:Tmax){ 
           Imm[t] ~ dpois(survN1[t]*immR[t])
         }
         
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
+          Imm[t] ~ dpois(min(survN1[t]*immR[t], max(Imm[2:Tmax])*2))
+        }
         
       }else{
         
         ## Lognormal prior for immigrant numbers
-        for(t in 1:(Tmax+Tmax_sim)){
+        for(t in 1:Tmax){ 
           Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
+        }
+        
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
+          Imm[t] <- round(min(ImmExp[t], max(Imm[2:Tmax])*2)*pertFac.immR[t])
+        }
+        
+        for(t in 1:(Tmax+Tmax_sim)){
           
           if(fitCov.immR){
             log(ImmExp[t]) <- log(Mu.Imm) + 
@@ -753,12 +763,17 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           RodentAbundance_pred[t] <- beta.RodMod[1]*RodentAbundance[t-1] + 
             beta.RodMod[2]*RodentAbundance[t-2] + 
             beta.RodMod[3]*RodentAbundance[t-1]*RodentAbundance[t-2]
-          RodentAbundance[t] ~ dnorm(RodentAbundance_pred[t], sd = sigmaT.RodAbun)
+          
+          RodentAbundance_pred_t[t] <- truncateCovPrediction(cov_pred = RodentAbundance_pred[t],
+                                                             minValue = min_RodAbun,
+                                                             maxValue = max_RodAbun)
+          
+          RodentAbundance[t] ~ T(dnorm(RodentAbundance_pred_t[t], sd = sigmaT.RodAbun), min_RodAbun*1.25, max_RodAbun*1.25)
         }
           
         # Larger area: Correlative model for rodent dynamics in the larger area
         for(t in 1:(Tmax+Tmax_sim)){
-          RodentAbundance2[t] ~ dnorm(beta.RodCorr*RodentAbundance[t+1], sd = sigmaT.RodAbun2)
+          RodentAbundance2[t] ~ T(dnorm(beta.RodCorr*RodentAbundance[t+1], sd = sigmaT.RodAbun2), min_RodAbun2*1.25, max_RodAbun2*1.25) 
         }
       }
       
@@ -894,8 +909,8 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
       
       localN.tot[1] <- normN
       for(t in 2:(Tmax+Tmax_sim)){
-        #localN.tot[t] <- survN1[t] + sum(octN[2:Amax, t])
-        localN.tot[t] <- sum(N[1:Amax, t])
+        #localN.tot[t] <- survN1[t] + sum(octN[2:Amax, t]) + 1
+        localN.tot[t] <- sum(N[1:Amax, t]) + 1
       }
       
       #===============================================================================================
@@ -1306,17 +1321,28 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
         }
         
         Mu.immR ~ dunif(0, 10) 
-  
-        for(t in 1:(Tmax+Tmax_sim)){ 
+        
+        for(t in 1:Tmax){ 
           Imm[t] ~ dpois(survN1[t]*immR[t])
+        }
+        
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
+          Imm[t] ~ dpois(min(survN1[t]*immR[t], max(Imm[2:Tmax])*2))
         }
         
       }else{
         
         ## Lognormal prior for immigrant numbers
+        for(t in 1:Tmax){ 
+          Imm[t] <- round(ImmExp[t]*pertFac.immR[t])
+        }
+        
+        for(t in (Tmax+1):(Tmax+Tmax_sim)){ 
+          Imm[t] <- round(min(ImmExp[t], max(Imm[2:Tmax])*2)*pertFac.immR[t])
+        }
+        
         for(t in 1:(Tmax+Tmax_sim)){
-          Imm[t] <- round(ImmExp[t])
-          
+
           if(fitCov.immR){
             log(ImmExp[t]) <- log(Mu.Imm) + 
               betaR.immR*RodentAbundance2[t] + 
@@ -1497,12 +1523,17 @@ writeCode_redfoxIPM_PVA <- function(indLikelihood.genData = FALSE){
           RodentAbundance_pred[t] <- beta.RodMod[1]*RodentAbundance[t-1] + 
             beta.RodMod[2]*RodentAbundance[t-2] + 
             beta.RodMod[3]*RodentAbundance[t-1]*RodentAbundance[t-2]
-          RodentAbundance[t] ~ dnorm(RodentAbundance_pred[t], sd = sigmaT.RodAbun)
+          
+          RodentAbundance_pred_t[t] <- truncateCovPrediction(cov_pred = RodentAbundance_pred[t],
+                                                             minValue = min_RodAbun,
+                                                             maxValue = max_RodAbun)
+          
+          RodentAbundance[t] ~ T(dnorm(RodentAbundance_pred_t[t], sd = sigmaT.RodAbun), min_RodAbun*1.25, max_RodAbun*1.25)
         }
         
         # Larger area: Correlative model for rodent dynamics in the larger area
         for(t in 1:(Tmax+Tmax_sim)){
-          RodentAbundance2[t] ~ dnorm(beta.RodCorr*RodentAbundance[t+1], sd = sigmaT.RodAbun2)
+          RodentAbundance2[t] ~ T(dnorm(beta.RodCorr*RodentAbundance[t+1], sd = sigmaT.RodAbun2), min_RodAbun2*1.25, max_RodAbun2*1.25) 
         }
       }
       

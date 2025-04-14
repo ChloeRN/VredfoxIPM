@@ -193,7 +193,12 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
     NoPups_year = pup.data$NoPups_year,
     X3 = pup.data$X3,
     
-    nLevels.rCov = nLevels.rCov
+    nLevels.rCov = nLevels.rCov,
+    
+    min_RodAbun = min(RodentAbundance, na.rm = TRUE)*1.1,
+    max_RodAbun = max(RodentAbundance, na.rm = TRUE)*1.1,
+    min_RodAbun2 = min(RodentAbundance2, na.rm = TRUE)*1.1,
+    max_RodAbun2 = max(RodentAbundance2, na.rm = TRUE)*1.1
   )
   
   ## Append relevant data from genetic immigration assignments
