@@ -14,7 +14,7 @@ library(patchwork)
 #**********#
 
 ## Set seed
-mySeed <- 10
+mySeed <- 88
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -390,10 +390,10 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       nburnin = model.setup$mcmcParams$nburn*2, 
                       thin = model.setup$mcmcParams$nthin*2, 
                       samplesAsCodaMCMC = TRUE, 
-                      setSeed = 0)
+                      setSeed = mySeed)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc_2.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc_2B.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -404,7 +404,7 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_
 #MCMCvis::MCMCtrace(IPM.out)
 
 MCMCvis::MCMCtrace(IPM.out,
-                   params = "gamma.mO",
+                   params = c("betaD.immR", "betaR.immR", "Mu.immR", "sigma.immR"),
                    pdf = FALSE)
 
 
