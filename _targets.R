@@ -22,8 +22,8 @@ sourceDir('R')
 mySeed <- 10
 
 ## Test run vs. full run
-#testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
-testRun <- FALSE # Runs the full MCMC with 30000 iterations unless otherwise specified
+testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
+#testRun <- FALSE # Runs the full MCMC with 30000 iterations unless otherwise specified
 
 ## General parameters
 Amax <- 5 # Number of age classes
@@ -89,7 +89,7 @@ reinCov.VarTana <- TRUE # Calculate the reindeer carcass data count covariate us
 mO.varT <- TRUE
 
 # Age-at-harvest data toggles
-add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
+add.sumr.unaged <- TRUE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
