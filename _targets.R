@@ -22,8 +22,8 @@ sourceDir('R')
 mySeed <- 10
 
 ## Test run vs. full run
-#testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
-testRun <- FALSE # Runs the full MCMC with 30000 iterations unless otherwise specified
+testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
+#testRun <- FALSE # Runs the full MCMC with 30000 iterations unless otherwise specified
 
 ## General parameters
 Amax <- 5 # Number of age classes
@@ -39,6 +39,7 @@ plac_start <- 180 #including
 plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
+mOprop.summer <- c(4/12, rep(0.1, Amax-1))
 
 # Normalizing value for population size when modelling density-dependence
 normN <- 400 # Based on mean/median of estimated N.tot-Imm 
@@ -284,6 +285,7 @@ list(
                        uLim.N = 800,
                        uLim.Imm = 3000,
                        normN = normN,
+                       mOprop.summer = mOprop.summer,
                        nLevels.rCov = nLevels.rCov,
                        standSpec.rCov = standSpec.rCov,
                        poolYrs.genData = poolYrs.genData,
@@ -310,6 +312,7 @@ list(
                maxN1 = c(800, 400, 400, 400, 400), 
                minImm = 50, 
                maxImm = 600,
+               mOprop.summer = mOprop.summer,
                fitCov.mH = fitCov.mH, 
                fitCov.mO = fitCov.mO,
                fitCov.Psi = fitCov.Psi, 
