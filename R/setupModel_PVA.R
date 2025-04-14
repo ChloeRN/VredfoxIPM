@@ -76,7 +76,7 @@ setupModel_PVA <- function(modelCode,
                            mO.varT, HoenigPrior, imm.asRate, Mu.mO_fixInits = TRUE,
                            DD.mO, DD.immR, DDxRodent,
                            comp.mO, comp.immR, comp.RE,
-                           niter = 100000, nthin = 8, nburn = 37500, nchains = 3,
+                           niter = 200000, nthin = 20, nburn = 75000, nchains = 3,
                            testRun = FALSE, initVals.seed){
   
   

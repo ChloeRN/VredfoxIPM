@@ -398,9 +398,9 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       inits = model.setup$initVals, 
                       monitors = model.setup$modelParams,
                       nchains = model.setup$mcmcParams$nchains, 
-                      niter = model.setup$mcmcParams$niter*2, 
-                      nburnin = model.setup$mcmcParams$nburn*2, 
-                      thin = model.setup$mcmcParams$nthin*2, 
+                      niter = model.setup$mcmcParams$niter, 
+                      nburnin = model.setup$mcmcParams$nburn, 
+                      thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
                       setSeed = 0)
 Sys.time() - t1
