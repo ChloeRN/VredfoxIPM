@@ -64,7 +64,7 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   all_varanger <- allf[is.na(allf$sn_region)== F & allf$sn_region == "varanger"  & allf$v_hunter_id != "road_kill" & allf$v_hunter_id != "found_dead", ]
   
   #select only females
-  female_shot_varanger <-all_varanger[is.na(all_varanger$v_sex)== F & all_varanger$v_sex == "female", ]
+  female_shot_varanger <- all_varanger[is.na(all_varanger$v_sex)== F & all_varanger$v_sex == "female", ]
   
   #Remove females without hunting date
   fvar1 <- female_shot_varanger[is.na(female_shot_varanger$t_hunting_date)==F,]
@@ -95,56 +95,62 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   
   #=============== Proportion of foxes that end up in carcass examination from hunting data ========================
   
-  #These are all the foxes from Varanger (male and female), that were shot and ended up in carcass examination
-  all_varanger
+  ## Count total number of registered carcasses (per hunting year and season)
   
-  #These are all the foxes shot in Varanger (male and female), in the reported hunting file, per t_hunting_year
-  hunting.data
+  # Step 1: Classify observations as summer, winter, or unknown
+  all_varanger$season <- dplyr::case_when(is.na(all_varanger$mnd) ~ "unknown",
+                                          all_varanger$mnd %in% summer_removal ~ "summer",
+                                          TRUE ~ "winter")
   
-  #Now I want to compare both
-  #so first get the totals for carcass examination
-  
-  # Step 1: Classify observations as summer or winter
-  all_varanger$season <- ifelse(all_varanger$mnd %in% summer_removal, "summer", "winter")
   # Step 2: Count total foxes per year
-  total_carcass <- aggregate(v_individual_id ~ t_hunting_year, data = all_varanger, FUN = length)
+  total_carcass <- aggregate(v_individual_id ~ t_hunting_year, 
+                             data = all_varanger, 
+                             FUN = length)
   colnames(total_carcass) <- c("t_hunting_year", "total_carcass")
+
   # Step 3: Count summer foxes per year
   summer_carcass <- aggregate(v_individual_id ~ t_hunting_year, 
                              data = all_varanger[all_varanger$season == "summer", ], 
                              FUN = length)
   colnames(summer_carcass) <- c("t_hunting_year", "summer_carcass")
+  
   # Step 4: Count winter foxes per year
   winter_carcass <- aggregate(v_individual_id ~ t_hunting_year, 
                              data = all_varanger[all_varanger$season == "winter", ], 
                              FUN = length)
   colnames(winter_carcass) <- c("t_hunting_year", "winter_carcass")
-  # Step 5: Merge the results
+  
+  # Step 5: Count unknwon season foxes per year
+  unknown_carcass <- aggregate(v_individual_id ~ t_hunting_year, 
+                              data = all_varanger[all_varanger$season == "unknown", ], 
+                              FUN = length)
+  colnames(unknown_carcass) <- c("t_hunting_year", "unknown_carcass")
+  
+  # Step 6: Merge the results
   result <- merge(total_carcass, winter_carcass, by = "t_hunting_year", all.x = TRUE)
   result <- merge(result, summer_carcass, by = "t_hunting_year", all.x = TRUE)
+  result <- merge(result, unknown_carcass, by = "t_hunting_year", all.x = TRUE)
+  
   # Replace NA with 0 for missing carcass
   result$summer_carcass[is.na(result$summer_carcass)] <- 0
   result$winter_carcass[is.na(result$winter_carcass)] <- 0
-  # View the result
-  (result)
-  carcass.numbers <- result
+  result$unknown_carcass[is.na(result$unknown_carcass)] <- 0
   
-  carcass.numbers
-  hunting.data
+  carcass.numbers <- result
   
   #----checking the difference----
   # Ensure the data frames are aligned by `t_hunting_year`
   # Merge the two data frames by `t_hunting_year` to ensure alignment
   merged_data <- merge(carcass.numbers, hunting.data, by = "t_hunting_year", suffixes = c("_carcass", "_hunting"))
+  
   # Calculate the differences for each column
   difference_data <- data.frame(
     t_hunting_year = merged_data$t_hunting_year,
     total_count = merged_data$total_hunted - merged_data$total_carcass,
     total_winter = merged_data$winter_hunted - merged_data$winter_carcass,
-    total_summer = merged_data$summer_hunted - merged_data$summer_carcass  
+    total_summer = merged_data$summer_hunted - merged_data$summer_carcass,
+    total_unknown = merged_data$unknown_hunted - merged_data$unknown_carcass
   )
-  # View the result
-  (difference_data)
   
   #--------Then I want to get to:----------
   #pCarcassData[t] = Number of foxes in carcass data for hunting season t / Number of foxes in hunting data for hunting season t (again for the summer, winter, and combined hunting seasons).
@@ -157,6 +163,13 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
     pCarcass_summer = merged_data$summer_carcass / merged_data$summer_hunted
   )
   
+  # Set values > 1 to 1
+  proportion_data$pCarcass_total[which(proportion_data$pCarcass_total > 1)] <- 1
+  proportion_data$pCarcass_winter[which(proportion_data$pCarcass_winter > 1)] <- 1
+  proportion_data$pCarcass_summer[which(proportion_data$pCarcass_summer > 1)] <- 1
+  
+  # Assign starting year (for matching with age-at-harvest data)
+  proportion_data$year <- as.integer(stringr::str_split_fixed(proportion_data$t_hunting_year, pattern = "_", n = 2)[,1])
   
   
   #===============    WINTER AGE AT HARVEST MATRIX BUILDING ==============================
@@ -181,12 +194,26 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   
   prop <- agedf.ann/allf.ann
   
-  varFC2$pData <- prop
+  varFC2$pAged <- prop
   
   if(add.sumr.unaged){
     prop.win <- agedf.ann/allf.win
-    varFC2$pData_winter <- prop.win
+    varFC2$pAged_winter <- prop.win
   }
+  
+  # Add proportion of hunted in carcass data
+  varFC2 <- varFC2 %>%
+    dplyr::left_join(proportion_data[, c("year", "pCarcass_total", "pCarcass_winter")], by = "year")
+  
+  if(add.sumr.unaged){
+    varFC2 <- varFC2 %>%
+      dplyr::rename(pCarcass = pCarcass_total)
+  }else{
+    varFC2 <- varFC2 %>%
+      dplyr::rename(pCarcass = pCarcass_winter) %>%
+      dplyr::select(-pCarcass_total)
+  }
+  
   
   #===============    SUMMER AGE AT HARVEST MATRIX BUILDING ==============================
   #here we exclude foxes shot in winter months and foxes with no age info
@@ -206,7 +233,12 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   sagedf.ann <- table(fvar1$start_hunting_year[!is.na(fvar1$v_age) & fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]) #where unaged removed
   sallf.ann  <- table(fvar1$start_hunting_year[fvar1$mnd %notin% winter_removal & fvar1$start_hunting_year %in% saAH.years]) #where unaged not removed
   sprop <- sagedf.ann/sallf.ann
-  svarFC2$pData <- sprop
+  svarFC2$pAged <- sprop
+  
+  # Add proportion of hunted in carcass data
+  svarFC2 <- svarFC2 %>%
+    dplyr::left_join(proportion_data[, c("year", "pCarcass_summer")], by = "year") %>%
+    dplyr::rename(pCarcass = pCarcass_summer)
   
   # ========= REPRODUCTION: NR OF EMBRYO'S / PLACENTAL SCARS =========
   #here we exclude foxes with no age info and foxes with no breeding info recorded (no NA, and nr > 0)
@@ -252,8 +284,7 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   carcassData <- list(WAaH.matrix = varFC2,
                       SAaH.matrix = svarFC2,
                       P1var = P1var,
-                      P2var = P2var,
-                      pCarcassData = proportion_data)
+                      P2var = P2var)
   
   #=== return ===
   return(carcassData)
