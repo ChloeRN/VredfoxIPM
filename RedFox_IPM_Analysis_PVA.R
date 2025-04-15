@@ -8,17 +8,18 @@ library(purrr)
 library(dplyr)
 library(metafor)
 library(patchwork)
+library(coda)
 
 #**********#
 # 0) SETUP #
 #**********#
 
 ## Set seed
-mySeed <- 10
+mySeed <- 88
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
-Tmax <- 18  # Number of years
+Tmax <- 20  # Number of years
 Tmax_sim <- 10
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
@@ -35,11 +36,11 @@ embr_end   <- 140 #until, not including
 normN <- 400 # Based on mean/median of estimated N.tot-Imm 
 
 ## set dataset names, versions, and directories, and access
-carcass.dataset.name <- "v_redfox_carcass_examination_v3"
-carcass.dataset.version <- 3
+carcass.dataset.name <- "v_redfox_carcass_examination_v4"
+carcass.dataset.version <- 4
 
-rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
-rodent.dataset.version <- 5
+rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v7"
+rodent.dataset.version <- 7
 
 # Stijn
 shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
@@ -386,14 +387,14 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       inits = model.setup$initVals, 
                       monitors = c(model.setup$modelParams, "epsilon.immR", "eta.immR", "localN.tot"),
                       nchains = model.setup$mcmcParams$nchains, 
-                      niter = model.setup$mcmcParams$niter*2, 
-                      nburnin = model.setup$mcmcParams$nburn*2, 
-                      thin = model.setup$mcmcParams$nthin*2, 
+                      niter = model.setup$mcmcParams$niter, 
+                      nburnin = model.setup$mcmcParams$nburn, 
+                      thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
-                      setSeed = 0)
+                      setSeed = mySeed)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc_2.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc_2B.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
@@ -404,7 +405,7 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_
 #MCMCvis::MCMCtrace(IPM.out)
 
 MCMCvis::MCMCtrace(IPM.out,
-                   params = "gamma.mO",
+                   params = c("betaD.immR", "betaR.immR", "Mu.immR", "sigma.immR"),
                    pdf = FALSE)
 
 
