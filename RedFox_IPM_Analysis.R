@@ -15,7 +15,7 @@ library(coda)
 #**********#
 
 ## Set seed
-mySeed <- 10
+mySeed <- 88
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -110,7 +110,7 @@ S0.mean.offset <- 0
 S0.sd.factor <- 1
 
 ## Density effects toggles
-DD.mO <- FALSE
+DD.mO <- TRUE
 DD.immR <- TRUE
 DDxRodent <- FALSE
 
