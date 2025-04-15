@@ -35,8 +35,8 @@ embr_end   <- 140 #until, not including
 normN <- 400 # Based on mean/median of estimated N.tot-Imm 
 
 ## set dataset names, versions, and directories, and access
-hunting.dataset.name <- "v_redfox_hunting_v2"
-hunting.dataset.version <- 2
+hunting.dataset.name <- "v_redfox_hunting_v3"
+hunting.dataset.version <- 3
 
 carcass.dataset.name <- "v_redfox_carcass_examination_v4"
 carcass.dataset.version <- 4
@@ -136,8 +136,8 @@ hunting.data.raw <- downloadData_COAT(COAT_key = COAT_key,
                                       COATdataset.version = hunting.dataset.version)
 
 #reformat hunting data
-hunting.data  <- reformatData_hunting(summer_removal = summer_removal ,
-                                     hunting.dataset = hunting.data.raw)
+hunting.data  <- reformatData_hunting(summer_removal = summer_removal,
+                                      hunting.dataset = hunting.data.raw)
 
 
 ## Download carcass data
