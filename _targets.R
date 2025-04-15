@@ -19,7 +19,7 @@ sourceDir('R')
 #-----------------------------#
 
 ## Seed
-mySeed <- 10
+mySeed <- 88
 
 ## Test run vs. full run
 testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
@@ -27,7 +27,7 @@ testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
 
 ## General parameters
 Amax <- 5 # Number of age classes
-Tmax <- 18  # Number of years
+Tmax <- 20  # Number of years
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9)    #removal of summer months: numerical months to be removed from winter age at harvest data
@@ -44,11 +44,11 @@ embr_end   <- 140 #until, not including
 normN <- 400 # Based on mean/median of estimated N.tot-Imm 
 
 ## Dataset names, versions, and directories
-carcass.dataset.name <- "v_redfox_carcass_examination_v3"
-carcass.dataset.version <- 3
+carcass.dataset.name <- "v_redfox_carcass_examination_v4"
+carcass.dataset.version <- 4
 
-rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
-rodent.dataset.version <- 5
+rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v7"
+rodent.dataset.version <- 7
 
 genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
 
