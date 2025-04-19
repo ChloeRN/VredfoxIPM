@@ -456,7 +456,7 @@ plotIPM_covariateEffects(MCMC.samples = IPM.out,
                          rCov.idx = rCov.idx,
                          rodentMIN = -1.75, rodentMAX = 4,
                          mHdevMIN = -0.7, mHdevMAX = 1.1,
-                         densityMIN = -1.2, densityMAX = 0.3,
+                         densityMIN = -0.25, densityMAX = 1.2,
                          normN = normN,
                          AgeClass = 1) 
 
