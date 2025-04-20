@@ -44,6 +44,9 @@ embr_end   <- 140 #until, not including
 normN <- 500 # Based on mean/median of estimated N.tot-Imm 
 
 ## Dataset names, versions, and directories
+hunting.dataset.name <- "v_redfox_hunting_v3"
+hunting.dataset.version <- 3
+
 carcass.dataset.name <- "v_redfox_carcass_examination_v4"
 carcass.dataset.version <- 4
 
@@ -147,6 +150,22 @@ tar_option_set(packages = c("tidyverse", "sf", "reshape2", "remotes", "ckanr", "
 
 ## Define Targets List
 list(
+  
+  # Download hunting data (this is the record of foxes hunted, before they end up in the carcass examination lab)
+  tar_target(
+    hunting.data.raw,
+    downloadData_COAT(COAT_key = COAT_key, 
+                      COATdataset.name = hunting.dataset.name,
+                      COATdataset.version = hunting.dataset.version)
+  ),
+  
+  # Reformat hunting data
+  tar_target(
+    hunting.data,
+    reformatData_hunting(summer_removal = summer_removal,
+                         hunting.dataset = hunting.data.raw)
+  ),
+  
   # Download raw redfox carcass data from COAT database
   tar_target(
     carcass.data.raw,
@@ -169,7 +188,8 @@ list(
                          carcass.dataset = carcass.data.raw,
                          shapefile.dir = shapefile.dir,
                          add.sumr.unaged = add.sumr.unaged, 
-                         saAH.years = saAH.years)
+                         saAH.years = saAH.years,
+                         hunting.data = hunting.data)
   ),
   
   # Extract winter age-at-harvest matrix
