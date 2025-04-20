@@ -15,7 +15,7 @@ library(coda)
 #**********#
 
 ## Set seed
-mySeed <- 88
+mySeed <- 57
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -404,9 +404,6 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_
 
 #MCMCvis::MCMCtrace(IPM.out)
 
-MCMCvis::MCMCtrace(IPM.out,
-                   params = c("betaD.immR", "betaR.immR", "Mu.immR", "sigma.immR"),
-                   pdf = FALSE)
 
 
 ########################

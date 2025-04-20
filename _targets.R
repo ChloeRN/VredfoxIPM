@@ -19,7 +19,7 @@ sourceDir('R')
 #-----------------------------#
 
 ## Seed
-mySeed <- 88
+mySeed <- 57
 
 ## Test run vs. full run
 testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
