@@ -33,7 +33,7 @@ embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
 # Normalizing value for population size when modelling density-dependence
-normN <- 400 # Based on mean/median of estimated N.tot-Imm 
+normN <- 500 # Based on mean/median of estimated N.tot-Imm 
 
 ## set dataset names, versions, and directories, and access
 carcass.dataset.name <- "v_redfox_carcass_examination_v4"
