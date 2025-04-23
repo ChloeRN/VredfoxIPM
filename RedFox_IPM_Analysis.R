@@ -311,6 +311,11 @@ input.data <- assemble_inputData(Amax = Amax,
                                  survPriorType = survPriorType)
 
 
+# Adjustments for running independent models
+input.data$nim.constants$uLim.N <- 3500
+input.data$nim.constants$uLim.localN <- input.data$nim.constants$uLim.N*2
+
+
 # 3c) Set up for model run (incl. simulating initial values) #
 #------------------------------------------------------------#
 
@@ -340,6 +345,13 @@ model.setup <- setupModel(modelCode = redfox.code,
                           initVals.seed = mySeed
                           )
 
+
+# Adjustments for running independent models
+for(i in 1:model.setup$mcmcParams$nchains){
+  model.setup$initVals[[i]]$meanLS <- c(0, runif(Tmax - 1, 2, 10))
+}
+
+model.setup$modelParams <- model.setup$modelParams[which(!(model.setup$modelParams %in% c("initN", "N.tot", "B.tot", "R.tot", "B", "L", "R", "Imm")))]
 
 ####################
 # 4) MODEL FITTING #
@@ -395,7 +407,7 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_survPrior1.rds",
+                                 "RedFoxIndepModels.rds",
                                  "RedFoxIPM_survPrior2.rds",
                                  "RedFoxIPM_survPrior3.rds"), 
               model.names = c("Meta-analysis", 
@@ -404,6 +416,16 @@ compareModels(Amax = Amax,
                               "Bristol"), 
               plotFolder = "Plots/CompFinal_SurvPriors")
 
+
+## Integrated vs. independent model
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIndepModels.rds"), 
+              model.names = c("Integrated", 
+                              "Independent"), 
+              plotFolder = "Plots/CompFinal_IndepModels")
 
 
 ###########################################
