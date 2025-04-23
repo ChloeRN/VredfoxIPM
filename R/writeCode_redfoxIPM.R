@@ -476,6 +476,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             immR[t] ~ dlnorm(meanlog = log(Mu.immR), sdlog = sigma.immR)
           }
           
+          Mu.immR ~ dunif(0, 10)
+          
         }else{
           
           if(fitCov.immR){
@@ -499,13 +501,11 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
           }
           
-          Mu.immR ~ dunif(0, 10)
         }
         
         for(t in 1:Tmax){ 
           Imm[t] ~ dpois(R.tot[t]*immR[t])
         }
-        
         
       }else{
         
