@@ -19,7 +19,7 @@ sourceDir('R')
 #-----------------------------#
 
 ## Seed
-mySeed <- 88
+mySeed <- 57
 
 ## Test run vs. full run
 testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
@@ -41,9 +41,12 @@ embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
 # Normalizing value for population size when modelling density-dependence
-normN <- 400 # Based on mean/median of estimated N.tot-Imm 
+normN <- 500 # Based on mean/median of estimated N.tot-Imm 
 
 ## Dataset names, versions, and directories
+hunting.dataset.name <- "v_redfox_hunting_v3"
+hunting.dataset.version <- 3
+
 carcass.dataset.name <- "v_redfox_carcass_examination_v4"
 carcass.dataset.version <- 4
 
@@ -147,6 +150,22 @@ tar_option_set(packages = c("tidyverse", "sf", "reshape2", "remotes", "ckanr", "
 
 ## Define Targets List
 list(
+  
+  # Download hunting data (this is the record of foxes hunted, before they end up in the carcass examination lab)
+  tar_target(
+    hunting.data.raw,
+    downloadData_COAT(COAT_key = COAT_key, 
+                      COATdataset.name = hunting.dataset.name,
+                      COATdataset.version = hunting.dataset.version)
+  ),
+  
+  # Reformat hunting data
+  tar_target(
+    hunting.data,
+    reformatData_hunting(summer_removal = summer_removal,
+                         hunting.dataset = hunting.data.raw)
+  ),
+  
   # Download raw redfox carcass data from COAT database
   tar_target(
     carcass.data.raw,
@@ -169,7 +188,8 @@ list(
                          carcass.dataset = carcass.data.raw,
                          shapefile.dir = shapefile.dir,
                          add.sumr.unaged = add.sumr.unaged, 
-                         saAH.years = saAH.years)
+                         saAH.years = saAH.years,
+                         hunting.data = hunting.data)
   ),
   
   # Extract winter age-at-harvest matrix
@@ -381,8 +401,8 @@ list(
     plotIPM_covariateEffects(MCMC.samples = IPM.out,
                              rCov.idx = rCov.idx,
                              rodentMIN = -1.75, rodentMAX = 4,
-                             mHdevMIN = -0.7, mHdevMAX = 1.1,
-                             densityMIN = -1.2, densityMAX = 0.3,
+                             mHdevMIN = -0.6, mHdevMAX = 0.6,
+                             densityMIN = -0.5, densityMAX = 1,
                              normN = normN,
                              AgeClass = 1),
     format = "file"

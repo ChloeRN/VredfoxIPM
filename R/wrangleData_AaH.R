@@ -17,10 +17,10 @@ wrangleData_AaH <- function(AaH.datafile, Amax){
   colnames(C) <- AaH.datafile$year
   
   ## Extract proportions aged (pData)
-  pData <- as.numeric(AaH.datafile[, "pData"])
+  pData <- as.numeric(AaH.datafile[, "pAged"]) * as.numeric(AaH.datafile[, "pCarcass"])
 
-  if("pData_winter" %in% colnames(AaH.datafile)){
-    pData_winter <- as.numeric(AaH.datafile[, "pData_winter"])
+  if("pAged_winter" %in% colnames(AaH.datafile)){
+    pData_winter <- as.numeric(AaH.datafile[, "pAged_winter"]) * as.numeric(AaH.datafile[, "pCarcass_winter"])
     return(list(C = C, pData = pData, pData_winter = pData_winter))
   }else{
     return(list(C = C, pData = pData))

@@ -15,7 +15,7 @@ library(coda)
 #**********#
 
 ## Set seed
-mySeed <- 88
+mySeed <- 57
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -32,9 +32,12 @@ embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
 # Normalizing value for population size when modelling density-dependence
-normN <- 400 # Based on mean/median of estimated N.tot-Imm 
+normN <- 500 # Based on mean/median of estimated N.tot-Imm 
 
 ## set dataset names, versions, and directories, and access
+hunting.dataset.name <- "v_redfox_hunting_v3"
+hunting.dataset.version <- 3
+
 carcass.dataset.name <- "v_redfox_carcass_examination_v4"
 carcass.dataset.version <- 4
 
@@ -127,6 +130,16 @@ comp.RE <- FALSE
 # 1a) Download and reformat carcass data
 #-------------------------------#
 
+## Download hunting data (this is the record of foxes hunted, before they end up in the carcass examination lab)
+hunting.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
+                                      COATdataset.name = hunting.dataset.name,
+                                      COATdataset.version = hunting.dataset.version)
+
+## Reformat hunting data
+hunting.data  <- reformatData_hunting(summer_removal = summer_removal,
+                                      hunting.dataset = hunting.data.raw)
+
+
 ## Download carcass data
 carcass.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
                                      COATdataset.name = carcass.dataset.name,
@@ -144,7 +157,9 @@ carcass.data <- reformatData_carcass(Amax = Amax,
                                      carcass.dataset = carcass.data.raw,
                                      shapefile.dir = shapefile.dir,
                                      add.sumr.unaged = add.sumr.unaged, 
-                                     saAH.years = saAH.years)
+                                     saAH.years = saAH.years,
+                                     hunting.data = hunting.data)
+
 
 
 # 1b) Age-at-Harvest data #
@@ -296,6 +311,11 @@ input.data <- assemble_inputData(Amax = Amax,
                                  survPriorType = survPriorType)
 
 
+# Adjustments for running independent models
+#input.data$nim.constants$uLim.N <- 3500
+#input.data$nim.constants$uLim.localN <- input.data$nim.constants$uLim.N*2
+
+
 # 3c) Set up for model run (incl. simulating initial values) #
 #------------------------------------------------------------#
 
@@ -326,6 +346,13 @@ model.setup <- setupModel(modelCode = redfox.code,
                           )
 
 
+# Adjustments for running independent models
+#for(i in 1:model.setup$mcmcParams$nchains){
+#  model.setup$initVals[[i]]$meanLS <- c(0, runif(Tmax - 1, 2, 10))
+#}
+#
+#model.setup$modelParams <- model.setup$modelParams[which(!(model.setup$modelParams %in% c("initN", "N.tot", "B.tot", "R.tot", "B", "L", "R", "Imm")))]
+
 ####################
 # 4) MODEL FITTING #
 ####################
@@ -352,10 +379,6 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior3.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst1.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds")
 #saveRDS(IPM.out, file = "RedFoxIndepModels.rds")
 
 
@@ -365,6 +388,18 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds")
 ########################
 # 5) MODEL COMPARISONS #
 ########################
+
+## Updated data models
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_main_huntingData.rds",
+                                 "RedFoxIPM_main_2004-2021.rds"), 
+              model.names = c("Updated data (-2024)", 
+                              "Updated data (-2024) + corr.",
+                              "Original data (-2022)"), 
+              plotFolder = "Plots/Comp_DataUpdate2024")
 
 ## Genetic data likelihoods
 compareModels(Amax = Amax, 
@@ -384,7 +419,7 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_survPrior1.rds",
+                                 "RedFoxIndepModels.rds",
                                  "RedFoxIPM_survPrior2.rds",
                                  "RedFoxIPM_survPrior3.rds"), 
               model.names = c("Meta-analysis", 
@@ -394,33 +429,15 @@ compareModels(Amax = Amax,
               plotFolder = "Plots/CompFinal_SurvPriors")
 
 
-## Rodent covariate type
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_noSppWeigth.rds"), 
-              model.names = c("species weights", 
-                              "no weights"), 
-              plotFolder = "Plots/CompFinal_RodentCovType")
-
-
-## Immigration models
+## Integrated vs. independent model
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_main.rds",
-                                 "RedFoxIPM_immEst1.rds",
-                                 "RedFoxIPM_immEst2.rds",
-                                 "RedFoxIPM_immEst3.rds"), 
-              model.names = c("Imm. rate, pooled gen. data", 
-                              "Imm. rate, yearly gen. data",
-                              "Imm. rate, naive",
-                              "Imm. numbers (logNorm)"), 
-              plotFolder = "Plots/CompFinal_ImmModels")
-
-
-
+                                 "RedFoxIndepModels.rds"), 
+              model.names = c("Integrated", 
+                              "Independent"), 
+              plotFolder = "Plots/CompFinal_IndepModels")
 
 
 ###########################################
@@ -440,8 +457,8 @@ plotIPM_basicOutputs(MCMC.samples = IPM.out,
 plotIPM_covariateEffects(MCMC.samples = IPM.out,
                          rCov.idx = rCov.idx,
                          rodentMIN = -1.75, rodentMAX = 4,
-                         mHdevMIN = -0.7, mHdevMAX = 1.1,
-                         densityMIN = -1.2, densityMAX = 0.3,
+                         mHdevMIN = -0.6, mHdevMAX = 0.6,
+                         densityMIN = -0.5, densityMAX = 1,
                          normN = normN,
                          AgeClass = 1) 
 
