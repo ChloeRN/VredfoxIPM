@@ -360,18 +360,14 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_main.rds") 
+#saveRDS(IPM.out, file = "RedFoxIPM_main.rds") 
 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior3.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst1.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst2.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_immEst3.rds")
-#saveRDS(IPM.out, file = "RedFoxIPM_noSppWeigth.rds")
-#saveRDS(IPM.out, file = "RedFoxIndepModels.rds")
+saveRDS(IPM.out, file = "RedFoxIndepModels.rds")
 
 
 #MCMCvis::MCMCtrace(IPM.out)
@@ -407,34 +403,6 @@ compareModels(Amax = Amax,
                               "North Sweden",
                               "Bristol"), 
               plotFolder = "Plots/CompFinal_SurvPriors")
-
-
-## Rodent covariate type
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIPM_noSppWeigth.rds"), 
-              model.names = c("species weights", 
-                              "no weights"), 
-              plotFolder = "Plots/CompFinal_RodentCovType")
-
-
-## Immigration models
-compareModels(Amax = Amax, 
-              Tmax = Tmax, 
-              minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds",
-                                 "RedFoxIPM_immEst1.rds",
-                                 "RedFoxIPM_immEst2.rds",
-                                 "RedFoxIPM_immEst3.rds"), 
-              model.names = c("Imm. rate, pooled gen. data", 
-                              "Imm. rate, yearly gen. data",
-                              "Imm. rate, naive",
-                              "Imm. numbers (logNorm)"), 
-              plotFolder = "Plots/CompFinal_ImmModels")
-
-
 
 
 
