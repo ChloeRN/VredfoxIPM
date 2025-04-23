@@ -135,7 +135,7 @@ hunting.data.raw <- downloadData_COAT(COAT_key = COAT_key,
                                       COATdataset.name = hunting.dataset.name,
                                       COATdataset.version = hunting.dataset.version)
 
-# Reformat hunting data
+## Reformat hunting data
 hunting.data  <- reformatData_hunting(summer_removal = summer_removal,
                                       hunting.dataset = hunting.data.raw)
 
@@ -388,6 +388,18 @@ saveRDS(IPM.out, file = "RedFoxIPM_main.rds")
 ########################
 # 5) MODEL COMPARISONS #
 ########################
+
+## Updated data models
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_main_huntingData.rds",
+                                 "RedFoxIPM_main_2004-2021.rds"), 
+              model.names = c("Updated data (-2024)", 
+                              "Updated data (-2024) + corr.",
+                              "Original data (-2022)"), 
+              plotFolder = "Plots/Comp_DataUpdate2024")
 
 ## Genetic data likelihoods
 compareModels(Amax = Amax, 
