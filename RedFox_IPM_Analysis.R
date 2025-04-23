@@ -135,7 +135,7 @@ hunting.data.raw <- downloadData_COAT(COAT_key = COAT_key,
                                       COATdataset.name = hunting.dataset.name,
                                       COATdataset.version = hunting.dataset.version)
 
-#reformat hunting data
+## Reformat hunting data
 hunting.data  <- reformatData_hunting(summer_removal = summer_removal,
                                       hunting.dataset = hunting.data.raw)
 
