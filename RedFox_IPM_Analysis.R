@@ -15,7 +15,7 @@ library(coda)
 #**********#
 
 ## Set seed
-mySeed <- 88
+mySeed <- 57
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -32,7 +32,7 @@ embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
 # Normalizing value for population size when modelling density-dependence
-normN <- 400 # Based on mean/median of estimated N.tot-Imm 
+normN <- 500 # Based on mean/median of estimated N.tot-Imm 
 
 ## set dataset names, versions, and directories, and access
 hunting.dataset.name <- "v_redfox_hunting_v3"
@@ -467,8 +467,8 @@ plotIPM_basicOutputs(MCMC.samples = IPM.out,
 plotIPM_covariateEffects(MCMC.samples = IPM.out,
                          rCov.idx = rCov.idx,
                          rodentMIN = -1.75, rodentMAX = 4,
-                         mHdevMIN = -0.7, mHdevMAX = 1.1,
-                         densityMIN = -1.2, densityMAX = 0.3,
+                         mHdevMIN = -0.6, mHdevMAX = 0.6,
+                         densityMIN = -0.5, densityMAX = 1,
                          normN = normN,
                          AgeClass = 1) 
 
