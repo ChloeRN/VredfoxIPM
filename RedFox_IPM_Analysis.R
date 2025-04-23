@@ -312,8 +312,8 @@ input.data <- assemble_inputData(Amax = Amax,
 
 
 # Adjustments for running independent models
-input.data$nim.constants$uLim.N <- 3500
-input.data$nim.constants$uLim.localN <- input.data$nim.constants$uLim.N*2
+#input.data$nim.constants$uLim.N <- 3500
+#input.data$nim.constants$uLim.localN <- input.data$nim.constants$uLim.N*2
 
 
 # 3c) Set up for model run (incl. simulating initial values) #
@@ -347,11 +347,11 @@ model.setup <- setupModel(modelCode = redfox.code,
 
 
 # Adjustments for running independent models
-for(i in 1:model.setup$mcmcParams$nchains){
-  model.setup$initVals[[i]]$meanLS <- c(0, runif(Tmax - 1, 2, 10))
-}
-
-model.setup$modelParams <- model.setup$modelParams[which(!(model.setup$modelParams %in% c("initN", "N.tot", "B.tot", "R.tot", "B", "L", "R", "Imm")))]
+#for(i in 1:model.setup$mcmcParams$nchains){
+#  model.setup$initVals[[i]]$meanLS <- c(0, runif(Tmax - 1, 2, 10))
+#}
+#
+#model.setup$modelParams <- model.setup$modelParams[which(!(model.setup$modelParams %in% c("initN", "N.tot", "B.tot", "R.tot", "B", "L", "R", "Imm")))]
 
 ####################
 # 4) MODEL FITTING #
@@ -372,14 +372,14 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-#saveRDS(IPM.out, file = "RedFoxIPM_main.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main.rds") 
 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior2.rds") 
 #saveRDS(IPM.out, file = "RedFoxIPM_survPrior3.rds")
-saveRDS(IPM.out, file = "RedFoxIndepModels.rds")
+#saveRDS(IPM.out, file = "RedFoxIndepModels.rds")
 
 
 #MCMCvis::MCMCtrace(IPM.out)
