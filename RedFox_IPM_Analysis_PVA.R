@@ -15,7 +15,7 @@ library(coda)
 #**********#
 
 ## Set seed
-mySeed <- 88
+mySeed <- 57
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -33,9 +33,12 @@ embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
 # Normalizing value for population size when modelling density-dependence
-normN <- 400 # Based on mean/median of estimated N.tot-Imm 
+normN <- 500 # Based on mean/median of estimated N.tot-Imm 
 
 ## set dataset names, versions, and directories, and access
+hunting.dataset.name <- "v_redfox_hunting_v3"
+hunting.dataset.version <- 3
+
 carcass.dataset.name <- "v_redfox_carcass_examination_v4"
 carcass.dataset.version <- 4
 
@@ -175,10 +178,20 @@ calculate_pertFac <- nimbleFunction(
 # 1a) Download and reformat carcass data
 #-------------------------------#
 
+## Download hunting data (this is the record of foxes hunted, before they end up in the carcass examination lab)
+hunting.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
+                                      COATdataset.name = hunting.dataset.name,
+                                      COATdataset.version = hunting.dataset.version)
+
+## Reformat hunting data
+hunting.data  <- reformatData_hunting(summer_removal = summer_removal,
+                                      hunting.dataset = hunting.data.raw)
+
+
 ## Download carcass data
 carcass.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
-                                     COATdataset.name = carcass.dataset.name,
-                                     COATdataset.version = carcass.dataset.version)
+                                      COATdataset.name = carcass.dataset.name,
+                                      COATdataset.version = carcass.dataset.version)
 
 ## Reformat carcass data
 carcass.data <- reformatData_carcass(Amax = Amax,   
@@ -192,7 +205,8 @@ carcass.data <- reformatData_carcass(Amax = Amax,
                                      carcass.dataset = carcass.data.raw,
                                      shapefile.dir = shapefile.dir,
                                      add.sumr.unaged = add.sumr.unaged, 
-                                     saAH.years = saAH.years)
+                                     saAH.years = saAH.years,
+                                     hunting.data = hunting.data)
 
 
 # 1b) Age-at-Harvest data #
@@ -373,7 +387,7 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               comp.immR = comp.immR,
                               comp.RE = comp.RE,
                               testRun = FALSE,
-                              initVals.seed = mySeed)
+                              initVals.seed = mySeed + 1)
 
 
 ####################
@@ -385,7 +399,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       data = input.data$nim.data, 
                       constants = input.data$nim.constants,
                       inits = model.setup$initVals, 
-                      monitors = c(model.setup$modelParams, "epsilon.immR", "eta.immR", "localN.tot"),
+                      monitors = c(model.setup$modelParams),
                       nchains = model.setup$mcmcParams$nchains, 
                       niter = model.setup$mcmcParams$niter, 
                       nburnin = model.setup$mcmcParams$nburn, 
@@ -394,9 +408,10 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       setSeed = mySeed)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc_2B.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
-#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_lowerHarvest_fac0.5.rds") # pert.mH = TRUE, mH.factor = 0.5
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestMatch_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestDelay_th0_fac1.50.rds")
@@ -404,152 +419,24 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_
 
 #MCMCvis::MCMCtrace(IPM.out)
 
-MCMCvis::MCMCtrace(IPM.out,
-                   params = c("betaD.immR", "betaR.immR", "Mu.immR", "sigma.immR"),
-                   pdf = FALSE)
-
 
 ########################
 # 5) MODEL COMPARISONS #
 ########################
 
-## Constrained prediction models
-PVA0_comp <- compareModels(Amax = Amax, 
-                           Tmax = Tmax, 
-                           minYear = minYear, 
-                           maxYear = 2030,
-                           logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc2_ImmTrunc.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmRmO_effCOMPmO_RodTrunc2_ImmTrunc_2.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds"), 
-                           model.names = c("Max. imm: +25%",
-                                           "Max. imm: +25% (+DD on mO[1])",
-                                           "Max. imm: +100% (+DD on mO[1])",
-                                           "Unconstrained imm"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_Constraints2",
-                           returnSumData = TRUE)
-
-PVA0_comp <- compareModels(Amax = Amax, 
-                           Tmax = Tmax, 
-                           minYear = minYear, 
-                           maxYear = 2030,
-                           logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc2.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc2_ImmTrunc.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds"), 
-                           model.names = c("Rodent model",
-                                           "Rodent & immigration model",
-                                           "None"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_Constraints",
-                           returnSumData = TRUE)
-
-PVA0_comp <- compareModels(Amax = Amax, 
-                           Tmax = Tmax, 
-                           minYear = minYear, 
-                           maxYear = 2030,
-                           logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc2.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO_RodTrunc.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds"), 
-                           model.names = c("Pred. & realization constr.",
-                                           "Prediction constr.",
-                                           "Unconstrained"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_RodModConstr",
-                           returnSumData = TRUE)
-
-## New model setup with DD & compensation
-PVA0_comp <- compareModels(Amax = Amax, 
-                           Tmax = Tmax, 
-                           minYear = minYear, 
-                           maxYear = 2030,
-                           logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_immR.rds",
-                                              #"RedFoxIPM_sim_baseline_singleCensus_DDxRimmR_effCOMPmO.rds",
-                                              #"RedFoxIPM_sim0_baseline_singleCensus_DDxRimmR_effCOMPmO.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds",
-                                              "RedFoxIPM_sim0_baseline_singleCensus_DDimmR_effCOMPmO.rds"), 
-                           model.names = c("No DD & comp.",
-                                           #"DDxR-immR, comp-mO, 10 sim yrs",
-                                           #"DDxR-immR, comp-mO, 0 sim yrs",
-                                           "DD-immR, comp-mO, 10 sim yrs",
-                                           "DD-immR, comp-mO, 0 sim yrs"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_DD&CompSetup3",
-                           returnSumData = TRUE)
-
-PVA0_comp <- compareModels(Amax = Amax, 
-                           Tmax = Tmax, 
-                           minYear = minYear, 
-                           maxYear = 2030,
-                           logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus_immR.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_effCOMPmO.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDimmR_reCOMPmO.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDxRimmR_effCOMPmO.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_DDxRimmR_reCOMPmO.rds"), 
-                           model.names = c("No DD & comp.",
-                                           "DD on immR, effect comp. on mO",
-                                           "DD on immR, RE comp. on mO",
-                                           "DDxR on immR, effect comp. on mO",
-                                           "DDxR on immR, re comp. on mO"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_DD&CompSetup2",
-                           returnSumData = TRUE)
-
-PVA0_comp <- compareModels(Amax = Amax, 
-                           Tmax = Tmax, 
-                           minYear = minYear, 
-                           maxYear = 2030,
-                           logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline_singleCensus.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_immR.rds",
-                                              "RedFoxIPM_sim_baseline_singleCensus_Imm.rds"), 
-                           model.names = c("No DD & compensation",
-                                           "DD & compensation coded (immR)",
-                                           "DD & compensation coded (Imm)"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_DD&CompSetup",
-                           returnSumData = TRUE)
-
-## Models with/without second census
-PVA0_comp <- compareModels(Amax = Amax, 
-                           Tmax = Tmax, 
-                           minYear = minYear, 
-                           maxYear = 2030,
-                           logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
-                                              "RedFoxIPM_sim_baseline_singleCensus.rds"), 
-                           model.names = c("2-census, original", 
-                                           "1-census, constrained mH"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_CensusNumber",
-                           returnSumData = TRUE)
-
-
-## Models with/without reindeer covariate
-PVA0_comp <- compareModels(Amax = Amax, 
-                           Tmax = Tmax, 
-                           minYear = minYear, 
-                           maxYear = 2030,
-                           logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
-                                              "RedFoxIPM_sim_baseline_noReindeer.rds",
-                                              "RedFoxIPM_sim_baseline_noReindeer2.rds"), 
-                           model.names = c("Original", 
-                                           "Without reindeer, constrained",
-                                           "Without reindeer, unconstrained"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_ReindeerCov",
-                           returnSumData = TRUE)
-
-
 ## Baseline vs. no harvest
 PVA1_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
                            minYear = minYear, 
-                           maxYear = 2030,
+                           maxYear = 2034,
                            logN = TRUE,
                            post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
                                               "RedFoxIPM_sim_noHarvest.rds",
+                                              "RedFoxIPM_sim_lowerHarvest_fac0.5.rds",
                                               "RedFoxIPM_sim_higherHarvest_fac1.5.rds"), 
                            model.names = c("Baseline", 
                                            "No harvest",
+                                           "50% lower harvest",
                                            "50% higher harvest"), 
                            plotFolder = "Plots/ScenarioComp_PVA1_RodDyn",
                            returnSumData = TRUE)
@@ -608,7 +495,7 @@ scenInfo <- data.frame(Action = c("None",
                                   rep("Low rodent +50% harvest", 2)), 
                        Timing = c("matched", 
                                   rep(c("delayed", "matched"), 2)),
-                       Model = unique(PVA3_comp$Model))
+                       Model = unique(PVA2_comp$Model))
 scenInfo$Action <- factor(scenInfo$Action, levels = c("None", "High rodent +50% harvest", "Low rodent +50% harvest"))
 scenInfo$Timing <- factor(scenInfo$Timing, levels = c("matched", "delayed"))
 
