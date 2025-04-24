@@ -113,12 +113,12 @@ S0.mean.offset <- 0
 S0.sd.factor <- 1
 
 ## Density effects toggles
-DD.mO <- TRUE
-DD.immR <- TRUE
+DD.mO <- FALSE
+DD.immR <- FALSE
 DDxRodent <- FALSE
 
 ## Compensation toggles
-comp.mO <- TRUE
+comp.mO <- FALSE
 comp.immR <- FALSE
 comp.RE <- FALSE
 

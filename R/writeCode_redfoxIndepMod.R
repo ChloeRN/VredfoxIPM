@@ -200,15 +200,15 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
           # First age class
           log(mO[1, t]) <- log(Mu.mO[1]) + 
             betaR.mO*RodentAbundance[t+1] + 
-            betaD.mO*(log(localN.tot[t]) - log(normN)) + 
-            betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
-            gamma.mO*logDev.mH[t] + 
+            #betaD.mO*(log(localN.tot[t]) - log(normN)) + 
+            #betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
+            #gamma.mO*logDev.mH[t] + 
             epsilon.mO[t]
           
           # Other age classes
           log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + 
             betaR.mO*RodentAbundance[t+1] +
-            gamma.mO*logDev.mH[t] +
+            #gamma.mO*logDev.mH[t] +
             epsilon.mO[t]
           
           # All age classes
@@ -418,9 +418,9 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
               for(t in 1:(Tmax+1)){
                 log(immR[t]) <- log(Mu.immR) + 
                   betaR.immR*RodentAbundance2[t] + 
-                  betaD.immR*(log(localN.tot[t]) - log(normN)) + 
-                  betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + 
-                  gamma.immR*logDev.mH[t] +
+                  #betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+                  #betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + 
+                  #gamma.immR*logDev.mH[t] +
                   epsilon.immR[t]
               }
               
@@ -488,7 +488,7 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
         eta.mH[t] ~ dnorm(0, sd = 1)
         
         #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
-        epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
+        epsilon.mO[t] <- eta.mO[t] #+ tau.mO*eta.mH[t]
         eta.mO[t] ~ dnorm(0, sd = sigma.mO)
         
         epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
@@ -509,7 +509,7 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
       
       for(t in 1:(Tmax+1)){
         #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
-        epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
+        epsilon.immR[t] <- eta.immR[t] #+ tau.immR*eta.mH[t]
         eta.immR[t] ~ dnorm(0, sd = sigma.immR)
       }
       sigma.immR ~ dunif(0, 10)
@@ -715,15 +715,15 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
           # First age class
           log(mO[1, t]) <- log(Mu.mO[1]) + 
             betaR.mO*RodentAbundance[t+1] + 
-            betaD.mO*(log(localN.tot[t]) - log(normN)) + 
-            betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
-            gamma.mO*logDev.mH[t] + 
+            #betaD.mO*(log(localN.tot[t]) - log(normN)) + 
+            #betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
+            #gamma.mO*logDev.mH[t] + 
             epsilon.mO[t]
           
           # Other age classes
           log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + 
             betaR.mO*RodentAbundance[t+1] +
-            gamma.mO*logDev.mH[t] +
+            #gamma.mO*logDev.mH[t] +
             epsilon.mO[t]
           
           # All age classes
@@ -917,9 +917,9 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
             for(t in 1:(Tmax+1)){
               log(immR[t]) <- log(Mu.immR) + 
                 betaR.immR*RodentAbundance2[t] + 
-                betaD.immR*(log(localN.tot[t]) - log(normN)) + 
-                betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + 
-                gamma.immR*logDev.mH[t] +
+                #betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+                #betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + 
+                #gamma.immR*logDev.mH[t] +
                 epsilon.immR[t]
             }
           }
@@ -1007,7 +1007,7 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
         eta.mH[t] ~ dnorm(0, sd = 1)
         
         #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
-        epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
+        epsilon.mO[t] <- eta.mO[t] #+ tau.mO*eta.mH[t]
         eta.mO[t] ~ dnorm(0, sd = sigma.mO)
         
         epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
@@ -1028,7 +1028,7 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
       
       for(t in 1:(Tmax+1)){
         #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
-        epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
+        epsilon.immR[t] <- eta.immR[t] #+ tau.immR*eta.mH[t]
         eta.immR[t] ~ dnorm(0, sd = sigma.immR)
       }
       sigma.immR ~ dunif(0, 10)
