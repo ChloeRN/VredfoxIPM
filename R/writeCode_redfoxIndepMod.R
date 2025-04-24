@@ -64,11 +64,11 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
       
       ### Likelihood
       
-      for(t in 1:Tmax){
-        for(a in 1:Amax){
-          C_w[a, t] ~ dbin(h[a, t]*pData_w[t], N[a, t])
-        }
-      }
+      #for(t in 1:Tmax){
+      #  for(a in 1:Amax){
+      #    C_w[a, t] ~ dbin(h[a, t]*pData_w[t], N[a, t])
+      #  }
+      #}
       
       #===============================================================================================
       
@@ -469,17 +469,18 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
       
       ## Population size (discrete uniform prior) 
       
-      for(t in 1:Tmax){
-        for(a in 1:Amax){
-          N[a, t] ~ dcat(DU.prior.N[1:uLim.N]) 
-        }
-        
-        localN.tot[t] ~ dcat(DU.prior.localN[1:uLim.localN])
-      }
-      
-      DU.prior.N[1:uLim.N] <- 1/uLim.N
-      DU.prior.localN[1:uLim.localN] <- 1/uLim.localN
-      
+      # for(t in 1:Tmax){
+      #   
+      #   N[1, t] ~ dcat(DU.prior.N1[1:uLim.N_1]) 
+      #   
+      #   for(a in 2:Amax){
+      #     N[a, t] ~ dcat(DU.prior.N[1:uLim.N_2to5]) 
+      #   }
+      # }
+      # 
+      # DU.prior.N1[1:uLim.N_1] <- 1/uLim.N_1
+      # DU.prior.N[1:uLim.N_2to5] <- 1/uLim.N_2to5
+
       #---------------------------------------------------------------------------------------------
       
       for(t in 1:(Tmax+1)){
@@ -589,11 +590,11 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
       
       ### Likelihood
       
-      for(t in 1:Tmax){
-        for(a in 1:Amax){
-          C_w[a, t] ~ dbin(h[a, t]*pData_w[t], N[a, t])
-        }
-      }
+      # for(t in 1:Tmax){
+      #   for(a in 1:Amax){
+      #     C_w[a, t] ~ dbin(h[a, t]*pData_w[t], N[a, t])
+      #   }
+      # }
       
       #===============================================================================================
       
@@ -985,17 +986,18 @@ writeCode_redfoxIndepMod <- function(indLikelihood.genData = FALSE){
       
       ## Population size (discrete uniform prior) 
       
-      for(t in 1:Tmax){
-        for(a in 1:Amax){
-          N[a, t] ~ dcat(DU.prior.N[1:uLim.N]) 
-        }
-        
-        localN.tot[t] ~ dcat(DU.prior.localN[1:uLim.localN])
-      }
-      
-      DU.prior.N[1:uLim.N] <- 1/uLim.N
-      DU.prior.localN[1:uLim.localN] <- 1/uLim.localN
-      
+      # for(t in 1:Tmax){
+      #   
+      #   N[1, t] ~ dcat(DU.prior.N1[1:uLim.N_1]) 
+      #   
+      #   for(a in 2:Amax){
+      #     N[a, t] ~ dcat(DU.prior.N[1:uLim.N_2to5]) 
+      #   }
+      # }
+      # 
+      # DU.prior.N1[1:uLim.N_1] <- 1/uLim.N_1
+      # DU.prior.N[1:uLim.N_2to5] <- 1/uLim.N_2to5
+
       #---------------------------------------------------------------------------------------------
       
       

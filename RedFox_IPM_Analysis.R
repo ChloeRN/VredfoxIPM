@@ -281,8 +281,8 @@ survPriorType <- definePriorType_AnnSurv(HoenigPrior = HoenigPrior,
 # 3a) Write model code #
 #----------------------#
 
-redfox.code <- writeCode_redfoxIPM(indLikelihood.genData = indLikelihood.genData)
-#redfox.code <- writeCode_redfoxIndepMod(indLikelihood.genData = indLikelihood.genData)
+#redfox.code <- writeCode_redfoxIPM(indLikelihood.genData = indLikelihood.genData)
+redfox.code <- writeCode_redfoxIndepMod(indLikelihood.genData = indLikelihood.genData)
 
 
 # 3b) Assemble IPM input data #
@@ -311,9 +311,10 @@ input.data <- assemble_inputData(Amax = Amax,
                                  survPriorType = survPriorType)
 
 
+
 # Adjustments for running independent models
-input.data$nim.constants$uLim.N <- 3500
-input.data$nim.constants$uLim.localN <- input.data$nim.constants$uLim.N*2
+#input.data$nim.constants$uLim.N_1 <- 3500
+#input.data$nim.constants$uLim.N_2to5 <- 1500
 
 
 # 3c) Set up for model run (incl. simulating initial values) #
@@ -351,7 +352,7 @@ for(i in 1:model.setup$mcmcParams$nchains){
   model.setup$initVals[[i]]$meanLS <- c(0, runif(Tmax - 1, 2, 10))
 }
 
-model.setup$modelParams <- model.setup$modelParams[which(!(model.setup$modelParams %in% c("initN", "N.tot", "B.tot", "R.tot", "B", "L", "R", "Imm")))]
+model.setup$modelParams <- model.setup$modelParams[which(!(model.setup$modelParams %in% c("initN", "N.tot", "B.tot", "R.tot", "N", "B", "L", "R", "Imm")))]
 
 ####################
 # 4) MODEL FITTING #
