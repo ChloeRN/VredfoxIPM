@@ -311,9 +311,10 @@ input.data <- assemble_inputData(Amax = Amax,
                                  survPriorType = survPriorType)
 
 
+
 # Adjustments for running independent models
-#input.data$nim.constants$uLim.N <- 3500
-#input.data$nim.constants$uLim.localN <- input.data$nim.constants$uLim.N*2
+#input.data$nim.constants$uLim.N_1 <- 3500
+#input.data$nim.constants$uLim.N_2to5 <- 1500
 
 
 # 3c) Set up for model run (incl. simulating initial values) #
@@ -419,7 +420,7 @@ compareModels(Amax = Amax,
               Tmax = Tmax, 
               minYear = minYear, 
               post.filepaths = c("RedFoxIPM_main.rds", 
-                                 "RedFoxIndepModels.rds",
+                                 "RedFoxIPM_survPrior1.rds",
                                  "RedFoxIPM_survPrior2.rds",
                                  "RedFoxIPM_survPrior3.rds"), 
               model.names = c("Meta-analysis", 
@@ -433,7 +434,7 @@ compareModels(Amax = Amax,
 compareModels(Amax = Amax, 
               Tmax = Tmax, 
               minYear = minYear, 
-              post.filepaths = c("RedFoxIPM_main.rds",
+              post.filepaths = c("RedFoxIPM_main_noDD&comp.rds",
                                  "RedFoxIndepModels.rds"), 
               model.names = c("Integrated", 
                               "Independent"), 
