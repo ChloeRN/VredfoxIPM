@@ -16,6 +16,8 @@
 #' by Geneclass 2 and standardized so that the minimum immigrant probability = 0.
 #' "LL-based" = log likelihood other / log likelihood other + log likelihood Varanger. 
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
+#' @param normN integer. Value used for centering density covariate (should 
+#' approximate average local population size, i.e. population size minus immigrants.) 
 #' @param wAaH.data a list containing a winter Age-at-Harvest matrix (C) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @param sAaH.data a list containing a summer Age-at-Harvest matrix (C) and a vector of
@@ -56,6 +58,7 @@
 
 assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
                                    maxPups, uLim.N, uLim.Imm, 
+                                   normN,
                                    nLevels.rCov = NA, standSpec.rCov,
                                    poolYrs.genData, pImm.type,
                                    wAaH.data, sAaH.data, rep.data, gen.data, pup.data,
@@ -90,8 +93,8 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
   }else{
     
     if(nLevels.rCov == 2){
-      RodentIndex <- rodent.data$cat2.wintvar
-      RodentIndex2 <- rodent.data$cat2.fallstor
+      RodentIndex <- rodent.data$cat2.wintvar[1:(Tmax+1)]
+      RodentIndex2 <- rodent.data$cat2.fallstor[1:(Tmax+1)]
     }else{
       #RodentIndex <- rodent.data$cat3
       stop("3 level rodent covariate not currently supported")
@@ -100,20 +103,26 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
   
   ## Select relevant continuous rodent covariate
   if(standSpec.rCov){
-    RodentAbundance <- rodent.data$cont.wintvar.stsp
+    RodentAbundance <- rodent.data$cont.wintvar.stsp[1:(Tmax+1)]
   }else{
-    RodentAbundance <- rodent.data$cont.wintvar
+    RodentAbundance <- rodent.data$cont.wintvar[1:(Tmax+1)]
   }
   
   if(standSpec.rCov){
-    RodentAbundance2 <- rodent.data$cont.fallstor.stsp
+    RodentAbundance2 <- rodent.data$cont.fallstor.stsp[1:(Tmax+1)]
   }else{
-    RodentAbundance2 <- rodent.data$cont.fallstor
+    RodentAbundance2 <- rodent.data$cont.fallstor[1:(Tmax+1)]
   }
   
   ## Select relevant reindeer covariates
   Reindeer <- reindeer.data$RDcarcass
   
+  ## Select and expand harvest effort covariate
+  HarvestEffort <- hunter.data$NHunters_std
+  if(length(HarvestEffort) < Tmax+1){
+    HarvestEffort <- c(HarvestEffort, rep(NA, (Tmax+1)-length(HarvestEffort)))
+  }
+    
   ## Add simulation years to covariates
   if(Tmax_sim > 0){
     RodentAbundance <- c(RodentAbundance, rep(NA, (Tmax+Tmax_sim+1-length(RodentAbundance))))
@@ -121,9 +130,9 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
     RodentIndex <- c(RodentIndex, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex))))
     RodentIndex2 <- c(RodentIndex2, rep(NA, (Tmax+Tmax_sim+1-length(RodentIndex2))))
     Reindeer <- c(Reindeer, rep(NA, (Tmax+Tmax_sim+1-length(Reindeer))))
-    HarvestEffort <- c(hunter.data$NHunters_std, rep(NA, (Tmax+Tmax_sim-length(hunter.data$NHunters_std))))
+    HarvestEffort <- c(HarvestEffort, rep(NA, (Tmax+Tmax_sim+1-length(HarvestEffort))))
   }else{
-    HarvestEffort <- hunter.data$NHunters_std
+    HarvestEffort <- HarvestEffort
   }
   
   ## List all relevant data (split into data and constants as used by NIMBLE)
@@ -151,7 +160,6 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
     pertFac.mH = perturbVecs$pertFac.mH,
     pertFac.mO = perturbVecs$pertFac.mO,
     pertFac.S0 = perturbVecs$pertFac.S0,
-    pertFac.mHs = perturbVecs$pertFac.mHs,
     pertFac.immR = perturbVecs$pertFac.immR,
     pertFac.rodent = perturbVecs$pertFac.rodent,
 
@@ -170,6 +178,7 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
     maxPups = maxPups,
     uLim.N = uLim.N,
     uLim.Imm = uLim.Imm,
+    normN = normN,
     
     XsH = XsH,
     sH_year = sH_year,
@@ -185,7 +194,12 @@ assemble_inputData_PVA <- function(Amax, Tmax, Tmax_sim, minYear,
     NoPups_year = pup.data$NoPups_year,
     X3 = pup.data$X3,
     
-    nLevels.rCov = nLevels.rCov
+    nLevels.rCov = nLevels.rCov,
+    
+    min_RodAbun = min(RodentAbundance, na.rm = TRUE)*1.1,
+    max_RodAbun = max(RodentAbundance, na.rm = TRUE)*1.1,
+    min_RodAbun2 = min(RodentAbundance2, na.rm = TRUE)*1.1,
+    max_RodAbun2 = max(RodentAbundance2, na.rm = TRUE)*1.1
   )
   
   ## Append relevant data from genetic immigration assignments

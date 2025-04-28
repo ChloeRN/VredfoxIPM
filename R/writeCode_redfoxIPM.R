@@ -18,10 +18,6 @@
 writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
   
   ## Check for incompatible toggles
-  if(!imm.asRate & fitCov.immR){
-    stop("Incompatible model settings. Rodent covariate effect on immigration can only be fit (fitCov.immR = TRUE) if immigration is estimated as a rate (imm.asRate = TRUE).")
-  }
-  
   if(fitCov.mO & rCov.idx){
     stop("Incompatible model settings. Rodent effects on natural mortality (fitCov.mO = TRUE) are only implemented with continuous covariates (rCov.idx = FALSE).")
   }
@@ -30,8 +26,28 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
     warning("Attempting to fit a model containing environmental covariates but no random year variation for natural mortality. This is not recommended as it may result in inflated effect size/precision due to due to pseudo-replication.")
   }
   
-  ## Write model code (individua-level likelihood for genetic data)
+  if(rCov.idx & (DD.mO | DD.immR)){
+    stop("Incompatible model settings. The model is not set up to combine categorical rodent effects alongside density-dependence.")
+  }
+  
+  if(!poolYrs.genData & imm.asRate & (comp.immR | DD.immR)){
+    stop("Incompatible model settings. The year-specific genetic data likelihood (poolYrs.genData = TRUE) is currently not adapted to work with density and/or compensation effects.")
+  }
+  
+  
+  ## Write model code (individual-level likelihood for genetic data)
   if(indLikelihood.genData){
+    
+    if(fitCov.immR & !imm.asRate){
+      stop("Incompatible model settings. 
+         Covariate effects on immigration numbers can only be fit (fitCov.immR = TRUE) when the pooled genetic data likelihood is used (indLikelihood.genData = FALSE).")
+    }
+    
+    if(useData.gen & !imm.asRate){
+      warning("You have specified a model using genetic data with an individual likelihood but modelling immigration as a number, not a rate (imm.asRate = FALSE).
+              This is currently not implemented. Your model will be run without genetic data.")
+    }
+    
     redfox.code <- nimbleCode({
       
       
@@ -43,39 +59,19 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Survival
       
-      #---------------------------#
-      # OCT - JUN (AUTUMN-SPRING) #
-      #---------------------------#
-      
       for(t in 1:Tmax){
-        # Age class 0 (index = 1): local reproduction
-        N[1, t+1] <- sum(R[2:Amax, t+1])
+        # Age class 0 (index = 1): local reproduction & immigration
+        N[1, t+1] <- sum(R[2:Amax, t+1]) + Imm[t+1]
         
         # Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
         for(a in 1:(Amax-2)){
-          N[a+1, t+1] ~ dbin(S[a, t], octN[a, t])
+          N[a+1, t+1] ~ dbin(S[a, t], N[a, t])
         }			
         
         # Age class 4+ (index = Amax = 5): age class 4 and 5+ survivors
-        N[Amax, t+1] ~ dbin(S[Amax, t], octN[Amax-1, t] + octN[Amax, t])
+        N[Amax, t+1] ~ dbin(S[Amax, t], N[Amax-1, t] + N[Amax, t])
       }
-      
-        
-      #--------------------#
-      # JUN - OCT (SUMMER) #
-      #--------------------#
-      
-      for(t in 2:Tmax){
-        # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
-        octN[1, t] <- survN1[t] + Imm[t]     
-        survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
-        
-        # Age classes 1 to 4+ (indices = 2:5)
-        for(a in 2:Amax){
-          octN[a, t] ~ dbin(exp(-mHs[a, t]), N[a, t])
-        }
-      }  
-      
+  
       
       ## Reproduction
       
@@ -116,6 +112,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         N.tot[t] <- sum(N[1:Amax, t])
         R.tot[t] <- sum(R[1:Amax, t])		
         B.tot[t] <- sum(B[1:Amax, t])
+        
+        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t]) + 1
       }
       
       #===============================================================================================
@@ -127,7 +125,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ######################################
       
       ### Parameters:
-      # octN = number of individuals in a given age class at a given time (start of October)
+      # N = number of individuals in a given age class at a given time (start of June)
       # h = age- and time-dependent probability of dying from winter hunting
       
       ### Data:
@@ -138,36 +136,12 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       for(t in 1:Tmax){
         for(a in 1:Amax){
-          C_w[a, t] ~ dbin(h[a, t]*pData_w[t], octN[a, t])
+          C_w[a, t] ~ dbin(h[a, t]*pData_w[t], N[a, t])
         }
       }
       
       #===============================================================================================
 
-      
-      
-      ######################################
-      #### SUMMER AGE-AT-HARVEST MODULE ####
-      ######################################
-      
-      ### Parameters:
-      # N = number of individuals in a given age class at a given time (start of June)
-      # mHs = age- and time-dependent summer hunting mortality harvest rate
-      
-      ### Data:
-      # C = age-at-harvest matrix
-      # pData = annual proportion of harvests with (complete) carcass data
-      
-      ### Likelihood
-      
-      for(x in 1:XsH){
-        for(a in 1:Amax){
-          C_s[a, x] ~ dbin((1-exp(-mHs[a, sH_year[x]]))*pData_s[x], N[a, sH_year[x]])
-        }
-      }
-      
-      #===============================================================================================
-      
       
       
       ###############################
@@ -216,43 +190,37 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ### Likelihood (immigration status of sampled individuals)
-      if(imm.asRate){
-        if(useData.gen){
+      if(useData.gen){
+        
+        ## Likelihood for individuals (within study period) to be immigrants
+        for(x in 1:Xgen){
+          ImmData[x] ~ dbern(pImm[x])
+        }
+        
+        if(poolYrs.genData){
           
-          ## Likelihood for individuals (within study period) to be immigrants
-          for(x in 1:Xgen){
-            ImmData[x] ~ dbern(pImm[x])
-          }
-          
-          if(poolYrs.genData){
-            
-            ## Derivation of average immigration rate
-            Mu.immR <- sum(ImmData[1:Xgen]) / (Xgen - sum(ImmData[1:Xgen]))
-            
-          }else{
-            
-            ## Likelihood for individuals outside the study period to be immigrants
-            for(x in 1:Xgen_pre){
-              ImmData_pre[x] ~ dbern(pImm_pre[x])
-            }
-            
-            ## Derivation of year-specific immigration rates
-            # Within study period
-            immR[1:Tmax_Gen] <- calculateImmR(ImmData = ImmData[1:Xgen], 
-                                              yearIdx = pImm_yrs[1:Xgen],
-                                              Tmax = Tmax_Gen, skip_t1 = FALSE)
-            
-            # Outside study period
-            immR_pre[1:Tmax_Gen_pre] <- calculateImmR(ImmData = ImmData_pre[1:Xgen_pre], 
-                                                      yearIdx = pImm_yrs_pre[1:Xgen_pre],
-                                                      Tmax = Tmax_Gen_pre, skip_t1 = FALSE)
-            
-          }
+          ## Derivation of average immigration rate
+          Mu.immR <- sum(ImmData[1:Xgen]) / (Xgen - sum(ImmData[1:Xgen]))
           
         }else{
           
-          Mu.immR ~ dunif(0, 10)
+          ## Likelihood for individuals outside the study period to be immigrants
+          for(x in 1:Xgen_pre){
+            ImmData_pre[x] ~ dbern(pImm_pre[x])
+          }
           
+          ## Derivation of year-specific immigration rates
+          # Within study period
+          immR[1:Tmax_Gen] <- calculateImmR(ImmData = ImmData[1:Xgen], 
+                                            yearIdx = pImm_yrs[1:Xgen],
+                                            Tmax = Tmax_Gen, skip_t1 = FALSE)
+          
+          # Outside study period
+          if(imm.asRate){
+            immR_pre[1:Tmax_Gen_pre] <- calculateImmR(ImmData = ImmData_pre[1:Xgen_pre], 
+                                                      yearIdx = pImm_yrs_pre[1:Xgen_pre],
+                                                      Tmax = Tmax_Gen_pre, skip_t1 = FALSE)
+          }
         }
       }
       
@@ -284,22 +252,46 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Survival and mortality
       
-      for(t in 1:Tmax){ 
-        
-        # Summer harvest mortality hazard rate
-        log(mHs[1:Amax, t]) <- log(Mu.mHs[1:Amax]) + epsilon.mHs[t]
-        
-        # Winter harvest mortality hazard rate
+      # Winter harvest mortality hazard rate
+      for(t in 1:(Tmax+1)){
         if(fitCov.mH){
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
         }else{
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + epsilon.mH[t]
         }
         
+        # Log mean deviation of harvest mortality hazard rate
+        logDev.mH[t] <- log(mH[1, t]) - log(Mu.mH[1])
+      }
+      
+      for(t in 1:Tmax){ 
+        
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
-        }else{
+          
+          # First age class
+          log(mO[1, t]) <- log(Mu.mO[1]) + 
+            betaR.mO*RodentAbundance[t+1] + 
+            betaD.mO*(log(localN.tot[t]) - log(normN)) + 
+            betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
+            gamma.mO*logDev.mH[t] + 
+            epsilon.mO[t]
+          
+          # Other age classes
+          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + 
+            betaR.mO*RodentAbundance[t+1] +
+            gamma.mO*logDev.mH[t] +
+            epsilon.mO[t]
+          
+          # All age classes
+          # log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + 
+          #   betaR.mO*RodentAbundance[t+1] + 
+          #   betaD.mO*(log(localN.tot[t]) - log(normN)) + 
+          #   betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
+          #   gamma.mO*logDev.mH[t] + 
+          #   epsilon.mO[t]
+          
+         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
         
@@ -311,16 +303,16 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
-        
       }
       
       # Median harvest mortality hazard rates
       
       # Age-dependent
-      for(a in 1:Amax){
+      for(a in 1:2){
         Mu.mH[a] ~ dunif(0, 5)
-        Mu.mHs[a] ~ dunif(0, 5)
       }
+      
+      Mu.mH[3:Amax] <- Mu.mH[2]
       
       # Age-independent   
       #Mu.mH.all ~ dunif(0, 5) 
@@ -353,7 +345,26 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
-        betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
+        betaR.mO ~ dunif(-5, 5)
+        
+        if(DD.mO){
+          betaD.mO ~ dunif(-5, 5)
+          if(DDxRodent){
+            betaRxD.mO ~ dunif(-5, 5)
+          }else{
+            betaRxD.mO <- 0
+          }
+        }else{
+          betaD.mO <- 0
+          betaRxD.mO <- 0
+        }
+        
+        if(comp.mO & !comp.RE){
+          gamma.mO ~ dunif(-5, 5)
+        }else{
+          gamma.mO <- 0
+        }
+
       }
       
       
@@ -465,6 +476,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
             immR[t] ~ dlnorm(meanlog = log(Mu.immR), sdlog = sigma.immR)
           }
           
+          Mu.immR ~ dunif(0, 10)
+          
         }else{
           
           if(fitCov.immR){
@@ -473,38 +486,57 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
                 log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
               }
             }else{
-              log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+              
+              for(t in 1:(Tmax+1)){
+                log(immR[t]) <- log(Mu.immR) + 
+                  betaR.immR*RodentAbundance2[t] + 
+                  betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+                  betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + 
+                  gamma.immR*logDev.mH[t] +
+                  epsilon.immR[t]
+              }
+              
             }
           }else{
             log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
           }
+          
         }
         
         for(t in 1:Tmax){ 
-          Imm[t] ~ dpois(survN1[t]*immR[t])
+          Imm[t] ~ dpois(R.tot[t]*immR[t])
         }
-        
         
       }else{
         
         ## Lognormal prior for immigrant numbers
-        for(t in 2:Tmax){
+        for(t in 2:(Tmax+1)){
           Imm[t] <- round(ImmExp[t])
-          ImmExp[t] ~ dlnorm(meanlog = log(Mu.Imm), sdlog = logsigma.Imm) 
+          
+          if(fitCov.immR){
+            log(ImmExp[t]) <- log(Mu.Imm) + 
+              betaR.immR*RodentAbundance2[t] + 
+              betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+              betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+              gamma.immR*logDev.mH[t] +
+              epsilon.immR[t]
+          }else{
+            log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
+          }
         }
         
         Mu.Imm ~ dunif(1, uLim.Imm)
-        logsigma.Imm ~ dunif(0, 10)
         
         ## Derivation of immigration rates
         immR[1] <- 0
-        for(t in 2:Tmax){
-          immR[t] <- Imm[t] / survN1[t]
+        for(t in 2:(Tmax+1)){
+          immR[t] <- Imm[t] / R.tot[t]
         }
+        Mu.immR <- mean(immR[2:(Tmax+1)])
         
       }
       
-      ## Prior for rodent effect
+      ## Priors for covariate effects
       if(fitCov.immR){
         if(rCov.idx){
           betaR.immR[1] <- 0 # --> Lowest level corresponds to intercept
@@ -513,6 +545,25 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
         }else{
           betaR.immR ~ dunif(-5, 5)
+          
+          if(DD.immR){
+            betaD.immR ~ dunif(-10, 5)
+            if(DDxRodent){
+              betaRxD.immR ~ dunif(-5, 5)
+            }else{
+              betaRxD.immR <- 0
+            }
+          }else{
+            betaD.immR <- 0
+            betaRxD.immR <- 0
+          }
+          
+          if(comp.immR & !comp.RE){
+            gamma.immR ~ dunif(-5, 5)
+          }else{
+            gamma.immR <- 0
+          }
+
         }
       }
       
@@ -520,9 +571,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Initial population size (discrete uniform prior) 
-      N[1:Amax, 1] <- 0
-      survN1[1] <- 0
-      octN[1:Amax, 1] <- initN[1:Amax]
+      N[1:Amax, 1] <- initN[1:Amax]
       
       for(a in 1:Amax){
         initN[a] ~ dcat(DU.prior.N[1:uLim.N]) 
@@ -531,22 +580,21 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       DU.prior.N[1:uLim.N] <- 1/uLim.N
       
       #---------------------------------------------------------------------------------------------
-      
-      
-      ## Random year variation
-      for(t in 1:Tmax){  
-        epsilon.mHs[t] ~ dnorm(0, sd = sigma.mHs)
-        epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
-        epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
-      }
-      
+
       for(t in 1:(Tmax+1)){
+        #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+        epsilon.mH[t] <- sigma.mH*eta.mH[t]
+        eta.mH[t] ~ dnorm(0, sd = 1)
+        
+        #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
+        eta.mO[t] ~ dnorm(0, sd = sigma.mO)
+        
         epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
         epsilon.rho[t] ~ dnorm(0, sd = sigma.rho) 
         # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
       }
       
-      sigma.mHs ~ dunif(0, 5)
       sigma.mH ~ dunif(0, 5)
       sigma.Psi ~ dunif(0, 5)
       sigma.rho ~ dunif(0, 5)
@@ -558,12 +606,28 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         sigma.mO <- 0
       }
       
-      if(imm.asRate & poolYrs.genData){
-        for(t in 1:(Tmax+1)){
-          epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
-        }
-        sigma.immR ~ dunif(0, 10)
+      for(t in 1:(Tmax+1)){
+        #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+        epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
+        eta.immR[t] ~ dnorm(0, sd = sigma.immR)
       }
+      sigma.immR ~ dunif(0, 10)
+      
+      if(comp.mO & comp.RE){
+        tau.mO ~ dnorm(0, sd = 2.25)
+      }else{
+        tau.mO <- 0
+      }
+      
+      if(comp.immR & comp.RE){
+        tau.immR ~ dnorm(0, sd = 2.25)
+      }else{
+        tau.immR <- 0
+      }
+      
+      # Calculation of correlation coefficients
+      C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
+      C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2))
       
       #===============================================================================================
       
@@ -618,38 +682,18 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Survival
       
-      #---------------------------#
-      # OCT - JUN (AUTUMN-SPRING) #
-      #---------------------------#
-      
       for(t in 1:Tmax){
-        # Age class 0 (index = 1): local reproduction
-        N[1, t+1] <- sum(R[2:Amax, t+1])
+        # Age class 0 (index = 1): local reproduction & immigration
+        N[1, t+1] <- sum(R[2:Amax, t+1]) + Imm[t+1]
         
         # Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
         for(a in 1:(Amax-2)){
-          N[a+1, t+1] ~ dbin(S[a, t], octN[a, t])
+          N[a+1, t+1] ~ dbin(S[a, t], N[a, t])
         }			
         
         # Age class 4+ (index = Amax = 5): age class 4 and 5+ survivors
-        N[Amax, t+1] ~ dbin(S[Amax, t], octN[Amax-1, t] + octN[Amax, t])
+        N[Amax, t+1] ~ dbin(S[Amax, t], N[Amax-1, t] + N[Amax, t])
       }
-      
-      
-      #--------------------#
-      # JUN - OCT (SUMMER) #
-      #--------------------#
-      
-      for(t in 2:Tmax){
-        # Age class 0 (index = 1): local pups surviving summer harvest & immigrants
-        octN[1, t] <- survN1[t] + Imm[t]     
-        survN1[t] ~ dbin(exp(-mHs[1, t]), N[1, t])
-        
-        # Age classes 1 to 4+ (indices = 2:5)
-        for(a in 2:Amax){
-          octN[a, t] ~ dbin(exp(-mHs[a, t]), N[a, t])
-        }
-      }  
       
       
       ## Reproduction
@@ -691,6 +735,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         N.tot[t] <- sum(N[1:Amax, t])
         R.tot[t] <- sum(R[1:Amax, t])		
         B.tot[t] <- sum(B[1:Amax, t])
+        
+        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t]) + 1
       }
       
       #===============================================================================================
@@ -702,42 +748,18 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ######################################
       
       ### Parameters:
-      # N = number of individuals in a given age class at a given time
-      # h = time-dependent probability of dying from hunting ([1] = adults, [2] = juveniles)
+      # N = number of individuals in a given age class at a given time (start of June)
+      # h = age- and time-dependent probability of dying from winter hunting
       
       ### Data:
-      # C = age-at-harvest matrix
-      # pData = annual proportion of harvests with (complete) carcass data
+      # C_w = winter age-at-harvest matrix
+      # pData_w = annual proportion of winter harvests with (complete) carcass data
       
       ### Likelihood
       
       for(t in 1:Tmax){
         for(a in 1:Amax){
-          C_w[a, t] ~ dbin(h[a, t]*pData_w[t], octN[a, t])
-        }
-      }
-      
-      #===============================================================================================
-      
-      
-      
-      ######################################
-      #### SUMMER AGE-AT-HARVEST MODULE ####
-      ######################################
-      
-      ### Parameters:
-      # N = number of individuals in a given age class at a given time (start of June)
-      # mHs = age- and time-dependent summer hunting mortality harvest rate
-      
-      ### Data:
-      # C = age-at-harvest matrix
-      # pData = annual proportion of harvests with (complete) carcass data
-      
-      ### Likelihood
-      
-      for(x in 1:XsH){
-        for(a in 1:Amax){
-          C_s[a, x] ~ dbin((1-exp(-mHs[a, sH_year[x]]))*pData_s[x], N[a, sH_year[x]])
+          C_w[a, t] ~ dbin(h[a, t]*pData_w[t], N[a, t])
         }
       }
       
@@ -791,7 +813,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ### Likelihood (immigration status of sampled individuals)
-      if(imm.asRate & useData.gen){
+      if(useData.gen){
         
         if(poolYrs.genData){
           
@@ -805,8 +827,10 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
           
           # Outside study period
-          for(t in 1:Tmax_Gen_pre){
-            genObs_Imm_pre[t] ~ dpois(genObs_Res_pre[t]*immR_pre[t])
+          if(imm.asRate){
+            for(t in 1:Tmax_Gen_pre){
+              genObs_Imm_pre[t] ~ dpois(genObs_Res_pre[t]*immR_pre[t])
+            }
           }
         }
       }
@@ -840,21 +864,44 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       ## Survival and mortality
       
-      for(t in 1:Tmax){ 
-        
-        # Summer harvest mortality hazard rate
-        log(mHs[1:Amax, t]) <- log(Mu.mHs[1:Amax]) + epsilon.mHs[t]
-        
-        # Winter harvest mortality hazard rate
+      # Winter harvest mortality hazard rate
+      for(t in 1:(Tmax+1)){
         if(fitCov.mH){
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + betaHE.mH*HarvestEffort[t] + epsilon.mH[t]
         }else{
           log(mH[1:Amax, t]) <- log(Mu.mH[1:Amax]) + epsilon.mH[t]
         }
         
+        # Log mean deviation of harvest mortality hazard rate
+        logDev.mH[t] <- log(mH[1, t]) - log(Mu.mH[1])
+      }
+      
+      for(t in 1:Tmax){ 
+        
         # Other (natural) mortality hazard rate
         if(fitCov.mO){
-          log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t]
+          # First age class
+          log(mO[1, t]) <- log(Mu.mO[1]) + 
+            betaR.mO*RodentAbundance[t+1] + 
+            betaD.mO*(log(localN.tot[t]) - log(normN)) + 
+            betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
+            gamma.mO*logDev.mH[t] + 
+            epsilon.mO[t]
+          
+          # Other age classes
+          log(mO[2:Amax, t]) <- log(Mu.mO[2:Amax]) + 
+            betaR.mO*RodentAbundance[t+1] +
+            gamma.mO*logDev.mH[t] +
+            epsilon.mO[t]
+          
+          # All age classes
+          # log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + 
+          #   betaR.mO*RodentAbundance[t+1] + 
+          #   betaD.mO*(log(localN.tot[t]) - log(normN)) + 
+          #   betaRxD.mO*RodentAbundance[t+1]*(log(localN.tot[t]) - log(normN)) + 
+          #   gamma.mO*logDev.mH[t] + 
+          #   epsilon.mO[t]
+
         }else{
           log(mO[1:Amax, t]) <- log(Mu.mO[1:Amax]) + epsilon.mO[t]
         }
@@ -867,16 +914,16 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         
         # Winter harvest rate
         h[1:Amax, t] <- (1-S[1:Amax, t])*alpha[1:Amax, t]
-        
       }
       
       # Median harvest mortality hazard rates
       
       # Age-dependent
-      for(a in 1:Amax){
+      for(a in 1:2){
         Mu.mH[a] ~ dunif(0, 5)
-        Mu.mHs[a] ~ dunif(0, 5)
       }
+      
+      Mu.mH[3:Amax] <- Mu.mH[2]
       
       # Age-independent   
       #Mu.mH.all ~ dunif(0, 5) 
@@ -909,7 +956,26 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }
       
       if(fitCov.mO){
-        betaR.mO ~ dunif(-5, 5) # Effect of rodent abundance on mO
+        betaR.mO ~ dunif(-5, 5)
+        
+        if(DD.mO){
+          betaD.mO ~ dunif(-5, 5)
+          if(DDxRodent){
+            betaRxD.mO ~ dunif(-5, 5)
+          }else{
+            betaRxD.mO <- 0
+          }
+        }else{
+          betaD.mO <- 0
+          betaRxD.mO <- 0
+        }
+        
+        if(comp.mO & !comp.RE){
+          gamma.mO ~ dunif(-5, 5)
+        }else{
+          gamma.mO <- 0
+        }
+        
       }
       
       
@@ -1015,40 +1081,57 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
               log(immR[t]) <- log(Mu.immR) + betaR.immR[RodentIndex2[t]] + epsilon.immR[t]
             }
           }else{
-            log(immR[1:(Tmax+1)]) <- log(Mu.immR) + betaR.immR*RodentAbundance2[1:(Tmax+1)] + epsilon.immR[1:(Tmax+1)]
+ 
+            for(t in 1:(Tmax+1)){
+              log(immR[t]) <- log(Mu.immR) + 
+                betaR.immR*RodentAbundance2[t] + 
+                betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+                betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) + 
+                gamma.immR*logDev.mH[t] +
+                epsilon.immR[t]
+            }
           }
+          
         }else{
           log(immR[1:(Tmax+1)]) <- log(Mu.immR) + epsilon.immR[1:(Tmax+1)]
         }
         
-  
-        for(t in 1:Tmax){ 
-          Imm[t] ~ dpois(survN1[t]*immR[t])
-        }
-        
         Mu.immR ~ dunif(0, 10)
         
+        for(t in 1:Tmax){ 
+          Imm[t] ~ dpois(R.tot[t]*immR[t])
+        }
         
       }else{
         
         ## Lognormal prior for immigrant numbers
-        for(t in 2:Tmax){
+        for(t in 2:(Tmax+1)){
           Imm[t] <- round(ImmExp[t])
-          ImmExp[t] ~ dlnorm(meanlog = log(Mu.Imm), sdlog = logsigma.Imm) 
+          
+          if(fitCov.immR){
+            log(ImmExp[t]) <- log(Mu.Imm) + 
+              betaR.immR*RodentAbundance2[t] + 
+              betaD.immR*(log(localN.tot[t]) - log(normN)) + 
+              betaRxD.immR*RodentAbundance2[t]*(log(localN.tot[t]) - log(normN)) +
+              gamma.immR*logDev.mH[t] +
+              epsilon.immR[t]
+          }else{
+            log(ImmExp[t]) <- log(Mu.Imm) + epsilon.immR[t]
+          }
         }
         
         Mu.Imm ~ dunif(1, uLim.Imm)
-        logsigma.Imm ~ dunif(0, 10)
         
         ## Derivation of immigration rates
         immR[1] <- 0
-        for(t in 2:Tmax){
-          immR[t] <- Imm[t] / survN1[t]
+        for(t in 2:(Tmax+1)){
+          immR[t] <- Imm[t] / R.tot[t]
         }
+        Mu.immR <- mean(immR[2:(Tmax+1)])
         
       }
       
-      ## Prior for rodent effect
+      ## Prior for covariate effects
       if(fitCov.immR){
         if(rCov.idx){
           betaR.immR[1] <- 0 # --> Lowest level corresponds to intercept
@@ -1057,6 +1140,24 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
           }
         }else{
           betaR.immR ~ dunif(-5, 5)
+          
+          if(DD.immR){
+            betaD.immR ~ dunif(-10, 5)
+            if(DDxRodent){
+              betaRxD.immR ~ dunif(-10, 10)
+            }else{
+              betaRxD.immR <- 0
+            }
+          }else{
+            betaD.immR <- 0
+            betaRxD.immR <- 0
+          }
+          
+          if(comp.immR & !comp.RE){
+            gamma.immR ~ dunif(-5, 5)
+          }else{
+            gamma.immR <- 0
+          }
         }
       }
       
@@ -1082,9 +1183,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Initial population size (discrete uniform prior) 
-      N[1:Amax, 1] <- 0
-      survN1[1] <- 0
-      octN[1:Amax, 1] <- initN[1:Amax]
+      N[1:Amax, 1] <- initN[1:Amax]
       
       for(a in 1:Amax){
         initN[a] ~ dcat(DU.prior.N[1:uLim.N]) 
@@ -1096,19 +1195,21 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       
       
       ## Random year variation
-      for(t in 1:Tmax){  
-        epsilon.mHs[t] ~ dnorm(0, sd = sigma.mHs)
-        epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
-        epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
-      }
       
       for(t in 1:(Tmax+1)){
+        #epsilon.mH[t] ~ dnorm(0, sd = sigma.mH)
+        epsilon.mH[t] <- sigma.mH*eta.mH[t]
+        eta.mH[t] ~ dnorm(0, sd = 1)
+        
+        #epsilon.mO[t] ~ dnorm(0, sd = sigma.mO)
+        epsilon.mO[t] <- eta.mO[t] + tau.mO*eta.mH[t]
+        eta.mO[t] ~ dnorm(0, sd = sigma.mO)
+        
         epsilon.Psi[t] ~ dnorm(0, sd = sigma.Psi)
         epsilon.rho[t] ~ dnorm(0, sd = sigma.rho) 
         # epsilon.m0[t] ~ dnorm(0, sd = sigma.m0)
       }
       
-      sigma.mHs ~ dunif(0, 5)
       sigma.mH ~ dunif(0, 5)
       sigma.Psi ~ dunif(0, 5)
       sigma.rho ~ dunif(0, 5)
@@ -1119,13 +1220,30 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       }else{
         sigma.mO <- 0
       }
-      
-      if(imm.asRate){
-        for(t in 1:(Tmax+1)){
-          epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
-        }
-        sigma.immR ~ dunif(0, 10)
+        
+      for(t in 1:(Tmax+1)){
+        #epsilon.immR[t] ~ dnorm(0, sd = sigma.immR)
+        epsilon.immR[t] <- eta.immR[t] + tau.immR*eta.mH[t]
+        eta.immR[t] ~ dnorm(0, sd = sigma.immR)
       }
+      sigma.immR ~ dunif(0, 10)
+      
+      
+      if(comp.mO & comp.RE){
+        tau.mO ~ dnorm(0, sd = 2.25)
+      }else{
+        tau.mO <- 0
+      }
+      
+      if(comp.immR & comp.RE){
+        tau.immR ~ dnorm(0, sd = 2.25)
+      }else{
+        tau.immR <- 0
+      }
+      
+      # Calculation of correlation coefficients
+      C.mO <- tau.mO / sqrt(pow(sigma.mO, 2) + pow(tau.mO, 2)) 
+      C.immR <- tau.immR / sqrt(pow(sigma.immR, 2) + pow(tau.immR, 2)) 
       
       #===============================================================================================
       

@@ -29,6 +29,11 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
                   `Mu.S[3]` = exp(-(`Mu.mH[3]` + `Mu.mO[3]`)),
                   `Mu.S[4]` = exp(-(`Mu.mH[4]` + `Mu.mO[4]`)),
                   `Mu.S[5]` = exp(-(`Mu.mH[5]` + `Mu.mO[5]`)),
+                  `Mu.Ss[1]` = exp(-(`Mu.mHs[1]`)),
+                  `Mu.Ss[2]` = exp(-(`Mu.mHs[2]`)),
+                  `Mu.Ss[3]` = exp(-(`Mu.mHs[3]`)),
+                  `Mu.Ss[4]` = exp(-(`Mu.mHs[4]`)),
+                  `Mu.Ss[5]` = exp(-(`Mu.mHs[5]`)),
                   SampleID = 1:nrow(as.matrix(MCMC.samples))) %>%
     tidyr::pivot_longer(cols = -SampleID) %>%
     dplyr::rename(Parameter = name,
@@ -116,11 +121,11 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   ## Age-specific survival and mortality
   
   # Survival panel
-  S.labs <- c("Annual survival")
-  names(S.labs) <- c("Mu.S")
+  S.labs <- c("Annual survival (Oct-Jun)", "Summer survival (Jul-Sep)")
+  names(S.labs) <- c("Mu.S", "Mu.Ss")
   
   p.S_age <- results %>% 
-    dplyr::filter(ParamName %in% c("Mu.S")) %>%
+    dplyr::filter(ParamName %in% c("Mu.S", "Mu.Ss")) %>%
     ggplot(aes(x = Value, group = Age)) + 
     geom_density(aes(y = after_stat(scaled), color = Age, fill = Age), alpha = 0.5) + 
     scale_color_manual(values = plot.colors.age) + 
@@ -130,12 +135,12 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     theme_bw() + theme(panel.grid = element_blank(), axis.title.x = element_blank(), legend.position = "none")
   
   # Mortality panel
-  m.labs <- c("Harvest mortality", "Natural mortality")
-  names(m.labs) <- c("Mu.mH", "Mu.mO")
+  m.labs <- c("Harvest mortality (Oct-Jun)", "Natural mortality (Oct-Jun)", "Harvest mortality (Jul-Sep)")
+  names(m.labs) <- c("Mu.mH", "Mu.mO", "Mu.mHs")
   
   p.m_age <- results %>% 
-    dplyr::filter(ParamName %in% c("Mu.mH", "Mu.mO") & Value < 2) %>%
-    dplyr::mutate(ParamName = factor(ParamName, levels = c("Mu.mO", "Mu.mH"))) %>%
+    dplyr::filter(ParamName %in% c("Mu.mHs", "Mu.mH", "Mu.mO") & Value < 2) %>%
+    dplyr::mutate(ParamName = factor(ParamName, levels = c("Mu.mO", "Mu.mH", "Mu.mHs"))) %>%
     ggplot(aes(x = Value, group = Age)) + 
     geom_density(aes(y = after_stat(scaled), color = Age, fill = Age), alpha = 0.5) + 
     scale_color_manual(values = plot.colors.age) + 
@@ -144,7 +149,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     theme_bw() + theme(panel.grid = element_blank(), axis.title = element_blank())
   
   # Combined panel
-  pdf("Plots/ParamAvg_Survival&Mortality.pdf", width = 8, height = 4)
+  pdf("Plots/ParamAvg_Survival&Mortality.pdf", width = 8, height = 5)
   print(p.S_age | p.m_age) + plot_layout(ncol = 2, widths = c(1, 2)) 
   dev.off()
   
@@ -175,28 +180,21 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   ## Total population size (+ harvest count)
   
   # Population size panel
-  legend.pos.top <- 0.9*max(subset(results.sum, ParamName == "N.tot")$uCI)
   p.N_time <- results.sum %>%
-    dplyr::filter(ParamName == "N.tot" & Year < minYear+Tmax) %>%
+    dplyr::filter(ParamName == "N.tot" & Year < minYear+Tmax & Year > minYear) %>%
     ggplot(aes(x = Year)) + 
     geom_line(aes(y = median), color = "#4D004B") + 
     geom_ribbon(aes(ymin = lCI, ymax = uCI), fill = "#4D004B", alpha = 0.5) + 
-    geom_label(label="Period                               ", x = minYear + 2.1, y = legend.pos.top,label.padding = unit(0.55, "lines"), # Rectangle size around label
+    geom_label(label="Period                               ", x=2006.1,y=800,label.padding = unit(0.55, "lines"), # Rectangle size around label
                label.size = NA, color = "black",fill="white", size = 4)+
-    geom_label(label="June (post-breeding census)", x = minYear + 2.1, y = legend.pos.top,label.padding = unit(0.55, "lines"), # Rectangle size around label
+    geom_label(label="June (post-breeding census)", x=2006.1,y=740,label.padding = unit(0.55, "lines"), # Rectangle size around label
                label.size = NA, color = "black",fill="white", size = 3.5)+
     scale_x_continuous(limits = c(minYear, minYear+Tmax), breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
     ylab("Population size (females)") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), axis.text.x = element_blank(), axis.title.x = element_blank())
   
   # Harvest count panel
-  if("pData_wOnly" %in% names(nim.data)){
-    pData_w <- nim.data$pData_wOnly
-  }else{
-    pData_w <- nim.data$pData_w
-  }
-  
-  p.H_time <- data.frame(Hcount = c(colSums(nim.data$C_w)/pData_w, colSums(nim.data$C_s)/nim.data$pData_s), 
+  p.H_time <- data.frame(Hcount = c(colSums(nim.data$C_w)/nim.data$pData_w, colSums(nim.data$C_s)/nim.data$pData_s), 
                          Year = c(as.numeric(colnames(nim.data$C_w)), as.numeric(colnames(nim.data$C_s))),
                          Period = c(rep("Oct-May", ncol(nim.data$C_w)), rep("Jul-Sep", ncol(nim.data$C_s)))) %>%
     dplyr::mutate(Year_offset = Year + 0.5) %>% 

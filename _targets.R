@@ -19,15 +19,15 @@ sourceDir('R')
 #-----------------------------#
 
 ## Seed
-mySeed <- 10
+mySeed <- 57
 
 ## Test run vs. full run
-#testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
-testRun <- FALSE # Runs the full MCMC with 30000 iterations unless otherwise specified
+testRun <- TRUE # Runs a test with only 10 MCMC iterations for model fitting
+#testRun <- FALSE # Runs the full MCMC with 30000 iterations unless otherwise specified
 
 ## General parameters
 Amax <- 5 # Number of age classes
-Tmax <- 18  # Number of years
+Tmax <- 20  # Number of years
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9)    #removal of summer months: numerical months to be removed from winter age at harvest data
@@ -40,12 +40,18 @@ plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
-## Dataset names, versions, and directories
-carcass.dataset.name <- "v_redfox_carcass_examination_v3"
-carcass.dataset.version <- 3
+# Normalizing value for population size when modelling density-dependence
+normN <- 500 # Based on mean/median of estimated N.tot-Imm 
 
-rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
-rodent.dataset.version <- 5
+## Dataset names, versions, and directories
+hunting.dataset.name <- "v_redfox_hunting_v3"
+hunting.dataset.version <- 3
+
+carcass.dataset.name <- "v_redfox_carcass_examination_v4"
+carcass.dataset.version <- 4
+
+rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v7"
+rodent.dataset.version <- 7
 
 genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
 
@@ -86,7 +92,7 @@ reinCov.VarTana <- TRUE # Calculate the reindeer carcass data count covariate us
 mO.varT <- TRUE
 
 # Age-at-harvest data toggles
-add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
+add.sumr.unaged <- TRUE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
@@ -116,6 +122,15 @@ useInfPrior.S0 <- FALSE
 S0.mean.offset <- 0
 S0.sd.factor <- 1
 
+## Density effects toggles
+DD.mO <- FALSE
+DD.immR <- TRUE
+DDxRodent <- FALSE
+
+## Compensation toggles
+comp.mO <- TRUE
+comp.immR <- FALSE
+comp.RE <- FALSE
 
 ## Toggles for LTRE analyses
 HazardRates <- TRUE
@@ -135,6 +150,22 @@ tar_option_set(packages = c("tidyverse", "sf", "reshape2", "remotes", "ckanr", "
 
 ## Define Targets List
 list(
+  
+  # Download hunting data (this is the record of foxes hunted, before they end up in the carcass examination lab)
+  tar_target(
+    hunting.data.raw,
+    downloadData_COAT(COAT_key = COAT_key, 
+                      COATdataset.name = hunting.dataset.name,
+                      COATdataset.version = hunting.dataset.version)
+  ),
+  
+  # Reformat hunting data
+  tar_target(
+    hunting.data,
+    reformatData_hunting(summer_removal = summer_removal,
+                         hunting.dataset = hunting.data.raw)
+  ),
+  
   # Download raw redfox carcass data from COAT database
   tar_target(
     carcass.data.raw,
@@ -157,7 +188,8 @@ list(
                          carcass.dataset = carcass.data.raw,
                          shapefile.dir = shapefile.dir,
                          add.sumr.unaged = add.sumr.unaged, 
-                         saAH.years = saAH.years)
+                         saAH.years = saAH.years,
+                         hunting.data = hunting.data)
   ),
   
   # Extract winter age-at-harvest matrix
@@ -271,6 +303,7 @@ list(
                        maxPups = 14,
                        uLim.N = 800,
                        uLim.Imm = 3000,
+                       normN = normN,
                        nLevels.rCov = nLevels.rCov,
                        standSpec.rCov = standSpec.rCov,
                        poolYrs.genData = poolYrs.genData,
@@ -306,6 +339,12 @@ list(
                mO.varT = mO.varT,
                HoenigPrior = HoenigPrior,
                imm.asRate = imm.asRate,
+               DD.mO = DD.mO, 
+               DD.immR = DD.immR,
+               DDxRodent = DDxRodent,
+               comp.mO = comp.mO,
+               comp.immR = comp.immR,
+               comp.RE = comp.RE,
                testRun = testRun,
                initVals.seed = mySeed
     )
@@ -325,7 +364,7 @@ list(
                nburnin = model.setup$mcmcParams$nburn, 
                thin = model.setup$mcmcParams$nthin, 
                samplesAsCodaMCMC = TRUE, 
-               setSeed = 0)
+               setSeed = mySeed)
   ),
   
   # Save model output as .rds
@@ -349,7 +388,9 @@ list(
     basePlots,
     plotIPM_basicOutputs(MCMC.samples = IPM.out,
                          nim.data = input.data$nim.data,
-                         Amax = Amax, Tmax = Tmax, minYear = minYear),
+                         Amax = Amax, 
+                         Tmax = Tmax, 
+                         minYear = minYear),
     format = "file"
     
   ),
@@ -360,7 +401,9 @@ list(
     plotIPM_covariateEffects(MCMC.samples = IPM.out,
                              rCov.idx = rCov.idx,
                              rodentMIN = -1.75, rodentMAX = 4,
-                             reindeerMIN = -1.5, reindeerMAX = 1.5,
+                             mHdevMIN = -0.6, mHdevMAX = 0.6,
+                             densityMIN = -0.5, densityMAX = 1,
+                             normN = normN,
                              AgeClass = 1),
     format = "file"
     
@@ -370,7 +413,8 @@ list(
   tar_target(
     paramSamples,
     extractParamSamples(MCMC.samples = IPM.out,
-                        Amax = Amax, Tmax = Tmax)
+                        Amax = Amax, 
+                        Tmax = Tmax)
   ),
   
   # Calculate sensitivities and elasticities
@@ -423,7 +467,25 @@ list(
     plotLTRE_fixedDesign(LTRE_results = fixedLTRE, 
                          Amax = Amax, Tmax = Tmax, minYear = minYear, 
                          HazardRates = HazardRates, 
-                         PopStructure = PopStructure)
+                         PopStructure = PopStructure),
+    format = "file"
+  ),
+  
+  # Decompose variation in natural mortality
+  tar_target(
+    varDecompPlot.mO,
+    plotVariance_comp_mO(MCMC.samples = IPM.out, 
+                         Tmax = Tmax,
+                         minYear = minYear,
+                         normN = normN),
+    format = "file"
+  ),
+  
+  # Calculate post-hoc parameter correlations
+  tar_target(
+    paramCorrTable,
+    calculate_p.hoc_param.corr(MCMC.samples = IPM.out, 
+                               Tmax = Tmax)
   )
 )
 

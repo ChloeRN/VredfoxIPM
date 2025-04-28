@@ -3,11 +3,13 @@
 #' @param MCMC.samples an mcmc list containing posterior samples from a model run.
 #' @param Tmax integer. Number of years to consider in the analysis
 #' @param minYear integer. First year to consider in the analysis
+#' @param normN numeric. A priori determined average local population size for 
+#' centering density covariate.
 #'
 #' @return character vector of plot names. The plots themselves are saved
 #' as pdf's in the subfolder "Plots".
 
-plotVariance_comp_mO <- function(MCMC.samples, Tmax, minYear){
+plotVariance_comp_mO <- function(MCMC.samples, Tmax, minYear, normN){
   
   sam.mat <- as.matrix(MCMC.samples)
 
@@ -15,7 +17,7 @@ plotVariance_comp_mO <- function(MCMC.samples, Tmax, minYear){
   # mO[a, t] <- exp(log(Mu.mO[a]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t])
   # One can choose any age here because the covariates and random effect are modelled independent of age and age is therefore cancelled out
   # we just choose age class 2 for now
-  a <-2
+  a <- 2
   testData.mO <- data.frame()
   nSamples <- nrow(sam.mat)
 
@@ -28,13 +30,37 @@ plotVariance_comp_mO <- function(MCMC.samples, Tmax, minYear){
     RodentAbundance <- sam.mat[ , paste0("RodentAbundance[", t+1, "]")] # t+1 because see formula above or in modelcode
     RodentEffect <- betaR.mO * RodentAbundance                          #see formula above or modelcode
     
+    #Posterior of parameter for compensation
+    if("gamma.mO" %in% colnames(sam.mat)){
+      gamma.mO <- sam.mat[ , "gamma.mO"]
+    }else{
+      gamma.mO <- NA
+    }
+    mHdev <- log(sam.mat[ , paste0("mH[", a, ", ", t, "]")]) - log(sam.mat[ , paste0("Mu.mH[", a, "]")])
+    CompensationEffect <- gamma.mO * mHdev
+    
+    #Posterior of parameter for density dependence
+    if("betaD.mO" %in% colnames(sam.mat)){
+      betaD.mO <- sam.mat[ , "betaD.mO"]
+    }else{
+      betaD.mO <- NA
+    }
+    PopDens <- log(sam.mat[ , paste0("N.tot[", t, "]")] - sam.mat[ , paste0("Imm[", t, "]")]) - log(normN)
+    DDEffect <- betaD.mO * PopDens
+    
     #Random effect
     epsilon.mO <- sam.mat[, paste0("epsilon.mO[", t,"]")]
     
     testData_temp <- data.frame(
       Year = t,
-      Component = rep(c("Rodent covariate", "Random effect"), each = nSamples),
-      Value = c(RodentEffect, epsilon.mO)
+      Component = rep(c("Rodent covariate", 
+                        "Harvest compensation",
+                        "Density feedback",
+                        "Random effect"), each = nSamples),
+      Value = c(RodentEffect, 
+                CompensationEffect,
+                DDEffect,
+                epsilon.mO)
     )
     testData.mO <- rbind(testData.mO, testData_temp)
   }

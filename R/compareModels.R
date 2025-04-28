@@ -92,6 +92,10 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
       }
     }
     
+    # Remove 0 nodes
+    cols0 <- unname(which(colSums(samples) == 0))
+    samples <- samples[, -cols0]
+    
     # Change format and add to list
     model.data <- reshape2::melt(samples)
     colnames(model.data) <- c("Sample", "Parameter", "Value")
@@ -147,7 +151,11 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
                   "betaHE.mH", 
                   "betaR.Psi", paste0("betaR.Psi[", 2:3, "]"),
                   "betaR.rho", paste0("betaR.rho[", 2:3, "]"),
-                  "betaR.mO", "betaR.immR"),
+                  "betaR.mO", "betaD.mO", "betaRxD.mO",
+                  "betaR.immR", "betaD.immR", "betaRxD.immR",
+                  "tau.mO", "C.mO", "gamma.mO",
+                  "tau.immR", "C.immR", "gamma.immR"),
+
     
     Imm = paste0("Imm[", 1:Tmax, "]"),
     
@@ -160,9 +168,9 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
   
   ## Set parameters plotting time series of posterior summaries
   plotTS.paramsAge <- list(
-    ParamNames = c("mO", "S", "mH", "mHs", "Psi", "rho"),
+    ParamNames = c("mO", "S", "mH", "Psi", "rho"),
     ParamLabels = c("Natural mortality", "Survival", 
-                    "Harvest mortality", "Summer harvest mortality", "Pregnancy rate", "# fetuses/female")
+                    "Harvest mortality", "Pregnancy rate", "# fetuses/female")
   )
 
   plotTS.params <- list(
@@ -209,6 +217,9 @@ compareModels <- function(Amax, Tmax, minYear, maxYear, logN = FALSE,
   dev.off()
   
   ## Plot posterior summary time series for age-specific parameters
+  sum.data <- sum.data %>%
+    dplyr::filter(!(ParamName == "mO" & Year >= maxYear))
+  
   pdf(paste0(plotFolder, "/PosteriorSummaries_TimeSeriesAge.pdf"), width = 8, height = 8)
   for(x in 1:length(plotTS.paramsAge$ParamNames)){
     

@@ -3,7 +3,7 @@
 #' @param AaH.datafile Age at harvest data file from carcass.data
 #' @param Amax integer. Number of age classes to consider in analyses.
 #'
-#' @return a list containing an Age-at-Harvest matrix (winterC) and a vector of
+#' @return a list containing an Age-at-Harvest matrix (C) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @export
 #'
@@ -17,8 +17,12 @@ wrangleData_AaH <- function(AaH.datafile, Amax){
   colnames(C) <- AaH.datafile$year
   
   ## Extract proportions aged (pData)
-  pData <- as.numeric(AaH.datafile[, "pData"])
+  pData <- as.numeric(AaH.datafile[, "pAged"]) * as.numeric(AaH.datafile[, "pCarcass"])
 
-  ## List and return data
-  return(list(C = C, pData = pData))
+  if("pAged_winter" %in% colnames(AaH.datafile)){
+    pData_winter <- as.numeric(AaH.datafile[, "pAged_winter"]) * as.numeric(AaH.datafile[, "pCarcass_winter"])
+    return(list(C = C, pData = pData, pData_winter = pData_winter))
+  }else{
+    return(list(C = C, pData = pData))
+  }
 }

@@ -8,17 +8,18 @@ library(purrr)
 library(dplyr)
 library(metafor)
 library(patchwork)
+library(coda)
 
 #**********#
 # 0) SETUP #
 #**********#
 
 ## Set seed
-mySeed <- 10
+mySeed <- 57 + 1
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
-Tmax <- 18  # Number of years
+Tmax <- 20  # Number of years
 Tmax_sim <- 10
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
@@ -31,12 +32,18 @@ plac_end   <- 80  #until, not including
 embr_start <- 100 #including
 embr_end   <- 140 #until, not including
 
-## set dataset names, versions, and directories, and access
-carcass.dataset.name <- "v_redfox_carcass_examination_v3"
-carcass.dataset.version <- 3
+# Normalizing value for population size when modelling density-dependence
+normN <- 500 # Based on mean/median of estimated N.tot-Imm 
 
-rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
-rodent.dataset.version <- 5
+## set dataset names, versions, and directories, and access
+hunting.dataset.name <- "v_redfox_hunting_v3"
+hunting.dataset.version <- 3
+
+carcass.dataset.name <- "v_redfox_carcass_examination_v4"
+carcass.dataset.version <- 4
+
+rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v7"
+rodent.dataset.version <- 7
 
 # Stijn
 shapefile.dir <- "C:\\Users\\sho189\\OneDrive - UiT Office 365\\PhD\\RedfoxIPM\\Fox areas shapefile\\tana rest"
@@ -75,7 +82,7 @@ reinCov.VarTana <- TRUE # Calculate the reindeer carcass data count covariate us
 mO.varT <- TRUE
 
 # Age-at-harvest data toggles
-add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
+add.sumr.unaged <- TRUE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 
 # Annual survival prior type toggles
@@ -106,6 +113,16 @@ useInfPrior.S0 <- FALSE
 S0.mean.offset <- 0
 S0.sd.factor <- 1
 
+## Density effects toggles
+DD.mO <- TRUE
+DD.immR <- TRUE
+DDxRodent <- FALSE
+
+## Compensation toggles
+comp.mO <- TRUE
+comp.immR <- FALSE
+comp.RE <- FALSE
+
 ## Set up perturbation parameters for running standard scenarios
 pert.mH <- FALSE
 pert.mO <- FALSE
@@ -119,19 +136,10 @@ factor.S0 <- 1
 factor.immR <- 1
 factor.rodent <- 1
 
-if(pert.mH & factor.mH == 0){
-  pert.mHs <- TRUE
-  factor.mHs <- 0
-}else{
-  pert.mHs <- FALSE
-  factor.mHs <- 1
-}
-
 perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.mH = pert.mH, factor.mH = factor.mH,
                                     pert.mO = pert.mO, factor.mO = factor.mO,
                                     pert.S0 = pert.S0, factor.S0 = factor.S0,
-                                    pert.mHs = pert.mHs, factor.mHs = factor.mHs,
                                     pert.immR = pert.immR, factor.immR = factor.immR,
                                     pert.rodent = pert.rodent, factor.rodent = factor.rodent)
 
@@ -170,10 +178,20 @@ calculate_pertFac <- nimbleFunction(
 # 1a) Download and reformat carcass data
 #-------------------------------#
 
+## Download hunting data (this is the record of foxes hunted, before they end up in the carcass examination lab)
+hunting.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
+                                      COATdataset.name = hunting.dataset.name,
+                                      COATdataset.version = hunting.dataset.version)
+
+## Reformat hunting data
+hunting.data  <- reformatData_hunting(summer_removal = summer_removal,
+                                      hunting.dataset = hunting.data.raw)
+
+
 ## Download carcass data
 carcass.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
-                                     COATdataset.name = carcass.dataset.name,
-                                     COATdataset.version = carcass.dataset.version)
+                                      COATdataset.name = carcass.dataset.name,
+                                      COATdataset.version = carcass.dataset.version)
 
 ## Reformat carcass data
 carcass.data <- reformatData_carcass(Amax = Amax,   
@@ -187,7 +205,8 @@ carcass.data <- reformatData_carcass(Amax = Amax,
                                      carcass.dataset = carcass.data.raw,
                                      shapefile.dir = shapefile.dir,
                                      add.sumr.unaged = add.sumr.unaged, 
-                                     saAH.years = saAH.years)
+                                     saAH.years = saAH.years,
+                                     hunting.data = hunting.data)
 
 
 # 1b) Age-at-Harvest data #
@@ -259,7 +278,7 @@ rodent.data.raw <- downloadData_COAT(COAT_key = COAT_key,
 
 ## Reformat rodent data
 rodent.data <- reformatData_rodent(rodent.dataset = rodent.data.raw,
-                                          minYear = minYear)
+                                   minYear = minYear)
 
 ## Reformat reindeer data
 reindeer.data <- reformatData_reindeer(minYear = minYear,
@@ -321,6 +340,7 @@ input.data <- assemble_inputData_PVA(Amax = Amax,
                                      maxPups = 14,
                                      uLim.N = 800,
                                      uLim.Imm = 3000,
+                                     normN = normN,
                                      nLevels.rCov = nLevels.rCov,
                                      standSpec.rCov = standSpec.rCov,
                                      poolYrs.genData = poolYrs.genData,
@@ -360,8 +380,14 @@ model.setup <- setupModel_PVA(modelCode = redfox.code,
                               mO.varT = mO.varT,
                               HoenigPrior = HoenigPrior,
                               imm.asRate = imm.asRate,
+                              DD.mO = DD.mO, 
+                              DD.immR = DD.immR,
+                              DDxRodent = DDxRodent,
+                              comp.mO = comp.mO,
+                              comp.immR = comp.immR,
+                              comp.RE = comp.RE,
                               testRun = FALSE,
-                              initVals.seed = mySeed)
+                              initVals.seed = mySeed + 1)
 
 
 ####################
@@ -373,22 +399,26 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       data = input.data$nim.data, 
                       constants = input.data$nim.constants,
                       inits = model.setup$initVals, 
-                      monitors = model.setup$modelParams,
+                      monitors = c(model.setup$modelParams),
                       nchains = model.setup$mcmcParams$nchains, 
                       niter = model.setup$mcmcParams$niter, 
                       nburnin = model.setup$mcmcParams$nburn, 
                       thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
-                      setSeed = 0)
+                      setSeed = mySeed)
 Sys.time() - t1
 
-saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_noReindeer2.rds") # No perturbation
+saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
-#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 (initVals.seed = mySeed + 2 = 12)
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac3.rds") # pert.mH = TRUE, mH.factor = 2 
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_lowerHarvest_fac0.5.rds") # pert.mH = TRUE, mH.factor = 0.5
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestMatch_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestDelay_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestDelay_th0_fac1.50.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_noImm.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5_lowerImm_fac0.5.rds") # pert.mH = TRUE, mH.factor = 2 
 
 #MCMCvis::MCMCtrace(IPM.out)
 
@@ -397,39 +427,29 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline_noReindeer2.rds") # No perturbat
 # 5) MODEL COMPARISONS #
 ########################
 
-## Models with/without reindeer covariate
-PVA0_comp <- compareModels(Amax = Amax, 
-                           Tmax = Tmax, 
-                           minYear = minYear, 
-                           maxYear = 2030,
-                           logN = TRUE,
-                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
-                                              "RedFoxIPM_sim_baseline_noReindeer.rds",
-                                              "RedFoxIPM_sim_baseline_noReindeer2.rds"), 
-                           model.names = c("Original", 
-                                           "Without reindeer, constrained",
-                                           "Without reindeer, unconstrained"), 
-                           plotFolder = "Plots/ScenarioComp_PVA0_ReindeerCov",
-                           returnSumData = TRUE)
-
-
 ## Baseline vs. no harvest
 PVA1_comp <- compareModels(Amax = Amax, 
                            Tmax = Tmax, 
                            minYear = minYear, 
-                           maxYear = 2030,
+                           maxYear = 2034,
                            logN = TRUE,
                            post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
                                               "RedFoxIPM_sim_noHarvest.rds",
-                                              "RedFoxIPM_sim_higherHarvest_fac1.5.rds"), 
+                                              "RedFoxIPM_sim_lowerHarvest_fac0.5.rds",
+                                              "RedFoxIPM_sim_higherHarvest_fac1.5.rds",
+                                              "RedFoxIPM_sim_higherHarvest_fac2.rds",
+                                              "RedFoxIPM_sim_higherHarvest_fac3.rds"), 
                            model.names = c("Baseline", 
                                            "No harvest",
-                                           "50% higher harvest"), 
+                                           "50% lower harvest",
+                                           "50% higher harvest",
+                                           "Double harvest",
+                                           "Triple harvest"), 
                            plotFolder = "Plots/ScenarioComp_PVA1_RodDyn",
                            returnSumData = TRUE)
 
 # Extra plot for manuscript: 
-maxYear <- 2030
+maxYear <- 2034
 pdf("Plots/ScenarioComp_PVA1_RodDyn/PosteriorSummaries_TimeSeries_Ntot.pdf", width = 8, height = 4)
 print(
   PVA1_comp %>%
@@ -450,6 +470,22 @@ print(
                        axis.text.x = element_text(angle = 45, vjust = 0.5))
 )
 dev.off()
+
+
+## Baseline vs. less immigration
+PVA3_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2034,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              "RedFoxIPM_sim_noImm.rds",
+                                              "RedFoxIPM_sim_lowerImm_fac0.5.rds"), 
+                           model.names = c("Baseline", 
+                                           "No immigration",
+                                           "50% less immigration"), 
+                           plotFolder = "Plots/ScenarioComp_PVA3_RodDyn",
+                           returnSumData = TRUE)
 
 
 ## Different harvest scenario types
@@ -476,13 +512,13 @@ PVA2_comp <- compareModels(Amax = Amax,
                            returnSumData = TRUE)
 
 # Extra plot for manuscript: 
-maxYear <- 2030
+maxYear <- 2034
 scenInfo <- data.frame(Action = c("None", 
                                   rep("High rodent +50% harvest", 2),
                                   rep("Low rodent +50% harvest", 2)), 
                        Timing = c("matched", 
                                   rep(c("delayed", "matched"), 2)),
-                       Model = unique(PVA3_comp$Model))
+                       Model = unique(PVA2_comp$Model))
 scenInfo$Action <- factor(scenInfo$Action, levels = c("None", "High rodent +50% harvest", "Low rodent +50% harvest"))
 scenInfo$Timing <- factor(scenInfo$Timing, levels = c("matched", "delayed"))
 
@@ -505,3 +541,20 @@ pdf("Plots/ScenarioComp_PVA2_RodDyn/PosteriorSummaries_TimeSeries_Ntot.pdf", wid
                          axis.text.x = element_text(angle = 45, vjust = 0.5))
   )
 dev.off()
+
+## Joint immigration & harvest scenarios
+PVAX_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2034,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              "RedFoxIPM_sim_higherHarvest_fac1.5.rds",
+                                              "RedFoxIPM_sim_lowerImm_fac0.5.rds",
+                                              "RedFoxIPM_sim_higherHarvest_fac1.5_lowerImm_fac0.5.rds"), 
+                           model.names = c("Baseline", 
+                                           "50% more harvest",
+                                           "50% less immigration",
+                                           "50% more harvest & less imm."), 
+                           plotFolder = "Plots/ScenarioComp_PVAX_RodDyn",
+                           returnSumData = TRUE)

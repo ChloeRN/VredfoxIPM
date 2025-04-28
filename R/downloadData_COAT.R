@@ -75,7 +75,8 @@ for (i in 1:length(urls)) {
                             store = store,
                             path = paste(dest_dir, name, filenames[i], sep = "/"),
                             sep = ";", 
-                            header = TRUE
+                            header = TRUE,
+                            format = "txt"
   )
 }
 
@@ -88,10 +89,34 @@ for (i in 1:length(urls)) {
 
 #coordinates <- mylist[[grep("coordinates", urls)]]
 #aux <- mylist[[grep("aux", urls)]]
-dat <- keep(mylist, !grepl("coordinates|aux|readme", urls)) %>% do.call(rbind, .)  # this does not work if the data files have different structures (e.g. temperature datasets)
+#dat <- keep(mylist, !grepl("coordinates|aux|readme", urls)) %>% do.call(rbind, .)  # this does not work if the data files have different structures (e.g. temperature datasets)
+#return(dat)
 
-return(dat)
+#Some datasets (e.g. hunting data) is split into txt files of different formats (e.g. numbers of columns), here we split them so that we can return them seperately (rbind does not work on those)
+
+# Filter the list to exclude unwanted elements
+filtered_list <- keep(mylist, !grepl("coordinates|aux|readme", urls))
+
+# Group the data frames by their number of columns
+grouped_data <- split(filtered_list, sapply(filtered_list, ncol))
+
+# Combine each group into separate data frames
+combined_data <- lapply(grouped_data, function(group) {
+  do.call(rbind, group)
+})
+
+# Check if there is only one type of structure
+if (length(combined_data) == 1) {
+  # Return the single combined data frame directly
+  return(combined_data[[1]])
+} else {
+  # Return the combined data frames as a named list
+  names(combined_data) <- paste0("dat_", names(grouped_data), "_columns")
+  return(combined_data)
 }
+}
+
+
 
 
 

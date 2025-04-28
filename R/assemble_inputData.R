@@ -14,6 +14,8 @@
 #' by Geneclass 2 and standardized so that the minimum immigrant probability = 0.
 #' "LL-based" = log likelihood other / log likelihood other + log likelihood Varanger. 
 #' @param uLim.Imm integer. Upper prior bound for annual number of immigrants. 
+#' @param normN integer. Value used for centering density covariate (should 
+#' approximate average local population size, i.e. population size minus immigrants.) 
 #' @param wAaH.data a list containing a winter Age-at-Harvest matrix (C) and a vector of
 #' yearly proportions of individuals aged/included in Age-at-Harvest data (pData).
 #' @param sAaH.data a list containing a summer Age-at-Harvest matrix (C) and a vector of
@@ -42,7 +44,7 @@
 #' @examples
 
 assemble_inputData <- function(Amax, Tmax, minYear,
-                               maxPups, uLim.N, uLim.Imm, 
+                               maxPups, uLim.N, uLim.Imm, normN, 
                                nLevels.rCov = NA, standSpec.rCov,
                                poolYrs.genData, pImm.type,
                                wAaH.data, sAaH.data, rep.data, gen.data, pup.data,
@@ -121,6 +123,10 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     Reindeer = Reindeer
   )
   
+  if("pData_winter" %in% names(wAaH.data)){
+    nim.data$pData_wOnly <-  wAaH.data$pData_winter[which(colnames(wAaH.data$C) == minYear) + 1:Tmax - 1]
+  }
+    
   # Constants
   nim.constants <- list(
     Amax = Amax,
@@ -130,6 +136,7 @@ assemble_inputData <- function(Amax, Tmax, minYear,
     maxPups = maxPups,
     uLim.N = uLim.N,
     uLim.Imm = uLim.Imm,
+    normN = normN, 
     
     XsH = XsH,
     sH_year = sH_year,
