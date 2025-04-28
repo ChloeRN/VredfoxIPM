@@ -15,7 +15,7 @@ library(coda)
 #**********#
 
 ## Set seed
-mySeed <- 57
+mySeed <- 57 + 1
 
 ## Set general parameters
 Amax <- 5 # Number of age classes
@@ -416,6 +416,7 @@ saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestMatch_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestDelay_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestDelay_th0_fac1.50.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_noImm.rds")
 
 #MCMCvis::MCMCtrace(IPM.out)
 
@@ -463,6 +464,22 @@ print(
                        axis.text.x = element_text(angle = 45, vjust = 0.5))
 )
 dev.off()
+
+
+## Baseline vs. less immigration
+PVA3_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2034,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              "RedFoxIPM_sim_noImm.rds",
+                                              "RedFoxIPM_sim_lowerImm_fac0.5.rds"), 
+                           model.names = c("Baseline", 
+                                           "No immigration",
+                                           "50% less immigration"), 
+                           plotFolder = "Plots/ScenarioComp_PVA3_RodDyn",
+                           returnSumData = TRUE)
 
 
 ## Different harvest scenario types
