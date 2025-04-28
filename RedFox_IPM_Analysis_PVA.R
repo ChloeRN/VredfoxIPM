@@ -411,12 +411,14 @@ Sys.time() - t1
 saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds") # No perturbation
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noHarvest.rds") # pert.mH = TRUE, mH.factor = 0
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5.rds") # pert.mH = TRUE, mH.factor = 1.5 
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac3.rds") # pert.mH = TRUE, mH.factor = 2 
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowerHarvest_fac0.5.rds") # pert.mH = TRUE, mH.factor = 0.5
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestMatch_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestMatch_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_highRodentHarvestDelay_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_lowRodentHarvestDelay_th0_fac1.50.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_sim_noImm.rds")
+#saveRDS(IPM.out, file = "RedFoxIPM_sim_higherHarvest_fac1.5_lowerImm_fac0.5.rds") # pert.mH = TRUE, mH.factor = 2 
 
 #MCMCvis::MCMCtrace(IPM.out)
 
@@ -434,16 +436,20 @@ PVA1_comp <- compareModels(Amax = Amax,
                            post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
                                               "RedFoxIPM_sim_noHarvest.rds",
                                               "RedFoxIPM_sim_lowerHarvest_fac0.5.rds",
-                                              "RedFoxIPM_sim_higherHarvest_fac1.5.rds"), 
+                                              "RedFoxIPM_sim_higherHarvest_fac1.5.rds",
+                                              "RedFoxIPM_sim_higherHarvest_fac2.rds",
+                                              "RedFoxIPM_sim_higherHarvest_fac3.rds"), 
                            model.names = c("Baseline", 
                                            "No harvest",
                                            "50% lower harvest",
-                                           "50% higher harvest"), 
+                                           "50% higher harvest",
+                                           "Double harvest",
+                                           "Triple harvest"), 
                            plotFolder = "Plots/ScenarioComp_PVA1_RodDyn",
                            returnSumData = TRUE)
 
 # Extra plot for manuscript: 
-maxYear <- 2030
+maxYear <- 2034
 pdf("Plots/ScenarioComp_PVA1_RodDyn/PosteriorSummaries_TimeSeries_Ntot.pdf", width = 8, height = 4)
 print(
   PVA1_comp %>%
@@ -506,7 +512,7 @@ PVA2_comp <- compareModels(Amax = Amax,
                            returnSumData = TRUE)
 
 # Extra plot for manuscript: 
-maxYear <- 2030
+maxYear <- 2034
 scenInfo <- data.frame(Action = c("None", 
                                   rep("High rodent +50% harvest", 2),
                                   rep("Low rodent +50% harvest", 2)), 
@@ -535,3 +541,20 @@ pdf("Plots/ScenarioComp_PVA2_RodDyn/PosteriorSummaries_TimeSeries_Ntot.pdf", wid
                          axis.text.x = element_text(angle = 45, vjust = 0.5))
   )
 dev.off()
+
+## Joint immigration & harvest scenarios
+PVAX_comp <- compareModels(Amax = Amax, 
+                           Tmax = Tmax, 
+                           minYear = minYear, 
+                           maxYear = 2034,
+                           logN = TRUE,
+                           post.filepaths = c("RedFoxIPM_sim_baseline.rds", 
+                                              "RedFoxIPM_sim_higherHarvest_fac1.5.rds",
+                                              "RedFoxIPM_sim_lowerImm_fac0.5.rds",
+                                              "RedFoxIPM_sim_higherHarvest_fac1.5_lowerImm_fac0.5.rds"), 
+                           model.names = c("Baseline", 
+                                           "50% more harvest",
+                                           "50% less immigration",
+                                           "50% more harvest & less imm."), 
+                           plotFolder = "Plots/ScenarioComp_PVAX_RodDyn",
+                           returnSumData = TRUE)
