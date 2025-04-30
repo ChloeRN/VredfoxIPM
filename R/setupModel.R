@@ -86,6 +86,7 @@ setupModel <- function(modelCode,
               "initN",
               "N.tot", "B.tot", "R.tot", 
               "N", "B", "L", "R", "Imm", "immR",
+              "survN1", "Imm1",
               "RodentAbundance")
   
   ## Add additional parameters to monitor depending on model version

@@ -278,6 +278,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   Imm <- round(truncnorm::rtruncnorm(Tmax+1, a = 0, b = maxImm, mean = Mu.Imm, sd = sigma.Imm))
   Imm[1] <- 0
   
+  Imm1 <- round(Imm*pImm1)
 
   #---------------------------------------------------------#
   # Simulate initial values for population-level quantities #
@@ -285,7 +286,8 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   ## Prepare empty vectors and matrices
   H <- N <- B <- L <- R <- matrix(NA, nrow = Amax, ncol = Tmax+1)
-
+  survN1 <- rep(0, Tmax+1)
+  
   ## Set initial population sizes
   for(a in 1:Amax){
     N[a, 1] <- round(runif(1, minN1[a], maxN1[a]))
@@ -303,8 +305,12 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     # a) Project local survivors to the next year
     #---------------------------------------------
     
-    ## Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
-    for(a in 1:(Amax-2)){
+    ## Age class 1 (index = 2): age class 0 survivors and immigrants
+    survN1[t+1] <- rbinom(1, size = N[1, t], prob = S[1, t])
+    N[2, t+1] <- survN1[t+1] + (Imm[t+1] - Imm1[t+1])
+      
+    ## Age classes 2 to 3 (indeces = 3, 4): age classes 1, and 2 survivors    
+    for(a in 2:(Amax-2)){
       N[a+1, t+1] <- rbinom(1, size = N[a, t], prob = S[a, t])
     }			
       
@@ -318,7 +324,9 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     for (a in 2:Amax){
         
       ## Breeding Population Size: Number of females that reproduce
-      B[a, t+1] <- rbinom(1, size = N[a, t+1], prob = Psi[a, t+1])
+      B[a, t+1] <- rbinom(1, 
+                          size = ifelse(a == 2, survN1[t+1], N[a, t+1]), 
+                          prob = Psi[a, t+1])
         
       ## Litter Size (in utero): Number of pups produced by females of age class a
       L[a, t+1] <- rpois(1, lambda = B[a, t+1] * rho[a, t+1] * 0.5)
@@ -331,9 +339,10 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
     # c) Add new recruits and immigrants
     #------------------------------------
       
-    N[1, t+1] <- sum(R[1:Amax, t+1]) + Imm[t+1]
+    N[1, t+1] <- sum(R[1:Amax, t+1]) + Imm1[t+1]
   }
   
+  survN1[1] <- N[2, 1]
   
   # d) Check for years with more harvests than alive individuals
   #-------------------------------------------------------------
@@ -364,11 +373,13 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   InitVals <- list(
     N = N,
     initN = N[, 1],
+    survN1 = survN1,
     B = B, 
     L = L,
     R = R,
     Imm = Imm,
-    localN.tot = colSums(R[2:Amax, 1:(Tmax+1)]) + colSums(N[2:Amax, 1:(Tmax+1)]) + 1,
+    Imm1 = Imm1,
+    localN.tot = colSums(R[2:Amax, 1:(Tmax+1)]) + survN1[1:(Tmax+1)] + colSums(N[3:Amax, 1:(Tmax+1)]) + 1,
     
     Mu.mH = Mu.mH,
     Mu.mO = Mu.mO,

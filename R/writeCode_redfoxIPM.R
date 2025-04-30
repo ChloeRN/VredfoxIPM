@@ -60,11 +60,18 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ## Survival
       
       for(t in 1:Tmax){
-        # Age class 0 (index = 1): local reproduction & immigration
-        N[1, t+1] <- sum(R[2:Amax, t+1]) + Imm[t+1]
+        # Proportion of immigrants in age class 1
+        Imm1[t+1] <- round(Imm[t+1]*pImm1)
         
-        # Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
-        for(a in 1:(Amax-2)){
+        # Age class 0 (index = 1): local reproduction & immigration
+        N[1, t+1] <- sum(R[2:Amax, t+1]) + Imm1[t+1]
+        
+        # Age class 1 (index = 1): survivors & immigration
+        N[2, t+1] <- survN1[t+1] + (Imm[t+1] - Imm1[t+1])
+        survN1[t+1] ~ dbin(S[1, t], N[1, t])
+        
+        # Age classes 2 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
+        for(a in 2:(Amax-2)){
           N[a+1, t+1] ~ dbin(S[a, t], N[a, t])
         }			
         
@@ -72,6 +79,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         N[Amax, t+1] ~ dbin(S[Amax, t], N[Amax-1, t] + N[Amax, t])
       }
   
+      survN1[1] <- N[2, 1] 
+      Imm1[1] <- 0
       
       ## Reproduction
       
@@ -86,12 +95,17 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       R[2:Amax, 1] <- 0
       
       # Age classes 1 to 3+    	    
-      for(t in 2:(Tmax+1)){        				
-        for(a in 2:Amax){
-          
-          # Breeding Population Size: Number of females that reproduce
+      for(t in 2:(Tmax+1)){ 
+        
+        # Breeding Population Size: Number of females that reproduce
+        B[2, t] ~ dbin(Psi[2, t], survN1[t])
+        
+        for(a in 3:Amax){
           B[a, t] ~ dbin(Psi[a, t], N[a, t])
-          
+        } 
+        
+        for(a in 2:Amax){
+
           # Litter Size (in utero): Number of pups produced by females of age class a
           L[a, t] ~ dpois(B[a, t]*rho[a, t]*0.5)
           
@@ -113,7 +127,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         R.tot[t] <- sum(R[1:Amax, t])		
         B.tot[t] <- sum(B[1:Amax, t])
         
-        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t]) + 1
+        localN.tot[t] <- sum(R[2:Amax, t]) + survN1[t] + sum(N[3:Amax, t]) + 1
       }
       
       #===============================================================================================
@@ -683,11 +697,18 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       ## Survival
       
       for(t in 1:Tmax){
+        # Proportion of immigrants in age class 1
+        Imm1[t+1] <- round(Imm[t+1]*pImm1)
+          
         # Age class 0 (index = 1): local reproduction & immigration
-        N[1, t+1] <- sum(R[2:Amax, t+1]) + Imm[t+1]
+        N[1, t+1] <- sum(R[2:Amax, t+1]) + Imm1[t+1]
+
+        # Age class 1 (index = 1): survivors & immigration
+        N[2, t+1] <- survN1[t+1] + (Imm[t+1] - Imm1[t+1])
+        survN1[t+1] ~ dbin(S[1, t], N[1, t])
         
-        # Age classes 1 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
-        for(a in 1:(Amax-2)){
+        # Age classes 2 to 3 (indeces = 2, 3, 4): age classes 0, 1, and 2 survivors    
+        for(a in 2:(Amax-2)){
           N[a+1, t+1] ~ dbin(S[a, t], N[a, t])
         }			
         
@@ -695,6 +716,8 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         N[Amax, t+1] ~ dbin(S[Amax, t], N[Amax-1, t] + N[Amax, t])
       }
       
+      survN1[1] <- N[2, 1] 
+      Imm1[1] <- 0
       
       ## Reproduction
       
@@ -709,11 +732,16 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
       R[2:Amax, 1] <- 0
       
       # Age classes 1 to 3+    	    
-      for(t in 2:(Tmax+1)){        				
-        for(a in 2:Amax){
-          
-          # Breeding Population Size: Number of females that reproduce
+      for(t in 2:(Tmax+1)){ 
+        
+        # Breeding Population Size: Number of females that reproduce
+        B[2, t] ~ dbin(Psi[2, t], survN1[t])
+        
+        for(a in 3:Amax){
           B[a, t] ~ dbin(Psi[a, t], N[a, t])
+        } 
+        
+        for(a in 2:Amax){
           
           # Litter Size (in utero): Number of pups produced by females of age class a
           L[a, t] ~ dpois(B[a, t]*rho[a, t]*0.5)
@@ -736,7 +764,7 @@ writeCode_redfoxIPM <- function(indLikelihood.genData = FALSE){
         R.tot[t] <- sum(R[1:Amax, t])		
         B.tot[t] <- sum(B[1:Amax, t])
         
-        localN.tot[t] <- sum(R[2:Amax, t]) + sum(N[2:Amax, t]) + 1
+        localN.tot[t] <- sum(R[2:Amax, t]) + survN1[t] + sum(N[3:Amax, t]) + 1
       }
       
       #===============================================================================================
