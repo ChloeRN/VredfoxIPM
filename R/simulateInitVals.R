@@ -47,6 +47,7 @@ simulateInitVals <- function(nim.data, nim.constants, minN1, maxN1, minImm, maxI
   
   Amax <- nim.constants$Amax
   Tmax <- nim.constants$Tmax
+  pImm1 <- nim.constants$pImm1
   
   #-------------------------------------------------#
   # Set initial values for missing covariate values #

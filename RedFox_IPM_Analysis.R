@@ -34,6 +34,9 @@ embr_end   <- 140 #until, not including
 # Normalizing value for population size when modelling density-dependence
 normN <- 500 # Based on mean/median of estimated N.tot-Imm 
 
+# Proportion of immigrants in age class 1 vs. 2
+pImm1 <- 0.75
+
 ## set dataset names, versions, and directories, and access
 hunting.dataset.name <- "v_redfox_hunting_v3"
 hunting.dataset.version <- 3
@@ -295,6 +298,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  uLim.N = 800,
                                  uLim.Imm = 3000,
                                  normN = normN,
+                                 pImm1 = pImm1,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
                                  poolYrs.genData = poolYrs.genData,
