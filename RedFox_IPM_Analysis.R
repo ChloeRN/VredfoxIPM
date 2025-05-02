@@ -377,7 +377,9 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
 Sys.time() - t1
 
 
-saveRDS(IPM.out, file = "RedFoxIPM_pImm1_0.75.rds") 
+saveRDS(IPM.out, file = "RedFoxIPM_main.rds") 
+#saveRDS(IPM.out, file = "RedFoxIPM_pImm1_0.75.rds") 
+#saveRDS(IPM.out, file = "RedFoxIPM_pImm1_0.5.rds") 
 
 #saveRDS(IPM.out, file = "RedFoxIPM_genData1.rds")
 #saveRDS(IPM.out, file = "RedFoxIPM_genData2.rds")
@@ -432,6 +434,19 @@ compareModels(Amax = Amax,
                               "North Sweden",
                               "Bristol"), 
               plotFolder = "Plots/CompFinal_SurvPriors")
+
+
+## Age distribution of immigrants
+compareModels(Amax = Amax, 
+              Tmax = Tmax, 
+              minYear = minYear, 
+              post.filepaths = c("RedFoxIPM_main.rds",
+                                 "RedFoxIPM_pImm1_0.75.rds",
+                                 "RedFoxIPM_pImm1_0.5.rds"), 
+              model.names = c("Original (all age 0)", 
+                              "75% age 0, 25% age 1",
+                              "50% age 0, 50% age 1"), 
+              plotFolder = "Plots/CompFinal_ImmAge")
 
 
 ## Integrated vs. independent model
