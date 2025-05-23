@@ -13,9 +13,10 @@ knitr::opts_knit$set(root.dir = "..")
 ## About this document
 In this document, we walk you through the application of an integrated popupulation modelling workflow to data collected from en expanding population of red foxes on Varanger penninsula (Arctic Norway). The workflow (see schematic below) uses data collected from harvested foxes together with information from opportunistic den surveys and red fox literature to fit an integrated population model (IPM), and subsequently investigates the drivers of population dynamics using both retrospective (transient Life Table Response Experiments, tLTREs) and prospective (Population Viability Analyses, PVAs) perturbation analyses and is presented in:
 
-Nater, C. R, Hofhuis, S. P., Grainger, M., Flagstad, Ø., Ims, R. A., Killengreen S., Ehrich D. (2024).
+Nater, C. R, Hofhuis, S. P., Grainger, M., Flagstad, Ø., Ims, R. A., Killengreen S., Ehrich D. (2025).
 An integrated population modelling workflow for supporting mesopredator management. *EcoEvoRxiv*. 
-DOI:*[TBA]*
+DOI: <https://doi.org/10.32942/X2Z33G>
+
 
 This document is a fully annotated version of the manual workflow presented in "RedFox_IPM_Analysis.R". 
 
@@ -35,7 +36,7 @@ Before getting into running the code for the analyses, we have to make sure that
 
 ### Retrieving data
 The data from harvested red foxes that forms the core of this analysis, as well as the covariate data on small rodent abundance, are stored in the COAT data portal (<https://data.coat.no/>). 
-The relevant data tables are called "V_redfox_carcass_examination" (version 3: <https://data.coat.no/dataset/v_redfox_carcass_examination_v3>) and "V_rodents_snaptrapping_abundance_regional" (version 5, <https://data.coat.no/dataset/v_rodents_snaptrapping_abundance_regional_v5>). Both are datasets that are under embargo; access tokens can be requested through Dr. Dorothée Ehrich (dorothee.ehrich@uit.no). 
+The relevant data tables are called "V_redfox_carcass_examination" (version 4: <https://data.coat.no/dataset/v_redfox_carcass_examination_v4>), "V_redfox_hunting" (version 3: <https://data.coat.no/dataset/v_redfox_hunting_v3>) and "V_rodents_snaptrapping_abundance_regional" (version 7, <https://data.coat.no/dataset/v_rodents_snaptrapping_abundance_regional_v7>). The datasets that are under embargo; access tokens can be requested through Dr. Dorothée Ehrich (dorothee.ehrich@uit.no). 
 This workflow connects directly to the COAT data portal from R and requires that you save your access token as an environmental variable named "COAT_API".
 *NOTE:* if you want to run the analyses without accessing the COAT data portal, you can download the formatted model input data from our OSF storage: file "Input_Data/IPM_InputData_processed/RedFox_IPM_InputData.rds" on <https://osf.io/756re/>. The R-object contained in this file corresponds to the object `input.data` that appears downstream in the workshop. 
 
@@ -84,7 +85,7 @@ library(patchwork)
 library(coda)
 
 ## Set seed
-mySeed <- 10
+mySeed <- 57
 
 ## Source all functions in "R" folder
 sourceDir <- function(path, trace = TRUE, ...) {
@@ -101,7 +102,7 @@ Each functions is assigned a task in the workflow, and is contained in its own s
 The functions involved in data processing require us to make a range of decisions about how the data should be subsetted and aggregated, such as the numbers of age classes (`Amax`) and years (`Tmax`) to consider in the analyses. These decisions are detailed in the next chunk:
 ```{r, eval = FALSE}
 Amax <- 5 # Number of age classes
-Tmax <- 18  # Number of years
+Tmax <- 20  # Number of years
 minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9) # Summer months (to be removed from "winter harvest")
@@ -118,17 +119,20 @@ embr_end   <- 140 #until, not including
 Next, we have to set the names, versions, directories, and access tokens for the datasets to be retrieved from the COAT data portal (see section "Retrieving data" above for details). Note that the access token for the data portal is extracted from an environmental variable here, but you can also directly assign your token to ``COAT_key`` instead:
 ```{r, eval = FALSE}
 ## set dataset names, versions, and directories, and access
-carcass.dataset.name <- "v_redfox_carcass_examination_v3"
-carcass.dataset.version <- 3
+hunting.dataset.name <- "v_redfox_hunting_v3"
+hunting.dataset.version <- 3
 
-rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v5"
-rodent.dataset.version <- 5
+carcass.dataset.name <- "v_redfox_carcass_examination_v4"
+carcass.dataset.version <- 4
+
+rodent.dataset.name <-"v_rodents_snaptrapping_abundance_regional_v7"
+rodent.dataset.version <- 7
 
 shapefile.dir <- "Data/shapefiles"
 COAT_key <- Sys.getenv("COAT_API")
 ```
 
-The red fox workflow contains a modular analysis, meaning that there are a range of toggles ("switches") that can be use to customize model structure and assumptions. The first set of toggles deals with the use of environmental covariates and temporal random effects fit on different vital rates:
+The red fox workflow contains a modular analysis, meaning that there are a range of toggles ("switches") that can be used to customize model structure and assumptions. The first set of toggles deals with the use of environmental covariates and temporal random effects fit on different vital rates:
 ```{r, eval = FALSE}
 # Covariate toggles
 fitCov.mH <- FALSE # Fit covariates on mH (harvest effort)
@@ -145,14 +149,15 @@ reinCov.VarTana <- TRUE # Calculate the reindeer carcass data count covariate us
 mO.varT <- TRUE
 ```
 
-The next set deal with the inclusion of summer harvest data, specifically whether age information should be used and for which years summer harvest should be included. In our main analysis, we do not use age information from summer harvest as we suspect these to be biased (not representative of the population) and we only include data from summer harvest up to and including 2012 as reporting was unreliable for the later years:
+The next set deal with the inclusion of summer harvest data, specifically whether age information should be used and for which years summer age-at-harvest data should be included. In our main analysis, we do not use age information from summer harvest as we suspect these to be biased (not representative of the population). Instead, we will treat all individuals harvested in summer as "unaged" and add their numbers to the main (winter) harvest counts, assuming a similar age distribution as in the winter harvest. If we wanted to include age-at-harvest data from summer separately, it may be best to only use years 2005-2012, as we know that aging became very biased after that.
 ```{r, eval = FALSE}
 # Age-at-harvest data toggles
-add.sumr.unaged <- FALSE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
+add.sumr.unaged <- TRUE # Add summer harvested individuals as un-aged individuals to the total harvested individuals in winter
 saAH.years <- c(2005:2012) # Years for which the summer age at harvest matrix should be constructed (e.g. years in which summer harvest was aged consistently)
 ```
 
-The final three sets of toggles are related to three key aspects of our integrated population model (IPM): the informative priors for natural mortality / annual survival, the way genetic data is included to inform immigration rate, and the decision to include opportunistic survey data (or not). 
+The next four sets of toggles are related to four key aspects of our integrated population model (IPM): the informative priors for natural mortality / annual survival, the way genetic data is included to inform immigration rate, the decision to include opportunistic survey data (or not), and the modelling of density-dependence and compensatory mechanisms.
+
 The toggle `HoenigPrior`determines whether the prior is set on natural mortality using Tom Porteus' phylogenetic Hoenig model (`TRUE`) or on annual survival probability using estimates from other red fox populations from the published literature. If using the latter, the source of prior information is set using `sPriorSource`. For our main analysis, we choose the option `metaAll`, which refers to a prior derived from a weighted regression of survival probabilities from all relevant populations collated by Devenish-Nelson et al. (2013). The alternatives are `metaSub` (like `metaAll` but using only estimates from populations documented to be not or only lightly harvested), `Bristol` (population of non-harvested urban foxes from Bristol, UK), and `NSweden` (population of lightly harvested foxes from Northern Sweden that are ecologically similar to red foxes in Varanger).
 ```{r, eval = FALSE}
 # Annual survival prior type toggles
@@ -184,6 +189,23 @@ S0.mean.offset <- 0
 S0.sd.factor <- 1
 ```
 
+Finally, our setup provides the possibility to include density-dependence and/or compensatory mechanisms that affect either natural mortality, immigration, or both: 
+```{r, eval = FALSE}
+## Density effects toggles
+DD.mO <- TRUE
+DD.immR <- TRUE
+DDxRodent <- FALSE
+
+## Compensation toggles
+comp.mO <- TRUE
+comp.immR <- FALSE
+comp.RE <- FALSE
+```
+
+For density-dependence, the third toggle (`DDxRodent`) determines whether or not an interactive effect of population density and rodent abundance should be fit in addition to single effects. 
+For compensation, the third toggle (`comp.RE`) determines how harvest compensation is modelled. If `comp.RE = FALSE`, it is modelled as a fixed effect of the log deviance of year-specific harvest mortality (`= log(mH[a,t]) - log(Mu.mH[a]))`). If `comp.RE = TRUE`, a correlated random effect is used instead. 
+
+
 ## Processing and preparation of observational data
 Once the workflow setup is complete, we can begin with processing the raw data and preparing it for input into the IPM analysis. If you are not pulling data from the COAT data portal and instead are working with the formatted input data available from OSF (see "Retrieving data" above for details), you can skip this section. 
 The processing of each dataset is done by one or several custom functions. All functions are in the "R" folder, and we refer to their respective code and roxygen documentation for additional information on how they work. 
@@ -192,8 +214,18 @@ The processing of each dataset is done by one or several custom functions. All f
 # 1) DATA PREPARATION #
 #*********************#
 
-# 1a) Download and reformat carcass data
-#-------------------------------#
+# 1a) Download and reformat carcass data #
+#----------------------------------------#
+
+## Download hunting data (this is the record of foxes hunted, before they end up in the carcass examination lab)
+hunting.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
+                                      COATdataset.name = hunting.dataset.name,
+                                      COATdataset.version = hunting.dataset.version)
+
+## Reformat hunting data
+hunting.data  <- reformatData_hunting(summer_removal = summer_removal,
+                                      hunting.dataset = hunting.data.raw)
+
 
 ## Download carcass data
 carcass.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
@@ -212,11 +244,12 @@ carcass.data <- reformatData_carcass(Amax = Amax,
                                      carcass.dataset = carcass.data.raw,
                                      shapefile.dir = shapefile.dir,
                                      add.sumr.unaged = add.sumr.unaged, 
-                                     saAH.years = saAH.years)
+                                     saAH.years = saAH.years,
+                                     hunting.data = hunting.data)
 
 
 # 1b) Age-at-Harvest data #
-#--------------------------------#
+#-------------------------#
 
 ## Winter AaH data
 wAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$WAaH.matrix, 
@@ -245,7 +278,6 @@ rep.data <- wrangleData_rep(P1.datafile = P1.datafile,
 
 ## Set data paths
 genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities.txt"
-#genetics.datapath <- "Data/RedFox_genetics_immigrant_probabilities_LvarLother.txt"
 
 ## Prepare genetic data
 gen.data <- wrangleData_gen(datapath = genetics.datapath,
@@ -355,6 +387,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  maxPups = 14,
                                  uLim.N = 800,
                                  uLim.Imm = 3000,
+                                 normN = normN,
                                  nLevels.rCov = nLevels.rCov,
                                  standSpec.rCov = standSpec.rCov,
                                  poolYrs.genData = poolYrs.genData,
@@ -369,6 +402,7 @@ input.data <- assemble_inputData(Amax = Amax,
                                  hunter.data = hunter.data, 
                                  surv.priors = surv.priors,
                                  survPriorType = survPriorType)
+
 ```
 If you're working from the readily formatted input data from OSF ("RedFox_IPM_InputData.rds"), you'll want to read this in here instead of running `assemble_inputData`:
 
@@ -378,7 +412,7 @@ input.data <- readRDS("RedFox_IPM_InputData.rds")
 
 We then procced to simulating initial values for the model, and setting MCMC specifications.This gets done within the wrapper `model.setup`, which calls a second function, `simulateInitVals()`. The latter draws initial values for *all* nodes within the IPM, which usually prevents initialization issues when fitting the model. If you change the seed, it may happen that the simulation code ends up simulating less foxes alive than harvested. If that happens, `simulateInitVals()` will throw an error and you should try again with a different seed. 
 
-Another important argument to `setupModel()` is `testRun`. If this is set to TRUE, it will set up for a model test run with only 10 iterations, no thinning, and no burn-in. Otherwise, it will default to 100000 iterations with a burn-in of 37500 and a thinning factor of 8, but these can be changed by manually passing them to the function (see function documentation). The same is true for the number of chains, which defaults to 3 unless otherwise specified. 
+Another important argument to `setupModel()` is `testRun`. If this is set to TRUE, it will set up for a model test run with only 10 iterations, no thinning, and no burn-in. Otherwise, it will default to 200000 iterations with a burn-in of 75000 and a thinning factor of 20, but these can be changed by manually passing them to the function (see function documentation). The same is true for the number of chains, which defaults to 4 unless otherwise specified. 
 
 ```{r, eval = FALSE}
 # 3c) Set up for model run (incl. simulating initial values) #
@@ -400,6 +434,12 @@ model.setup <- setupModel(modelCode = redfox.code,
                           mO.varT = mO.varT,
                           HoenigPrior = HoenigPrior,
                           imm.asRate = imm.asRate,
+                          DD.mO = DD.mO, 
+                          DD.immR = DD.immR,
+                          DDxRodent = DDxRodent,
+                          comp.mO = comp.mO,
+                          comp.immR = comp.immR,
+                          comp.RE = comp.RE,
                           testRun = FALSE,
                           initVals.seed = mySeed
                           )
@@ -424,12 +464,12 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       nburnin = model.setup$mcmcParams$nburn, 
                       thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
-                      setSeed = 0)
+                      setSeed = mySeed)
 
 saveRDS(IPM.out, file = "RedFoxIPM_main.rds")
 ```
 
-A full model run will take on average 2-4 hours depending on the machine you run it on. 
+A full model run will take on average 3-6 hours depending on the machine you run it on. 
 Once the model has finished running, we can check convergence using: 
 
 ```{r, eval = FALSE}
@@ -459,7 +499,7 @@ compareModels(Amax = Amax,
 ```
 
 ## Visualizing basic IPM results
-The primary outputs of the fitted IPM are posterior samples for averages and time-series of vital rates and population sizes, as well as environmental effects and other quantities describing time-variation in population dynamics. The workflow contains two functions for visualizing these results in a variety of different ways:
+The primary outputs of the fitted IPM are posterior samples for averages and time-series of vital rates and population sizes, as well as environmental effects and other quantities describing time-variation in population dynamics. The workflow contains one function for summarising these numerically and two functions for visualizing these results in a variety of different ways:
 ```{r, eval = FALSE}
 
 ###########################################
@@ -468,6 +508,11 @@ The primary outputs of the fitted IPM are posterior samples for averages and tim
 
 IPM.out <- readRDS("RedfoxIPM_main.rds")
 
+## Write posterior summaries to files
+writePostSummaries(MCMC.samples = IPM.out,
+                   Amax = Amax,
+                   minYear = minYear)
+
 ## Plot basic IPM outputs (vital rate & population size estimates)
 plotIPM_basicOutputs(MCMC.samples = IPM.out,
                      nim.data = input.data$nim.data,
@@ -475,19 +520,22 @@ plotIPM_basicOutputs(MCMC.samples = IPM.out,
 
 ## Plot covariate relationships
 plotIPM_covariateEffects(MCMC.samples = IPM.out,
-                        rCov.idx = rCov.idx,
-                        rodentMIN = -1.75, rodentMAX = 4,
-                        reindeerMIN = -1.5, reindeerMAX = 1.5,
-                        AgeClass = 1) 
+                         rCov.idx = rCov.idx,
+                         rodentMIN = -1.75, rodentMAX = 4,
+                         mHdevMIN = -0.6, mHdevMAX = 0.6,
+                         densityMIN = -0.5, densityMAX = 1,
+                         normN = normN,
+                         AgeClass = 1) 
 ```
 All rendered plots are saved in a subfolder "Plots". If you are not running the functions yourself, all the plots can be accessed in the "Figures" folder on OSF (<https://osf.io/756re/files/osfstorage>).
 
 ## Follow-up analyses
-The posterior samples from the fitted IPM become the input for a few different follow-up analyses. 
-This includes transient Life Table Response Experiment (tLTRES), Population Viability Analyses (PVAs), variance decomposition, and posterior correlations. For the details on the analyses, please refer to the preprint / article, and the function documentation. 
+The posterior samples from the fitted IPM become the input for a few different follow-up analyses, including 
+transient Life Table Response Experiment (tLTRES), variance decompositions, and posterior correlations. We also present the setup for Population Viability Analyses (PVAs) here, even though these do not use posterior samples as an input but are instead integrated in the estimation procedure (see below).
+For more background and details on the different analyses, please refer to the preprint / article, and the function documentation. 
 
 ### Transient Life Table Response Experiments (tLTREs)
-tLTREs are tools to quantify the relative importance of changes in different vital rates and population structure to changes in population dynamics, specifically realized population growth rates. There are two different approaches: the random design, which focuses on variation across the entire study period, and the fixed design, which focuses on year-by-year changes. Both require calculation of sensitivities first, followed by the calculation of LTRE contributions. The two toggles in the code below are used to determine whether the decomposition i) should be done at the level of survival probabilities or mortality hazard rates (`HazardRates`) and ii) focus on population age class proportions or absolute number in each age class (`PopStructure`). The workflow both calculates and visualizes sensitivities and LTRE contributions.
+tLTREs are tools to quantify the relative importance of changes in different vital rates and population structure to changes in population dynamics, specifically realized population growth rates. There are two different approaches: the random design, which focuses on variation across the entire study period, and the fixed design, which focuses on year-by-year changes. Both require calculation of transient sensitivities first, followed by the calculation of LTRE contributions. The two toggles in the code below are used to determine whether the decomposition i) should be done at the level of survival probabilities or mortality hazard rates (`HazardRates`) and ii) focus on population age class proportions or absolute number in each age class (`PopStructure`). The workflow both calculates and visualizes sensitivities and LTRE contributions.
 ```{r, eval = FALSE}
 
 #########################
@@ -505,7 +553,6 @@ sensitivities <- calculateSensitivities(paramSamples = paramSamples,
 ## Plot sensitivities
 plotSensitivities(sensitivities = sensitivities,
                   Amax = Amax)
-
 
 ## Set LTRE options
 HazardRates <- TRUE
@@ -535,6 +582,7 @@ plotLTRE_fixedDesign(LTRE_results = fixedLTRE,
                      Amax = Amax, Tmax = Tmax, minYear = minYear, 
                      HazardRates = HazardRates, 
                      PopStructure = PopStructure)
+  
 ```
 
 ### Variance decomposition for natural mortality
@@ -544,11 +592,12 @@ In the supplementary of our preprint / article, we present a figure (Figure S1.8
 ## Plot decomposition of mO into covariates and random effect
 plotVariance_comp_mO(MCMC.samples = IPM.out, 
                      Tmax = Tmax,
-                     minYear = minYear)
+                     minYear = minYear,
+                     normN = normN)
 ```
 
 ### Checking for parameter correlations
-The original study did not mechanistically account for correlations among vital rates and density-feedbacks, but post-hoc correlations of IPM posteriors can give some insights into potential mechanisms at play and the following function does this for a selection of parameter pairs: 
+In the original study we explicitly accounted for density-dependence in natural mortality of the first age class and immigration rates, as well as potential correlation between natural and harvest mortality. Post-hoc correlations of IPM posteriors can give some insights into potential additional mechanisms at play and the following function does this for a selection of parameter pairs: 
 ```{r, eval = FALSE}
 
 ## Calculate post-hoc parameter correlations to check for signs of density dependence
@@ -556,7 +605,7 @@ calculate_p.hoc_param.corr(MCMC.samples = IPM.out,
                            Tmax = Tmax)
 
 ```
-We do note that this approach to testing for density-dependence and demographic compensation is not ideal; while practical and straightforward to implement, correlations made based on posterior samples will always be a mixture of true "process correlation" and MCMC sampling correlations. This should always be considered when interpreding results. 
+We do note that this approach to testing for density-dependence and demographic compensation is not ideal; while practical and straightforward to implement, correlations made based on posterior samples will always be a mixture of true "process correlation" and MCMC sampling correlations. This should always be considered when interpreting results. 
 
 ### Population viability analyses
 Our study also included Population Viability Analyses (PVAs), which are forward-projections of the population model beyond the duration of the study period. We implemented the PVAs as fully integrated, i.e. PVA are performed as the models are fitted. As such, fitting the models used for PVA was done using alternative code also included in this repository. The "master script" for running the IPM-PVA analysis can be found in "RedFox_IPM_Analysis_PVA.R" and is largely equivalent to the workflow we have presented above. The main differences for running the joint IPM-PVA workflow relative to the main workflow documented above are:
@@ -575,34 +624,21 @@ pert.mO <- FALSE
 pert.S0 <- FALSE
 pert.immR <- FALSE
 pert.rodent <- FALSE
-pert.reindeer <- FALSE
 
 factor.mH <- 1.5
 factor.mO <- 1
 factor.S0 <- 1
 factor.immR <- 1
 factor.rodent <- 1
-factor.reindeer <- 1
-
-if(pert.mH & factor.mH == 0){
-  pert.mHs <- TRUE
-  factor.mHs <- 0
-}else{
-  pert.mHs <- FALSE
-  factor.mHs <- 1
-}
 
 perturbVecs <- setupPerturbVecs_PVA(Tmax = Tmax, Tmax_sim = Tmax_sim,
                                     pert.mH = pert.mH, factor.mH = factor.mH,
                                     pert.mO = pert.mO, factor.mO = factor.mO,
                                     pert.S0 = pert.S0, factor.S0 = factor.S0,
-                                    pert.mHs = pert.mHs, factor.mHs = factor.mHs,
                                     pert.immR = pert.immR, factor.immR = factor.immR,
-                                    pert.rodent = pert.rodent, factor.rodent = factor.rodent,
-                                    pert.reindeer = pert.reindeer, factor.reindeer = factor.reindeer)
+                                    pert.rodent = pert.rodent, factor.rodent = factor.rodent)
 ```
 First, we define a set of logical variables that determine whether any perturbation is applied (`pert.[parameter]` variables). In the example above, we opt to perturb harvest mortality (`mH`), so `pert.mH <- TRUE`. Next, we define the magnitude of the perturbation via the `factor.[parameter]` variables. The default (= no perturbation) is 1. For increasing harvest mortality by e.g. 50 %, we set `factor.mH <- 1.5`. 
-While it is technically possible to have separate manipulation of summer harvest mortality (`mHs`), the pipeline is currently setup to not manipulate this parameter except for the scenario where there is no harvest at all (`pert.mH & factor.mH == 0`). 
 The function `setupPerturbVecs_PVA()`then takes the information on perturbation provided by the user, and makes a set of perturbation vectors that have one entry per year in the population model / simulation. 
 
 In addition to the a-priori set perturbation factors, our setup also supports dynamic perturbation factors, i.e. perturbations that happen in response to specific conditions encountered during the simulation. We illustrate this with an example of perturbation of harvest mortality in response to small rodent abundance. Rodent abundance is used as a covariate in the model, and during simulation, a new value is predicted each year based on a second-order autoregressive model (see Nimble code in "R/writeCode_redfoxIPM_PVA.R") and we use a custom NimbleFunction to set the year-specific perturbation factor based on the newly drawn rodent covariate value: 
@@ -640,6 +676,6 @@ The PVAs themselves is often presented as a (graphical) comparison between forec
 
 For more details on the implementation of the PVAs, refer to "RedFox_IPM_Analysis_PVA.R". 
 
-Note that ss of yet, the PVAs are not integrated into the targets workflow.
+Note that as of yet, the PVAs are not integrated into the targets workflow.
 
 
