@@ -448,6 +448,10 @@ compareModels(Amax = Amax,
 IPM.out <- readRDS("RedfoxIPM_main.rds")
 #IPM.out <- readRDS("RedfoxIPM_ModelRun.rds")
 
+## Write posterior summaries to files
+writePostSummaries(MCMC.samples = IPM.out,
+                   Amax = Amax,
+                   minYear = minYear)
 
 ## Plot basic IPM outputs (vital rate & population size estimates)
 plotIPM_basicOutputs(MCMC.samples = IPM.out,
