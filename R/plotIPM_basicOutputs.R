@@ -177,7 +177,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   # Population size panel
   legend.pos.top <- 0.9*max(subset(results.sum, ParamName == "N.tot")$uCI)
   p.N_time <- results.sum %>%
-    dplyr::filter(ParamName == "N.tot" & Year < minYear+Tmax) %>%
+    dplyr::filter(ParamName == "N.tot" & Year < minYear+Tmax+1) %>%
     ggplot(aes(x = Year)) + 
     geom_line(aes(y = median), color = "#4D004B") + 
     geom_ribbon(aes(ymin = lCI, ymax = uCI), fill = "#4D004B", alpha = 0.5) + 
@@ -196,18 +196,15 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     pData_w <- nim.data$pData_w
   }
   
-  p.H_time <- data.frame(Hcount = c(colSums(nim.data$C_w)/pData_w, colSums(nim.data$C_s)/nim.data$pData_s), 
-                         Year = c(as.numeric(colnames(nim.data$C_w)), as.numeric(colnames(nim.data$C_s))),
-                         Period = c(rep("Oct-May", ncol(nim.data$C_w)), rep("Jul-Sep", ncol(nim.data$C_s)))) %>%
+  p.H_time <- data.frame(Hcount = colSums(nim.data$C_w)/nim.data$pData_w, 
+                         Year = as.numeric(colnames(nim.data$C_w))) %>%
     dplyr::mutate(Year_offset = Year + 0.5) %>% 
-    ggplot(aes(x = Year_offset, y = Hcount, group = Period)) +
-    geom_bar(aes(fill = Period), stat = "identity", position = "dodge") + 
+    ggplot(aes(x = Year_offset, y = Hcount)) +
+    geom_bar(fill = "#005F94FF", stat = "identity", position = "dodge") + 
     scale_x_continuous(breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
-    scale_fill_manual(values = c("#BED68AFF", "#005F94FF")) + 
     ylab("# Harvested (females)") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 
-                       axis.text.x = element_blank(), axis.title.x = element_blank(),
-                       legend.position = c(0.1, 0.7))
+                       axis.text.x = element_blank(), axis.title.x = element_blank())
   
   # Environmental covariates panel (Not very pretty coding but it works..)
   #  making a dataframe of what I want to plot, I have to add time manually because its not in input.data
@@ -268,7 +265,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
       key = draw_key_polygon) +
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 
                        axis.text.x = element_text(angle = 45, vjust = 0.5),
-                       legend.position = c(0.83, 0.78),
+                       legend.position = c(0.725, 0.80),
                        legend.key.size = unit(0.35, 'cm'))
   
   
@@ -282,12 +279,12 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   
   # Total population panel
   p.n_time <- results.pp %>%
-    dplyr::filter(ParamName == "N" & Year < minYear+Tmax) %>%
+    dplyr::filter(ParamName == "N" & Year < (minYear+Tmax+1)) %>%
     ggplot(aes(x = Year, y = median, group = Age)) + 
     geom_area(aes(fill = Age)) + 
     ggtitle("a) Population composition") +
     scale_fill_manual(values = plot.colors.age) + 
-    scale_x_continuous(breaks = c(minYear:(minYear+Tmax-1)), labels = c(minYear:(minYear+Tmax-1))) + 
+    scale_x_continuous(breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
     ylab("Proportion/age class (females)") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 
                        axis.text.x = element_text(angle = 45, vjust = 0.5),
@@ -295,12 +292,12 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   
   # Breeding population panel
   p.b_time <- results.pp %>%
-    dplyr::filter(ParamName == "B" & Year < minYear+Tmax & Age != "0") %>%
+    dplyr::filter(ParamName == "B" & Year < minYear+Tmax+1 & Age != "0") %>%
     ggplot(aes(x = Year, y = median, group = Age)) + 
     geom_area(aes(fill = Age)) + 
     ggtitle("b) Breeding population composition") + 
     scale_fill_manual(values = plot.colors.age[2:5]) + 
-    scale_x_continuous(breaks = c(minYear:(minYear+Tmax-1)), labels = c(minYear:(minYear+Tmax-1))) + 
+    scale_x_continuous(breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
     ylab("Proportion/age class (females)") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
   
@@ -311,13 +308,13 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   
   ## Local recruits vs. immigrants
   p.RvsImm_time <- results.sum %>%
-    dplyr::filter(ParamName %in% c("R.tot", "Imm") & Year < minYear+Tmax & Year > minYear) %>%
+    dplyr::filter(ParamName %in% c("R.tot", "Imm") & Year < minYear+Tmax+1 & Year > minYear) %>%
     ggplot(aes(x = Year, group = ParamName)) + 
     geom_line(aes(y = median, color = ParamName)) + 
     geom_ribbon(aes(ymin = lCI, ymax = uCI, fill = ParamName), alpha = 0.5) + 
     scale_color_manual(name = "Origin", labels = c("Immigrants", "Local Recruits"), values = c("#E79069FF", "#5DBE85FF")) +
     scale_fill_manual(name = "Origin", labels = c("Immigrants", "Local Recruits"), values = c("#E79069FF", "#5DBE85FF")) +
-    scale_x_continuous(breaks = c(minYear:(minYear+Tmax-1)), labels = c(minYear:(minYear+Tmax-1))) + 
+    scale_x_continuous(breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
     ylab("Number of females") + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 
                        axis.text.x = element_text(angle = 45, vjust = 0.5))
@@ -329,13 +326,14 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
   
   ## Vital rates over time
   results.sum.VR <- results.sum %>%
-    dplyr::filter(ParamName %in% c("S", "mH", "mO", "Psi", "rho", "mHs", "immR") & Year < minYear+Tmax & Age %in% c(NA, 1)) %>%
-    dplyr::mutate(ParamName = factor(ParamName, levels = c("S", "mH", "mO", "Psi", "rho", "mHs", "immR"))) %>%
-    dplyr::filter(!(ParamName == "mHs" & Year == minYear))
+    dplyr::filter(ParamName %in% c("S", "mH", "mO") & Year < minYear+Tmax |
+                    ParamName %in% c("Psi", "rho", "immR") & dplyr::between(Year, minYear+1, minYear+Tmax+1)) %>%
+    dplyr::filter(Age %in% c(NA, 1)) %>%
+    dplyr::mutate(ParamName = factor(ParamName, levels = c("S", "mH", "mO", "Psi", "rho", "immR")))
   
-  VR.labs <- c("Annual survival", "Winter harvest mortality", "Natural mortality", "Pregnancy rate (1 year old)", "Fetus number (1 year old)", "Summer harvest mortality", "Immigration rate")
-  names(VR.labs) <- c("S", "mH", "mO", "Psi", "rho", "mHs", "immR")
-  VR.cols <- c(plot.colors.param[1:5], "#785F94", plot.colors.param[7])
+  VR.labs <- c("Annual survival", "Harvest mortality", "Natural mortality", "Pregnancy rate (1 year old)", "Fetus number (1 year old)", "Immigration rate")
+  names(VR.labs) <- c("S", "mH", "mO", "Psi", "rho", "immR")
+  VR.cols <- c(plot.colors.param[1:5], plot.colors.param[7])
   
   p.VRs_time <- results.sum.VR %>%
     ggplot(aes(x = Year, group = ParamName)) + 
@@ -343,7 +341,7 @@ plotIPM_basicOutputs <- function(MCMC.samples, nim.data, Amax, Tmax, minYear, lo
     geom_ribbon(aes(ymin = lCI, ymax = uCI, fill = ParamName), alpha = 0.5) + 
     scale_color_manual(values = VR.cols) +
     scale_fill_manual(values = VR.cols) +
-    scale_x_continuous(breaks = c(minYear:(minYear+Tmax-1)), labels = c(minYear:(minYear+Tmax-1))) + 
+    scale_x_continuous(breaks = c(minYear:(minYear+Tmax)), labels = c(minYear:(minYear+Tmax))) + 
     ylab("Estimate") + 
     facet_wrap(~ ParamName, ncol = 1, scales = "free_y", labeller = labeller(ParamName = VR.labs)) + 
     theme_bw() + theme(panel.grid.minor = element_blank(), panel.grid.major.y = element_blank(), 

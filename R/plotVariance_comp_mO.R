@@ -13,11 +13,7 @@ plotVariance_comp_mO <- function(MCMC.samples, Tmax, minYear, normN){
   
   sam.mat <- as.matrix(MCMC.samples)
 
-  # For natural mortality there is one covariate/effect, i.e. the formula is: 
-  # mO[a, t] <- exp(log(Mu.mO[a]) + betaR.mO*RodentAbundance[t+1] + epsilon.mO[t])
-  # One can choose any age here because the covariates and random effect are modelled independent of age and age is therefore cancelled out
-  # we just choose age class 2 for now
-  a <- 2
+  a <- 1
   testData.mO <- data.frame()
   nSamples <- nrow(sam.mat)
 
