@@ -106,7 +106,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") +
     scale_fill_manual(values = plot.colors) + 
     scale_color_manual(values = plot.colors)  + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
     geom_hline(yintercept = 0, linetype = 'dotted') + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5)) 
@@ -123,7 +123,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") +
     scale_fill_manual(values = plot.colors) + 
     scale_color_manual(values = plot.colors)  + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5)) 
   
@@ -139,7 +139,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") +
     scale_fill_manual(values = plot.colors) + 
     scale_color_manual(values = plot.colors)  + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5)) 
   
@@ -163,7 +163,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
       xlab("Year") + 
       scale_fill_manual(values = S.colors, labels = S.labels) + 
       scale_color_manual(values = S.colors, labels = S.labels) + 
-      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
       theme_bw() + 
       theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -180,7 +180,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
       xlab("Year") + 
       scale_fill_manual(values = mH.colors, labels = mH.labels) + 
       scale_color_manual(values = mH.colors, labels = mH.labels) + 
-      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
       theme_bw() + 
       theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -195,7 +195,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
       xlab("Year") + 
       scale_fill_manual(values = mO.colors, labels = mO.labels) + 
       scale_color_manual(values = mO.colors, labels = mO.labels) + 
-      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
       theme_bw() + 
       theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
   }
@@ -211,7 +211,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") + 
     scale_fill_manual(values = Psi.colors, labels = Psi.labels) + 
     scale_color_manual(values = Psi.colors, labels = Psi.labels) + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -226,7 +226,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") + 
     scale_fill_manual(values = rho.colors, labels = rho.labels) + 
     scale_color_manual(values = rho.colors, labels = rho.labels) + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -246,7 +246,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") + 
     scale_fill_manual(values = n.colors, labels = rho.labels) + 
     scale_color_manual(values = n.colors, labels = rho.labels) + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -274,7 +274,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") +
     scale_fill_manual(values = plot.colors) + 
     scale_color_manual(values = plot.colors)  + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))+1) + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5)) 
   
@@ -300,7 +300,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
       xlab("Year") + 
       scale_fill_manual(values = S.colors, labels = S.labels) + 
       scale_color_manual(values = S.colors, labels = S.labels) + 
-      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1)+1)) + 
       theme_bw() + 
       theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -317,7 +317,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
       xlab("Year") + 
       scale_fill_manual(values = mH.colors, labels = mH.labels) + 
       scale_color_manual(values = mH.colors, labels = mH.labels) + 
-      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1)+1)) + 
       theme_bw() + 
       theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -332,7 +332,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
       xlab("Year") + 
       scale_fill_manual(values = mO.colors, labels = mO.labels) + 
       scale_color_manual(values = mO.colors, labels = mO.labels) + 
-      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+      scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1)+1)) + 
       theme_bw() + 
       theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -349,7 +349,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") + 
     scale_fill_manual(values = Psi.colors, labels = Psi.labels) + 
     scale_color_manual(values = Psi.colors, labels = Psi.labels) + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1)+1)) + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -364,7 +364,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") + 
     scale_fill_manual(values = rho.colors, labels = rho.labels) + 
     scale_color_manual(values = rho.colors, labels = rho.labels) + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1)+1)) + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
@@ -384,7 +384,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
     xlab("Year") + 
     scale_fill_manual(values = n.colors, labels = n.labels) + 
     scale_color_manual(values = n.colors, labels = n.labels) + 
-    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1))) + 
+    scale_x_continuous(breaks = c(minYear:max(contData_sum$y1)), labels = c(minYear:max(contData_sum$y1)+1)) + 
     theme_bw() + 
     theme(legend.title = element_blank(), panel.grid = element_blank(), axis.text.x = element_text(angle = 45, vjust = 0.5))
 
