@@ -127,8 +127,8 @@ comp.RE <- FALSE
 # 1) DATA PREPARATION #
 #*********************#
 
-# 1a) Download and reformat carcass data
-#-------------------------------#
+# 1a) Download and reformat carcass data #
+#----------------------------------------#
 
 ## Download hunting data (this is the record of foxes hunted, before they end up in the carcass examination lab)
 hunting.data.raw <- downloadData_COAT(COAT_key = COAT_key, 
@@ -163,7 +163,7 @@ carcass.data <- reformatData_carcass(Amax = Amax,
 
 
 # 1b) Age-at-Harvest data #
-#--------------------------------#
+#-------------------------#
 
 ## Winter AaH data
 wAaH.data <- wrangleData_AaH(AaH.datafile = carcass.data$WAaH.matrix, 
@@ -482,7 +482,6 @@ sensitivities <- calculateSensitivities(paramSamples = paramSamples,
 ## Plot sensitivities
 plotSensitivities(sensitivities = sensitivities,
                   Amax = Amax)
-
 
 ## Set LTRE options
 HazardRates <- TRUE
