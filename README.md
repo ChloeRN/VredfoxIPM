@@ -20,5 +20,17 @@ The folder "vignettes" contains a richly documented "walkthrough" of the manual 
 Auxiliary data, computed results, and finished plots and other visualizations can be found on OSF: 
 <https://osf.io/756re/>
 
-The scientific article associated with this repository and presenting the workflow and results on Varanger red foxes will shortly be made available as a pre-print. 
+The scientific article associated with this repository and presenting the workflow and results on Varanger red foxes is available as a pre-print here: <https://ecoevorxiv.org/repository/view/7489/>
+
+We extensively used GitHub issues to document model development, sensitivity analyses, etc.  
+Some topics potentially of interest include: 
+
+- <https://github.com/ChloeRN/VredfoxIPM/issues/78> (incl. sub-issues): Summary of model revisions v1 to v2
+- <https://github.com/ChloeRN/VredfoxIPM/issues/81> & <https://github.com/ChloeRN/VredfoxIPM/issues/83>: Stepwise addition of density-dependence and compensatory mechanisms
+- <https://github.com/ChloeRN/VredfoxIPM/issues/82>: Comparing models with/without secondary summer census and relaxing assumption that there is no natural mortality during summer
+- <https://github.com/ChloeRN/VredfoxIPM/issues/87>: Optimizing density-dependent IPMs for PVA projections
+- <https://github.com/ChloeRN/VredfoxIPM/issues/86>: Modelling immigration by rate vs. numbers
+- <https://github.com/ChloeRN/VredfoxIPM/issues/80>: Exploring different options for rodent covariate (species-aggregated vs. lemmings and voles separately)
+- <https://github.com/ChloeRN/VredfoxIPM/issues/79>: Testing the effects of including/excluding additional environmental covariate for reindeer carcass availability
+- <https://github.com/ChloeRN/VredfoxIPM/issues/90>: Relaxing assumption that all immigrants are foxes in their first year of life
 
