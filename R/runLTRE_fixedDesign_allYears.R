@@ -63,7 +63,7 @@ runLTRE_fixedDesign_allYears <- function(paramSamples, Amax, Tmax, HazardRates =
   
   
   ## Save and return
-  save(results_allYears, file = "RedFoxIPM_LTREresults_fixedDesign.rds")
+  saveRDS(results_allYears, file = "RedFoxIPM_LTREresults_fixedDesign.rds")
   return(results_allYears)
 }
   
