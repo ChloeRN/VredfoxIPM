@@ -186,7 +186,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
 
     # Natural mortality
     mO.params <- paste0("mO_", 1:Amax)
-    mO.labels <- expression(m[1]^H, m[2]^H, m[3]^H, m[4]^H, m[5]^H)
+    mO.labels <- expression(m[1]^O, m[2]^O, m[3]^O, m[4]^O, m[5]^O)
     mO.colors <- c(plot.colors[2], alpha(plot.colors[2], 0.8), alpha(plot.colors[2], 0.6), alpha(plot.colors[2], 0.4), alpha(plot.colors[2], 0.2))
     
     p.stacklines.mO <- ggplot(subset(contData, Variable %in% mO.params), aes(x = y1, y = abs(median), group = Variable)) + 
@@ -323,7 +323,7 @@ plotLTRE_fixedDesign <- function(LTRE_results, Amax, Tmax, minYear, HazardRates,
 
     # Natural mortality
     mO.params <- paste0("mO_", 1:Amax)
-    mO.labels <- expression(m[1]^H, m[2]^H, m[3]^H, m[4]^H, m[5]^H)
+    mO.labels <- expression(m[1]^O, m[2]^O, m[3]^O, m[4]^O, m[5]^O)
     mO.colors <- plot.colors[1:Amax]
     
     p.ribbon.mO <- ggplot(subset(contData, Variable %in% mO.params), aes(x = y1, y = median, group = Variable)) + 
