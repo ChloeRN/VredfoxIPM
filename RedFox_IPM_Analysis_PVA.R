@@ -405,7 +405,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       nburnin = model.setup$mcmcParams$nburn, 
                       thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
-                      setSeed = mySeed)
+                      setSeed = rep(mySeed, model.setup$mcmcParams$nchains))
 Sys.time() - t1
 
 saveRDS(IPM.out, file = "RedFoxIPM_sim_baseline.rds") # No perturbation

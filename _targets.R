@@ -364,7 +364,7 @@ list(
                nburnin = model.setup$mcmcParams$nburn, 
                thin = model.setup$mcmcParams$nthin, 
                samplesAsCodaMCMC = TRUE, 
-               setSeed = mySeed)
+               setSeed = rep(mySeed, model.setup$mcmcParams$nchains))
   ),
   
   # Save model output as .rds

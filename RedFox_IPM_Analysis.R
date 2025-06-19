@@ -24,7 +24,7 @@ minYear <- 2004 # First year to consider
 maxAge_yrs <- 10 # Age of the oldest female recorded
 summer_removal <- c(6,7,8,9)    #removal of summer months: numerical months to be removed from winter age at harvest data
 winter_removal <- c(1:6, 10:12) #removal of winter months: numerical months to be removed from summer age at harvest data
-area_selection<- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
+area_selection <- c("Inner", "BB",  "Tana")# choosing varanger sub area ("Inner" / "BB" / "Tana)     ((BB = Batsfjord and Berlevag areas))
 # start and end of placental scars and embryo sample periods (julian day)
 plac_start <- 180 #including
 plac_end   <- 80  #until, not including
@@ -369,7 +369,7 @@ IPM.out <- nimbleMCMC(code = model.setup$modelCode,
                       nburnin = model.setup$mcmcParams$nburn, 
                       thin = model.setup$mcmcParams$nthin, 
                       samplesAsCodaMCMC = TRUE, 
-                      setSeed = mySeed)
+                      setSeed = rep(mySeed, model.setup$mcmcParams$nchains))
 Sys.time() - t1
 
 
