@@ -51,7 +51,7 @@ Next, we want to make sure you have all the dependencies installed.
 This includes all R packages needed for retrieving and wrangling data, running analyses, and visualizing results, etc. For each one, the code below checks if it is available, and installs it if not.
 
 ```{r, message = FALSE, warning = FALSE}
-pkg.list <- c("ckanr", "coda", "dplyr", "MCMCvis", "metafor", "patchwork", "purr", "remotes", "reshape2", "sf", "truncnorm")
+pkg.list <- c("ckanr", "coda", "cowplot", "dplyr", "ggplot2", "ggspatial", "MCMCvis", "metafor", "patchwork", "purr", "remotes", "reshape2", "sf", "tidyterra", "truncnorm")
 for(i in 1:length(pkg.list)){
   if(!(pkg.list[i] %in% installed.packages())){
     install.packages(pkg.list[i], repos = "http://cran.us.r-project.org")
