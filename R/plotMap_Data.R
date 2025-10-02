@@ -1,6 +1,17 @@
-
+#' Plot raw data on a map
+#'
+#' @param carcass.data a list containing processed carcass data. Output of reformatData_carcass().
+#' @param rodent.data a list containing processed rodent data. Output of reformatData_rodent(). 
+#' @param genetics.datapath character string. Path to where raw genetic data is stored. 
+#' @param pups.datapath character string. Path to where raw pup observation data is stored.
+#'
+#' @returns a vector of plot file names. The plots are saved into the "Plots" folder. 
+#' @export
+#'
+#' @examples
+#' 
 plotMap_Data <- function(carcass.data, rodent.data,
-                         genetics.datapath, pups.datapath,
+                         genetics.datapath, pups.datapath
                          ){
   
   #---------carcass data-------------
@@ -28,8 +39,8 @@ plotMap_Data <- function(carcass.data, rodent.data,
   
   
   gensamples <- data.frame(site = c("iesjavri", "sorvaranger", "nordkinn"),
-                           lat  = c(69.73, 69.897, 70.72 ),
-                           long = c(24.63, 29.072, 27.7),
+                           lat  = c(69.78, 69.897, 70.72 ),
+                           long = c(24.73, 29.072, 27.7),
                            n    = c(158, 8, 28 ),
                            dist = c("", "", ""))
   
