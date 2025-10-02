@@ -8,7 +8,10 @@ library(purrr)
 library(dplyr)
 library(metafor)
 library(patchwork)
+library(cowplot)
 library(coda)
+library(ggspatial)
+library(tidyterra)
 
 #**********#
 # 0) SETUP #

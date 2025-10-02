@@ -10,7 +10,8 @@
 #' Continuous data are provided as total sums of individuals across all species
 #' and as sums weighed by species (voles vs. lemmings, .stsp). 
 #' Note that the time indices are shifted forward to represent that reproduction
-#' is a function of past rodent abundance.
+#' is a function of past rodent abundance. Also contains the dataframe stor that
+#' is used for visualizing data on a map. 
 #' @export
 #'
 #' @examples
@@ -122,7 +123,9 @@ return(list(cont.wintvar          =   agvar_winter$st.tot,      #winter varanger
             cat2.fallstor         =   agstor_fall$cat2 + 1,   #fall storskala 2 factors
             
             YearInfo.wint         =   paste0("fall ", agvar_winter$start_hunting_year, " - spring ", agvar_winter$start_hunting_year + 1),
-            YearInfo.fall         =   paste0("fall ", agstor_fall$start_hunting_year)))
+            YearInfo.fall         =   paste0("fall ", agstor_fall$start_hunting_year),
+            
+            stor = stor))
 
 }
 

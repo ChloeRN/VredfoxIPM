@@ -14,7 +14,8 @@
 #' @param saAH.years a vector of years for which the summer age at harvest matrix should be constructed
 #' @param hunting.data a dataframe containing the reported numbers of hunted foxes in total and for both seasons
 #'
-#' @return a list containing the age-at-harvest matrix and dataframes with embryo count (P1var) and placental scar presence-absence (P2var) data.
+#' @return a list containing the age-at-harvest matrix and dataframes with embryo count (P1var) and placental scar presence-absence (P2var) data. 
+#' Also contains variable f1var needed for visualizing data on a map. 
 #' @export
 #'
 #' @examples
@@ -284,7 +285,8 @@ reformatData_carcass <- function (Amax, summer_removal, winter_removal, area_sel
   carcassData <- list(WAaH.matrix = varFC2,
                       SAaH.matrix = svarFC2,
                       P1var = P1var,
-                      P2var = P2var)
+                      P2var = P2var,
+                      fvar1 = fvar1)
   
   #=== return ===
   return(carcassData)
