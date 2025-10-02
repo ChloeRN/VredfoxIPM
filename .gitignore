@@ -19,6 +19,9 @@
 # pptx files
 *.pptx
 
+# png files
+*.png 
+
 # Specific folders
 /Data/shapefiles/
 /Data/shapefiles/*
