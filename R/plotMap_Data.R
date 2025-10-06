@@ -81,7 +81,7 @@ plotMap_Data <- function(carcass.data, rodent.data,
   
   # ---- Dummy coordinates for map annotation ----#
   
-  names_loc <- data.frame(label = c("Nordkinn", "Ifjordfjellet", "Varanger Penninsula"),
+  names_loc <- data.frame(label = c("Nordkinn", "Ifjordfjellet", "Varanger Peninsula"),
                           lat  = c(71.05, 70.54, 70.8),
                           long = c(27.2, 27.5, 30.4),
                           dist = c("", "", ""))
